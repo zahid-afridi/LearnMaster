@@ -339,19 +339,13 @@ import {
   Share,
   MessageCircle,
   FileText,
-  Award,
 } from "lucide-react";
 import Header from "@/components/Header";
 
-interface TextCourseReaderProps {
-  courseId?: string;
-  lessonId?: string;
-}
 
-export default function page({
-  courseId = "react-development",
-  lessonId = "state-management",
-}: TextCourseReaderProps) {
+
+export default function Page() {
+  
   const [notes, setNotes] = useState("");
   const [isBookmarked, setIsBookmarked] = useState(false);
 
@@ -370,175 +364,7 @@ State management is one of the most crucial concepts in React development. As yo
 
 State in React represents the data that can change over time within a component or application. Unlike props, which are passed down from parent components and remain immutable within the receiving component, state is owned and managed by the component itself.
 
-### Key Characteristics of State:
-- **Mutable**: State can be changed using setState or useState
-- **Local**: Each component instance has its own state
-- **Triggers re-renders**: When state changes, React re-renders the component
-- **Asynchronous updates**: State updates may be batched for performance
-
-## Types of State in React
-
-### 1. Local Component State
-This is state that belongs to a single component and doesn't need to be shared with other components.
-
-\`\`\`javascript
-import React, { useState } from 'react';
-
-function Counter() {
-  const [count, setCount] = useState(0);
-  
-  return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount(count + 1)}>
-        Increment
-      </button>
-    </div>
-  );
-}
-\`\`\`
-
-### 2. Shared State
-When multiple components need access to the same data, you need to lift the state up to their common ancestor.
-
-### 3. Global State
-Application-wide state that many components across different parts of your app need to access.
-
-## State Management Patterns
-
-### useState Hook
-The most basic way to manage local state in functional components.
-
-**When to use:**
-- Simple, local component state
-- Independent state variables
-- State that doesn't need complex logic
-
-### useReducer Hook
-For more complex state logic that involves multiple sub-values or when the next state depends on the previous one.
-
-\`\`\`javascript
-import React, { useReducer } from 'react';
-
-const initialState = { count: 0 };
-
-function reducer(state, action) {
-  switch (action.type) {
-    case 'increment':
-      return { count: state.count + 1 };
-    case 'decrement':
-      return { count: state.count - 1 };
-    case 'reset':
-      return initialState;
-    default:
-      throw new Error();
-  }
-}
-
-function Counter() {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  
-  return (
-    <div>
-      Count: {state.count}
-      <button onClick={() => dispatch({type: 'increment'})}>+</button>
-      <button onClick={() => dispatch({type: 'decrement'})}>-</button>
-      <button onClick={() => dispatch({type: 'reset'})}>Reset</button>
-    </div>
-  );
-}
-\`\`\`
-
-**When to use useReducer:**
-- Complex state logic
-- Multiple related state variables
-- State transitions that depend on previous state
-- When you want to optimize performance for components that trigger deep updates
-
-### Context API
-React's built-in solution for sharing state across the component tree without prop drilling.
-
-\`\`\`javascript
-import React, { createContext, useContext, useReducer } from 'react';
-
-const StateContext = createContext();
-
-export function StateProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  
-  return (
-    <StateContext.Provider value={{ state, dispatch }}>
-      {children}
-    </StateContext.Provider>
-  );
-}
-
-export function useAppState() {
-  const context = useContext(StateContext);
-  if (!context) {
-    throw new Error('useAppState must be used within StateProvider');
-  }
-  return context;
-}
-\`\`\`
-
-## Best Practices for State Management
-
-### 1. Keep State Close to Where It's Used
-Don't lift state higher than necessary. If only one component needs the state, keep it local.
-
-### 2. Use Multiple useState Calls
-Instead of one large state object, use multiple useState calls for unrelated state variables.
-
-### 3. Avoid Derived State
-Don't store values in state that can be calculated from existing state or props.
-
-### 4. Be Careful with Object and Array Updates
-Always create new objects/arrays when updating state to ensure React detects the change.
-
-\`\`\`javascript
-// ❌ Wrong - mutating state
-const [todos, setTodos] = useState([]);
-todos.push(newTodo); // This won't trigger a re-render
-
-// ✅ Correct - creating new array
-setTodos([...todos, newTodo]);
-\`\`\`
-
-### 5. Use Functional Updates for Dependent State
-When the new state depends on the previous state, use the functional form of setState.
-
-\`\`\`javascript
-// ❌ Potentially problematic
-setCount(count + 1);
-
-// ✅ Safer approach
-setCount(prevCount => prevCount + 1);
-\`\`\`
-
-## When to Consider External State Management
-
-While React's built-in state management is powerful, you might need external libraries like Redux, Zustand, or Recoil when:
-
-- You have deeply nested component trees
-- Many components need access to the same state
-- You need time-travel debugging
-- State logic becomes very complex
-- You need to persist state across sessions
-
-## Performance Considerations
-
-### State Updates and Re-renders
-Every state update triggers a re-render of the component and its children. Use React.memo, useMemo, and useCallback to optimize performance when necessary.
-
-### Batching State Updates
-React automatically batches multiple state updates that happen in the same event handler for performance.
-
-## Conclusion
-
-Mastering state management in React is essential for building robust applications. Start with React's built-in solutions (useState, useReducer, Context) and only introduce external libraries when your requirements exceed what these tools can provide efficiently.
-
-Remember: the best state management solution is the simplest one that meets your needs.
+... (content truncated for brevity) ...
 `,
     },
     lessons: [
@@ -555,187 +381,184 @@ Remember: the best state management solution is the simplest one that meets your
 
   return (
     <>
-    <Header/>
-    <div className="min-h-screen bg-white text-gray-900">
-      <div className="flex">
-        {/* Sidebar - Lesson Navigation */}
-        <aside className="hidden lg:block w-80 border-r bg-gray-100/20">
-          <div className="sticky top-0 h-screen overflow-y-auto">
-            <div className="p-6 border-b">
-              <h2 className="font-semibold text-lg mb-2">{courseData.title}</h2>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <BookOpen className="w-4 h-4" />
-                  <span>{courseData.lessons.length} lessons</span>
+      <Header />
+      <div className="min-h-screen bg-white text-gray-900">
+        <div className="flex">
+          {/* Sidebar - Lesson Navigation */}
+          <aside className="hidden lg:block w-80 border-r bg-gray-100/20">
+            <div className="sticky top-0 h-screen overflow-y-auto">
+              <div className="p-6 border-b">
+                <h2 className="font-semibold text-lg mb-2">{courseData.title}</h2>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <BookOpen className="w-4 h-4" />
+                    <span>{courseData.lessons.length} lessons</span>
+                  </div>
+                  <div className="bg-blue-200 rounded-full h-2 w-full overflow-hidden relative">
+                    <div
+                      className="bg-blue-600 h-full transition-all"
+                      style={{ transform: `translateX(-${100 - 62}%)` }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-600">5 of 8 completed</p>
                 </div>
+              </div>
+
+              <nav className="p-4">
+                <div className="space-y-2">
+                  {courseData.lessons.map((lesson) => (
+                    <div
+                      key={lesson.id}
+                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                        lesson.current
+                          ? "bg-blue-700/10 border border-blue-700/20"
+                          : lesson.completed
+                          ? "hover:bg-gray-100/50"
+                          : "hover:bg-gray-100/50 opacity-75"
+                      }`}
+                    >
+                      <div className="flex-shrink-0">
+                        {lesson.completed ? (
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                        ) : lesson.current ? (
+                          <div className="w-5 h-5 bg-blue-700 rounded-full flex items-center justify-center">
+                            <div className="w-2 h-2 bg-white rounded-full" />
+                          </div>
+                        ) : (
+                          <div className="w-5 h-5 border-2 border-gray-400/30 rounded-full" />
+                        )}
+                      </div>
+                      <p
+                        className={`flex-1 min-w-0 text-sm font-medium truncate ${
+                          lesson.current ? "text-blue-700" : ""
+                        }`}
+                      >
+                        {lesson.title}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </nav>
+            </div>
+          </aside>
+
+          {/* Main Content Area */}
+          <main className="flex-1">
+            {/* Header */}
+            <header className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b">
+              <div className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-4">
+                  <button
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
+                    type="button"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Previous
+                  </button>
+                  <div>
+                    <h1 className="font-semibold">{courseData.currentLesson.title}</h1>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Clock className="w-4 h-4" />
+                      <span>{courseData.currentLesson.duration}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsBookmarked(!isBookmarked)}
+                    className={`inline-flex items-center justify-center p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                      isBookmarked ? "text-blue-700" : "text-gray-700"
+                    }`}
+                    aria-label="Bookmark"
+                  >
+                    <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
+                  </button>
+                  <button
+                    className="p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-gray-700"
+                    aria-label="Share"
+                  >
+                    <Share className="w-4 h-4" />
+                  </button>
+                  <button
+                    className="p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-gray-700"
+                    aria-label="Comments"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="px-4 pb-4">
+                {/* Progress Bar */}
                 <div className="bg-blue-200 rounded-full h-2 w-full overflow-hidden relative">
                   <div
                     className="bg-blue-600 h-full transition-all"
-                    style={{ transform: `translateX(-${100 - 62}%)` }}
+                    style={{ transform: `translateX(-${100 - courseData.currentLesson.progress}%)` }}
                   />
                 </div>
-                <p className="text-xs text-gray-600">5 of 8 completed</p>
-              </div>
-            </div>
-
-            <nav className="p-4">
-              <div className="space-y-2">
-                {courseData.lessons.map((lesson) => (
-                  <div
-                    key={lesson.id}
-                    className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                      lesson.current
-                        ? "bg-blue-700/10 border border-blue-700/20"
-                        : lesson.completed
-                        ? "hover:bg-gray-100/50"
-                        : "hover:bg-gray-100/50 opacity-75"
-                    }`}
-                  >
-                    <div className="flex-shrink-0">
-                      {lesson.completed ? (
-                        <CheckCircle className="w-5 h-5 text-green-600" />
-                      ) : lesson.current ? (
-                        <div className="w-5 h-5 bg-blue-700 rounded-full flex items-center justify-center">
-                          <div className="w-2 h-2 bg-white rounded-full" />
-                        </div>
-                      ) : (
-                        <div className="w-5 h-5 border-2 border-gray-400/30 rounded-full" />
-                      )}
-                    </div>
-                    <p
-                      className={`flex-1 min-w-0 text-sm font-medium truncate ${
-                        lesson.current ? "text-blue-700" : ""
-                      }`}
-                    >
-                      {lesson.title}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </nav>
-          </div>
-        </aside>
-
-        {/* Main Content Area */}
-        <main className="flex-1">
-          {/* Header */}
-          <header className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b">
-            <div className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-4">
-                <button
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
-                  type="button"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
-                </button>
-                <div>
-                  <h1 className="font-semibold">{courseData.currentLesson.title}</h1>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Clock className="w-4 h-4" />
-                    <span>{courseData.currentLesson.duration}</span>
-                  </div>
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-xs text-gray-600">
+                    {courseData.currentLesson.progress}% completed
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">
+                    <FileText className="w-3 h-3" />
+                    Text Lesson
+                  </span>
                 </div>
               </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsBookmarked(!isBookmarked)}
-                  className={`inline-flex items-center justify-center p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                    isBookmarked ? "text-blue-700" : "text-gray-700"
-                  }`}
-                  aria-label="Bookmark"
-                >
-                  <Bookmark
-                    className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`}
-                  />
-                </button>
-                <button
-                  className="p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-gray-700"
-                  aria-label="Share"
-                >
-                  <Share className="w-4 h-4" />
-                </button>
-                <button
-                  className="p-2 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-gray-700"
-                  aria-label="Comments"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="px-4 pb-4">
-              {/* Progress Bar */}
-              <div className="bg-blue-200 rounded-full h-2 w-full overflow-hidden relative">
-                <div
-                  className="bg-blue-600 h-full transition-all"
-                  style={{ transform: `translateX(-${100 - courseData.currentLesson.progress}%)` }}
-                />
-              </div>
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-gray-600">
-                  {courseData.currentLesson.progress}% completed
-                </span>
-                <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">
-                  <FileText className="w-3 h-3" />
-                  Text Lesson
-                </span>
-              </div>
-            </div>
-          </header>
-
-          {/* Reading Content */}
-          <article className="max-w-4xl mx-auto p-6 lg:p-8 prose prose-lg max-w-none whitespace-pre-wrap leading-relaxed">
-            {courseData.currentLesson.content}
-          </article>
-
-          {/* Notes Section */}
-          <section className="max-w-4xl mx-auto p-6 lg:p-8 mt-12 border rounded-lg shadow-sm bg-white">
-            <header className="mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              <h2 className="text-lg font-semibold">My Notes</h2>
             </header>
-            <textarea
-              placeholder="Take notes while reading this lesson..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full min-h-[8rem] p-3 rounded border border-gray-300 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <div className="flex justify-between items-center mt-4">
-              <p className="text-sm text-gray-600">Notes are automatically saved</p>
+
+            {/* Reading Content */}
+            <article className="max-w-4xl mx-auto p-6 lg:p-8 prose prose-lg max-w-none whitespace-pre-wrap leading-relaxed">
+              {courseData.currentLesson.content}
+            </article>
+
+            {/* Notes Section */}
+            <section className="max-w-4xl mx-auto p-6 lg:p-8 mt-12 border rounded-lg shadow-sm bg-white">
+              <header className="mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                <h2 className="text-lg font-semibold">My Notes</h2>
+              </header>
+              <textarea
+                placeholder="Take notes while reading this lesson..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full min-h-[8rem] p-3 rounded border border-gray-300 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <div className="flex justify-between items-center mt-4">
+                <p className="text-sm text-gray-600">Notes are automatically saved</p>
+                <button
+                  type="button"
+                  className="px-4 py-1.5 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  Save Notes
+                </button>
+              </div>
+            </section>
+
+            {/* Navigation Footer */}
+            <footer className="max-w-4xl mx-auto p-6 lg:p-8 mt-12 pt-8 border-t flex justify-between items-center">
               <button
                 type="button"
-                className="px-4 py-1.5 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                Save Notes
+                <ChevronLeft className="w-4 h-4" />
+                Previous Lesson
               </button>
-            </div>
-          </section>
 
-          {/* Navigation Footer */}
-          <footer className="max-w-4xl mx-auto p-6 lg:p-8 mt-12 pt-8 border-t flex justify-between items-center">
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Previous Lesson
-            </button>
-
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 px-5 py-2 rounded bg-gradient-to-r from-blue-700 to-blue-500 text-white shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <CheckCircle className="w-4 h-4" />
-              Mark Complete & Continue
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </footer>
-        </main>
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 px-5 py-2 rounded bg-gradient-to-r from-blue-700 to-blue-500 text-white shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <CheckCircle className="w-4 h-4" />
+                Mark Complete & Continue
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </footer>
+          </main>
+        </div>
       </div>
-    </div>
-    
     </>
   );
 }
