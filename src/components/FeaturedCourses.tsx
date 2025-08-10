@@ -117,7 +117,7 @@ export default function FeaturedCourses() {
 
   return (
     <section className="py-16">
-      <div className="container max-w-7xl mx-auto cursor-pointer px-4 sm:px-6" onClick={HanldeCourseClick}>
+      <div className="container max-w-7xl mx-auto  px-4 sm:px-6" >
         {/* Header */}
         <div className="flex justify-between items-end mb-12">
           <div>
@@ -126,13 +126,13 @@ export default function FeaturedCourses() {
               Hand-picked courses by our experts to accelerate your learning
             </p>
           </div>
-          <button className="hidden sm:inline-block px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-sm font-medium transition">
+          <button onClick={()=>router.push('/courses/all')} className="hidden cursor-pointer sm:inline-block px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-sm font-medium transition">
             View All Courses
           </button>
         </div>
 
         {/* Course Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 cursor-pointer lg:grid-cols-3 gap-8" onClick={HanldeCourseClick}>
           {featuredCourses.map((course) => (
             <div
               key={course.id}
@@ -225,7 +225,7 @@ export default function FeaturedCourses() {
 
         {/* Mobile View All */}
         <div className="text-center mt-12">
-          <button className="sm:hidden px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-sm font-medium transition">
+          <button onClick={()=>router.push('/courses/all')}  className="sm:hidden px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-sm font-medium transition">
             View All Courses
           </button>
         </div>
