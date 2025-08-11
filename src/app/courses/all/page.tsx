@@ -1,4 +1,5 @@
 // app/courses/all/page.tsx
+// courses pages outer
 "use client";
 
 import { useMemo, useState } from "react";

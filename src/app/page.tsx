@@ -1,7 +1,7 @@
 // app/home-client.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Play,
   ArrowRight,
@@ -37,17 +37,37 @@ const categories = [
 ];
 
 // ---- Category Carousel Component ----
+
+
 function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string) => void }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsToShow = 4;
+  const [itemsToShow, setItemsToShow] = useState(4);
+
+  // Responsive items count
+  useEffect(() => {
+    const updateItemsToShow = () => {
+      if (window.innerWidth < 640) {
+        setItemsToShow(2); // Mobile
+      } else {
+        setItemsToShow(4); // Desktop
+      }
+    };
+
+    updateItemsToShow();
+    window.addEventListener("resize", updateItemsToShow);
+
+    return () => window.removeEventListener("resize", updateItemsToShow);
+  }, []);
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + itemsToShow >= categories.length ? 0 : prev + itemsToShow));
+    setCurrentIndex((prev) =>
+      prev + itemsToShow >= categories.length ? 0 : prev + itemsToShow
+    );
   };
 
   const prevSlide = () => {
     setCurrentIndex((prev) =>
-      prev === 0 ? Math.max(0, categories.length - itemsToShow) : Math.max(0, prev - itemsToShow)
+      prev === 0 ? Math.max(0, categories.length - itemsToShow) : prev - itemsToShow
     );
   };
 
@@ -55,13 +75,16 @@ function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string)
     <section className="py-16 bg-gray-100/30">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
-          <h2 className="font-poppins text-3xl sm:text-4xl font-bold mb-4">Explore Top Categories</h2>
+          <h2 className="font-poppins text-3xl sm:text-4xl font-bold mb-4">
+            Explore Top Categories
+          </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Discover courses across various fields and start your learning journey today
           </p>
         </div>
 
         <div className="relative">
+          {/* Prev Button */}
           <button
             className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 h-12 w-12 rounded-full shadow-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
             onClick={prevSlide}
@@ -70,6 +93,7 @@ function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string)
             <ChevronLeft className="h-5 w-5" />
           </button>
 
+          {/* Next Button */}
           <button
             className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 h-12 w-12 rounded-full shadow-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
             onClick={nextSlide}
@@ -78,6 +102,7 @@ function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string)
             <ChevronRight className="h-5 w-5" />
           </button>
 
+          {/* Carousel Items */}
           <div className="overflow-hidden">
             <div
               className="flex transition-transform duration-300 ease-in-out gap-6"
@@ -109,11 +134,16 @@ function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string)
             </div>
           </div>
 
+          {/* Dots */}
           <div className="flex justify-center mt-8 gap-2">
             {Array.from({ length: Math.ceil(categories.length / itemsToShow) }).map((_, index) => (
               <button
                 key={index}
-                className={`w-2 h-2 rounded-full transition-colors ${Math.floor(currentIndex / itemsToShow) === index ? "bg-blue-700" : "bg-gray-300"}`}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  Math.floor(currentIndex / itemsToShow) === index
+                    ? "bg-blue-700"
+                    : "bg-gray-300"
+                }`}
                 onClick={() => setCurrentIndex(index * itemsToShow)}
                 aria-label={`Go to slide ${index + 1}`}
               />
@@ -124,6 +154,7 @@ function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string)
     </section>
   );
 }
+
 
 // ---- Home Client Component ----
 export default function HomeClient() {
@@ -248,7 +279,6 @@ export default function HomeClient() {
                   </div>
                 </div>
               </div>
-
               <div className="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full opacity-80 animate-pulse" />
               <div className="absolute -bottom-6 -left-6 w-12 h-12 bg-blue-700/20 rounded-full" />
             </div>
@@ -257,10 +287,10 @@ export default function HomeClient() {
       </section>
 
       {/* Categories Section */}
-      <CategoryCarousel />
+       <CategoryCarousel />
 
       {/* Featured Courses Section */}
-      <FeaturedCourses />
+       <FeaturedCourses />
 
       <TestimonialsSection />
 
