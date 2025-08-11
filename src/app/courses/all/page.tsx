@@ -182,7 +182,7 @@ export default function AllCoursesPage() {
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="Search courses, topics, or instructors..."
-                      className="w-full rounded-full py-3 pl-12 pr-4 text-gray-800 shadow-sm"
+                      className="w-full rounded-full py-3 pl-12 pr-4 text-white shadow-sm"
                     />
                   </div>
 
@@ -190,7 +190,7 @@ export default function AllCoursesPage() {
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as any)}
-                      className="rounded-full py-2 px-4 bg-white text-sm shadow-sm"
+                      className="rounded-full py-2 px-4 bg-gray-100 text-black text-sm shadow-sm"
                       aria-label="Sort courses"
                     >
                       <option value="popular">Most Popular</option>
@@ -198,6 +198,7 @@ export default function AllCoursesPage() {
                       <option value="price-low">Price: Low → High</option>
                       <option value="price-high">Price: High → Low</option>
                     </select>
+
                     <button
                       onClick={() => router.push("/courses")}
                       className="inline-flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-full text-sm"
@@ -213,11 +214,10 @@ export default function AllCoursesPage() {
                     <button
                       key={cat}
                       onClick={() => setActiveCategory(cat === "All" ? null : cat)}
-                      className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-                        (activeCategory ?? "All") === cat
+                      className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${(activeCategory ?? "All") === cat
                           ? "bg-white text-indigo-700 shadow"
                           : "bg-white/20 text-white hover:bg-white/30"
-                      }`}
+                        }`}
                     >
                       {cat}
                     </button>
