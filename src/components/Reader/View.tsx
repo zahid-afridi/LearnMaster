@@ -20,8 +20,6 @@ const courseData = {
   ]
 };
 
-
-
 const sampleCourse = {
   id: 1,
   title: "Advanced React Development",
@@ -32,13 +30,13 @@ const sampleCourse = {
       duration: "15 min",
       status: "completed",
       content: [
-        { type: "h1", text: "Introduction to React Hooks" },
-        { type: "p", text: "React Hooks let you use state and other React features without writing a class. In this lesson you'll learn the basic hooks and when to use them." },
-        { type: "img", src: "/hooks-intro.png", alt: "React hooks illustration", caption: "React hooks lifecycle overview" },
-        { type: "h2", text: "Basic Hooks" },
-        { type: "p", text: "The most common hooks are useState, useEffect, and useRef." },
+        { type: "h1" as const, text: "Introduction to React Hooks" },
+        { type: "p" as const, text: "React Hooks let you use state and other React features without writing a class. In this lesson you'll learn the basic hooks and when to use them." },
+        { type: "img" as const, src: "/hooks-intro.png", alt: "React hooks illustration", caption: "React hooks lifecycle overview" },
+        { type: "h2" as const, text: "Basic Hooks" },
+        { type: "p" as const, text: "The most common hooks are useState, useEffect, and useRef." },
         {
-          type: "code",
+          type: "code" as const,
           language: "javascript",
           code: `// simple counter with useState
 import React, { useState } from 'react';
@@ -53,7 +51,7 @@ function Counter() {
   );
 }`
         },
-        { type: "blockquote", text: "Hooks let you reuse stateful logic without changing your component hierarchy." }
+        { type: "blockquote" as const, text: "Hooks let you reuse stateful logic without changing your component hierarchy." }
       ]
     },
     {
@@ -62,10 +60,10 @@ function Counter() {
       duration: "25 min",
       status: "current",
       content: [
-        { type: "h1", text: "Custom Hooks Patterns" },
-        { type: "p", text: "Custom hooks help you extract reusable logic. We'll walk through examples, from localStorage hooks to compound hooks." },
+        { type: "h1" as const, text: "Custom Hooks Patterns" },
+        { type: "p" as const, text: "Custom hooks help you extract reusable logic. We'll walk through examples, from localStorage hooks to compound hooks." },
         {
-          type: "code",
+          type: "code" as const,
           language: "javascript",
           code: `function useLocalStorage(key, initialValue) {
   const [storedValue, setStoredValue] = useState(() => {
@@ -89,14 +87,15 @@ function Counter() {
   return [storedValue, setValue];
 }`
         },
-        { type: "h2", text: "Compound Hooks" },
-        { type: "p", text: "Return objects when your hook has multiple helpers." },
-        { type: "ul", items: ["Return objects for many helpers", "Use useCallback to memoize functions", "Test hooks with react-hooks-testing-library"] }
+        { type: "h2" as const, text: "Compound Hooks" },
+        { type: "p" as const, text: "Return objects when your hook has multiple helpers." },
+        { type: "ul" as const, items: ["Return objects for many helpers", "Use useCallback to memoize functions", "Test hooks with react-hooks-testing-library"] }
       ]
     },
     // ... add more lessons here
   ]
 };
+
 export default function View() {
   const [currentLessonId, setCurrentLessonId] = useState(1);
   const [lessonProgress, setLessonProgress] = useState(45);
@@ -157,22 +156,21 @@ export default function View() {
         <div></div>
       </div>
 
-  <div
-  className={`fixed lg:static inset-y-0 left-0 bg-white z-50 transform 
-    ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-    lg:translate-x-0 transition-transform duration-200 ease-in-out w-64 border-r 
-    flex xs:flex-row lg:flex-col`}
->
-  <LessonSidebar
-    courseTitle={courseData.title}
-    totalLessons={courseData.lessons.length}
-    completedLessons={completedLessons}
-    currentLessonId={currentLessonId}
-    lessons={courseData.lessons}
-    onLessonClick={handleLessonClick}
-  />
-</div>
-
+      <div
+        className={`fixed lg:static inset-y-0 left-0 bg-white z-50 transform 
+          ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+          lg:translate-x-0 transition-transform duration-200 ease-in-out w-64 border-r 
+          flex xs:flex-row lg:flex-col`}
+      >
+        <LessonSidebar
+          courseTitle={courseData.title}
+          totalLessons={courseData.lessons.length}
+          completedLessons={completedLessons}
+          currentLessonId={currentLessonId}
+          lessons={courseData.lessons}
+          onLessonClick={handleLessonClick}
+        />
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
