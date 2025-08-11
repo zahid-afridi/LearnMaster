@@ -5,7 +5,7 @@ import { LessonHeader } from "./LessonHeader";
 import { LessonContent } from "./LessonContent";
 import { NotesSection } from "./NotesSection";
 import { LessonNavigation } from "./LessonNavigation";
-
+import { Menu } from "lucide-react";
 
 const courseData = {
   title: "Advanced React Development",
@@ -118,12 +118,14 @@ const sampleContent = (
     </p>
   </div>
 );
+
 export default function View() {
   const [currentLessonId, setCurrentLessonId] = useState(3);
   const [lessonProgress, setLessonProgress] = useState(45);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [completedLessons, setCompletedLessons] = useState(2);
   const [notes, setNotes] = useState('');
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const currentLesson = courseData.lessons.find(lesson => lesson.id === currentLessonId);
   const currentLessonIndex = courseData.lessons.findIndex(lesson => lesson.id === currentLessonId);
@@ -132,7 +134,8 @@ export default function View() {
     const lesson = courseData.lessons.find(l => l.id === lessonId);
     if (lesson && lesson.status !== 'locked') {
       setCurrentLessonId(lessonId);
-      setLessonProgress(0); // Reset progress for new lesson
+      setLessonProgress(0);
+      setMobileSidebarOpen(false); // Close sidebar on mobile
     }
   };
 
@@ -161,25 +164,40 @@ export default function View() {
 
   const handleSaveNotes = (newNotes: string) => {
     setNotes(newNotes);
-    // In a real app, this would save to a backend
     console.log('Notes saved:', newNotes);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <LessonSidebar
-        courseTitle={courseData.title}
-        totalLessons={courseData.lessons.length}
-        completedLessons={completedLessons}
-        currentLessonId={currentLessonId}
-        lessons={courseData.lessons}
-        onLessonClick={handleLessonClick}
-      />
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+      
+      {/* Mobile Header */}
+      <div className="lg:hidden flex items-center justify-between bg-white p-4 border-b">
+        <button onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}>
+          <Menu size={24} />
+        </button>
+        <h1 className="font-bold">{courseData.title}</h1>
+        <div></div>
+      </div>
+
+  <div
+  className={`fixed lg:static inset-y-0 left-0 bg-white z-50 transform 
+    ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+    lg:translate-x-0 transition-transform duration-200 ease-in-out w-64 border-r 
+    flex xs:flex-row lg:flex-col`}
+>
+  <LessonSidebar
+    courseTitle={courseData.title}
+    totalLessons={courseData.lessons.length}
+    completedLessons={completedLessons}
+    currentLessonId={currentLessonId}
+    lessons={courseData.lessons}
+    onLessonClick={handleLessonClick}
+  />
+</div>
+
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
         <LessonHeader
           title={currentLesson?.title || 'Lesson'}
           readingTime="8 min"
@@ -190,10 +208,8 @@ export default function View() {
           onComments={() => console.log('Comments clicked')}
         />
 
-        {/* Content Area */}
         <div className="flex-1 overflow-y-auto">
           <LessonContent content={sampleContent} />
-          
           <NotesSection
             lessonId={currentLessonId}
             initialNotes={notes}
@@ -201,7 +217,6 @@ export default function View() {
           />
         </div>
 
-        {/* Navigation Footer */}
         <LessonNavigation
           hasPrevious={currentLessonIndex > 0}
           hasNext={currentLessonIndex < courseData.lessons.length - 1}

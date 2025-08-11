@@ -218,3 +218,26 @@ html {
   font-size: var(--font-size);
   scroll-behavior: smooth;
 }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  flex-wrap: wrap;
+}
+
+.header-text {
+  text-align: center;
+  max-width: 300px;
+}
+
+@media (min-width: 640px) {
+  .header {
+    flex-wrap: nowrap;
+  }
+  .header-text {
+    text-align: left;
+    max-width: 500px;
+  }
+}
