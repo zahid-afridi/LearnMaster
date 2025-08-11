@@ -1,6 +1,6 @@
 import { Star, Clock, BookOpen, Users, Award } from "lucide-react"
 import { useRouter } from "next/navigation";
-
+// All feactured course in 6 data All couurse
 
 export default function FeaturedCourses() {
   const router=useRouter();
@@ -111,7 +111,7 @@ export default function FeaturedCourses() {
 
   const HanldeCourseClick= () => {
     // Handle course click logic here
-    router.push(`/courses/29384902348`);
+    router.push(`/courses/2938490234`);
   
   }
 

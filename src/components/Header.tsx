@@ -67,7 +67,7 @@ export default function Header({ onNavigate }: ModernHeaderProps) {
             {/* Logo */}
             <div className="flex items-center gap-4">
               <button
-                onClick={() => setIsMobileMenuOpen(true)}
+                onClick={() => setIsMobileMenuOpen(pre => !pre)}
                 className="p-2 rounded-md hover:bg-gray-100 md:hidden"
               >
                 <Menu className="h-5 w-5" />
