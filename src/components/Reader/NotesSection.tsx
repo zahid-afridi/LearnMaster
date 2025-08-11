@@ -1,57 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { StickyNote, Save, Check } from "lucide-react";
+import { StickyNote, Save, Check, Edit3 } from "lucide-react";
 
-// Tailwind Card Components
-function Card({ className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={`bg-white flex flex-col gap-6 rounded-xl border shadow-sm ${className}`}
-      {...props}
-    />
-  );
-}
-function CardHeader({ className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={`px-6 pt-6 ${className}`} {...props} />;
-}
-function CardTitle({ className = "", ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h4 className={`leading-none font-semibold ${className}`} {...props} />;
-}
-function CardContent({ className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={`px-6 pb-6 ${className}`} {...props} />;
-}
-
-// Tailwind Textarea
+// Compact Textarea
 function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       {...props}
-      className={`w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 outline-none resize-none ${props.className || ""}`}
+      className={`w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none resize-none transition-all duration-200 ${props.className || ""}`}
     />
   );
 }
 
-// Tailwind Button
+// Compact Button
 function Button({
   children,
   onClick,
   disabled,
-  size = "sm",
   className = "",
 }: {
   children: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
-  size?: "sm" | "md";
   className?: string;
 }) {
-  const sizeClasses = size === "sm" ? "px-3 py-1.5 text-sm" : "px-4 py-2 text-base";
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex items-center gap-1 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${sizeClasses} ${className}`}
+      className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-700 text-white ${className}`}
     >
       {children}
     </button>
@@ -71,7 +49,6 @@ export function NotesSection({
 }: NotesSectionProps) {
   const [notes, setNotes] = useState(initialNotes);
   const [isSaving, setIsSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Auto-save after inactivity
@@ -92,9 +69,8 @@ export function NotesSection({
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
       onSave(notes);
-      setLastSaved(new Date());
       setHasUnsavedChanges(false);
     } finally {
       setIsSaving(false);
@@ -102,58 +78,52 @@ export function NotesSection({
   };
 
   const getSaveStatus = () => {
-    if (isSaving) return { text: "Saving...", icon: Save, color: "text-[#60A5FA]" };
-    if (hasUnsavedChanges) return { text: "Unsaved changes", icon: Save, color: "text-orange-500" };
-    if (lastSaved) return { text: "Saved", icon: Check, color: "text-green-500" };
-    return { text: "No changes", icon: StickyNote, color: "text-gray-500" };
+    if (isSaving) return { text: "Saving...", icon: Save, color: "text-blue-500" };
+    if (hasUnsavedChanges) return { text: "Unsaved", icon: Edit3, color: "text-orange-500" };
+    return { text: "Saved", icon: Check, color: "text-green-500" };
   };
 
   const saveStatus = getSaveStatus();
   const StatusIcon = saveStatus.icon;
 
   return (
-    <div className="px-8 pb-8">
+    <div className="px-4 sm:px-8 pb-6">
       <div className="max-w-3xl mx-auto">
-        <Card>
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <StickyNote className="w-5 h-5 text-[#2563EB]" />
-                My Notes
-              </CardTitle>
-
-              <div className="flex items-center gap-3">
-                <div className={`flex items-center gap-1 text-sm ${saveStatus.color}`}>
-                  <StatusIcon className="w-4 h-4" />
-                  <span>{saveStatus.text}</span>
-                </div>
-
-                <Button
-                  onClick={handleSave}
-                  disabled={!hasUnsavedChanges || isSaving}
-                  size="sm"
-                  className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white"
-                >
-                  {isSaving ? (
-                    <Save className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Save className="w-4 h-4" />
-                  )}
-                  Save
-                </Button>
-              </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <StickyNote className="w-4 h-4 text-blue-600" />
+              <h3 className="font-medium text-gray-900">Notes</h3>
             </div>
-          </CardHeader>
 
-          <CardContent>
-            <Textarea
-              value={notes}
-              onChange={(e) => handleNotesChange(e.target.value)}
-              placeholder="Take notes about this lesson... Your notes will be automatically saved."
-              className="min-h-[120px]"
-            />
-          </CardContent>
-        </Card>
+            <div className="flex items-center gap-3">
+              {/* Status */}
+              <div className={`flex items-center gap-1 text-xs ${saveStatus.color}`}>
+                <StatusIcon className={`w-3 h-3 ${isSaving ? 'animate-spin' : ''}`} />
+                <span>{saveStatus.text}</span>
+              </div>
+
+              {/* Save Button */}
+              <Button
+                onClick={handleSave}
+                disabled={!hasUnsavedChanges || isSaving}
+                className={!hasUnsavedChanges && !isSaving ? 'opacity-50' : ''}
+              >
+                <Save className="w-3 h-3" />
+                Save
+              </Button>
+            </div>
+          </div>
+
+          {/* Textarea */}
+          <Textarea
+            value={notes}
+            onChange={(e) => handleNotesChange(e.target.value)}
+            placeholder="Take notes about this lesson..."
+            className="min-h-[100px]"
+          />
+        </div>
       </div>
     </div>
   );

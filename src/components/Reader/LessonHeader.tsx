@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, Share2, MessageCircle, Clock } from "lucide-react";
+import { Bookmark, Share2, MessageCircle, Clock, MoreHorizontal } from "lucide-react";
 import * as React from "react";
 
 interface LessonHeaderProps {
@@ -15,9 +15,9 @@ interface LessonHeaderProps {
 
 function Progress({ value = 0 }: { value?: number }) {
   return (
-    <div className="bg-primary/20 relative h-2 w-full overflow-hidden rounded-full">
+    <div className="relative h-1 w-full overflow-hidden rounded-full bg-gray-200">
       <div
-        className="bg-blue-600 h-full transition-all"
+        className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 ease-out"
         style={{ width: `${value}%` }}
       />
     </div>
@@ -29,17 +29,23 @@ function IconButton({
   children,
   active,
   className = "",
+  variant = "default"
 }: {
   onClick: () => void;
   children: React.ReactNode;
   active?: boolean;
   className?: string;
+  variant?: "default" | "mobile";
 }) {
+  const baseClasses = "flex items-center justify-center transition-all duration-200 rounded-lg";
+  const variantClasses = variant === "mobile" 
+    ? "w-8 h-8 hover:bg-gray-100 active:scale-95" 
+    : "gap-1.5 px-2.5 py-1.5 text-sm hover:bg-gray-100 active:scale-95";
+  
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1 px-2 py-1 text-sm rounded-md transition-colors
-        hover:bg-gray-100 ${active ? "text-[#2563EB]" : "text-gray-600"} ${className}`}
+      className={`${baseClasses} ${variantClasses} ${active ? "text-blue-600 bg-blue-50" : "text-gray-600"} ${className}`}
     >
       {children}
     </button>
@@ -55,79 +61,97 @@ export function LessonHeader({
   onShare,
   onComments,
 }: LessonHeaderProps) {
+  const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+
   return (
-    <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 z-10 
-  lg:ml-16">
-      <div className="px-4 sm:px-8 py-4 sm:py-6">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3">
-          {/* Left Side */}
+    <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-200 z-20 shadow-sm">
+      <div className="px-4 sm:px-6 lg:px-24 py-3">
+        {/* Main Header */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Left Side - Title & Meta */}
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg sm:text-2xl font-medium text-gray-900 mb-1 sm:mb-2 line-clamp-2">
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-900 line-clamp-2 leading-tight">
               {title}
             </h1>
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+            <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
               <Clock className="w-4 h-4" />
               <span>{readingTime} read</span>
+              <span className="text-gray-400">•</span>
+              <span className="text-blue-600 font-medium">{Math.round(progress)}% complete</span>
             </div>
           </div>
 
-          {/* Right Side Buttons */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-            <IconButton onClick={onBookmark} active={isBookmarked}>
-              <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
-              <span className="hidden xs:inline">Bookmark</span>
-            </IconButton>
+          {/* Right Side - Actions */}
+          <div className="flex items-center gap-1">
+            {/* Desktop Actions */}
+            <div className="hidden sm:flex items-center gap-1">
+              <IconButton onClick={onBookmark} active={isBookmarked}>
+                <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
+                <span>Save</span>
+              </IconButton>
 
-            <IconButton onClick={onShare}>
-              <Share2 className="w-4 h-4" />
-              <span className="hidden xs:inline">Share</span>
-            </IconButton>
+              <IconButton onClick={onShare}>
+                <Share2 className="w-4 h-4" />
+                <span>Share</span>
+              </IconButton>
 
-            <IconButton onClick={onComments}>
-              <MessageCircle className="w-4 h-4" />
-              <span className="hidden xs:inline">Comments</span>
-            </IconButton>
+              <IconButton onClick={onComments}>
+                <MessageCircle className="w-4 h-4" />
+                <span>Discuss</span>
+              </IconButton>
+            </div>
+
+            {/* Mobile Actions */}
+            <div className="sm:hidden flex items-center gap-0.5">
+              <IconButton onClick={onBookmark} active={isBookmarked} variant="mobile">
+                <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
+              </IconButton>
+
+              <div className="relative">
+                <IconButton 
+                  onClick={() => setShowMobileMenu(!showMobileMenu)} 
+                  variant="mobile"
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </IconButton>
+
+                {/* Mobile Dropdown */}
+                {showMobileMenu && (
+                  <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[120px] z-30">
+                    <button
+                      onClick={() => {onShare(); setShowMobileMenu(false);}}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      Share
+                    </button>
+                    <button
+                      onClick={() => {onComments(); setShowMobileMenu(false);}}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Discuss
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Progress */}
-        <div className="space-y-1 sm:space-y-2">
-          <div className="flex justify-between items-center text-xs sm:text-sm">
-            <span className="text-gray-600">Lesson Progress</span>
-            <span className="font-medium text-[#2563EB]">
-              {Math.round(progress)}%
-            </span>
-          </div>
-
-          <div className="relative">
-            <Progress value={progress} />
-
-            {/* Action buttons inside progress bar */}
-            <div className="absolute top-1/2 right-1 sm:right-2 -translate-y-1/2 flex gap-1 sm:gap-2">
-              <button
-                onClick={onBookmark}
-                className={`p-1 rounded-full hover:bg-white/70 transition ${
-                  isBookmarked ? "text-[#2563EB]" : "text-gray-600"
-                }`}
-              >
-                <Bookmark className="w-4 h-4" />
-              </button>
-              <button
-                onClick={onShare}
-                className="p-1 rounded-full hover:bg-white/70 text-gray-600 transition"
-              >
-                <Share2 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={onComments}
-                className="p-1 rounded-full hover:bg-white/70 text-gray-600 transition"
-              >
-                <MessageCircle className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+        {/* Progress Bar */}
+        <div className="mt-3">
+          <Progress value={progress} />
         </div>
       </div>
+
+      {/* Close mobile menu when clicking outside */}
+      {showMobileMenu && (
+        <div 
+          className="fixed inset-0 z-20" 
+          onClick={() => setShowMobileMenu(false)}
+        />
+      )}
     </div>
   );
 }

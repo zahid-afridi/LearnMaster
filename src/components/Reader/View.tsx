@@ -20,28 +20,54 @@ const courseData = {
   ]
 };
 
-const sampleContent = (
-  <div>
-    <h1>Custom Hooks Patterns</h1>
-    
-    <p>
-      Custom hooks are one of React's most powerful features, allowing you to extract and reuse stateful logic 
-      between components. In this lesson, we'll explore advanced patterns and best practices for creating 
-      maintainable and efficient custom hooks.
-    </p>
 
-    <h2>What are Custom Hooks?</h2>
-    
-    <p>
-      A custom hook is a JavaScript function whose name starts with "use" and that may call other hooks. 
-      Custom hooks let you extract component logic into reusable functions, promoting code reuse and separation of concerns.
-    </p>
 
-    <h3>Basic Example</h3>
-    
-    <p>Let's start with a simple custom hook for managing local storage:</p>
+const sampleCourse = {
+  id: 1,
+  title: "Advanced React Development",
+  lessons: [
+    {
+      id: 1,
+      title: "Introduction to React Hooks",
+      duration: "15 min",
+      status: "completed",
+      content: [
+        { type: "h1", text: "Introduction to React Hooks" },
+        { type: "p", text: "React Hooks let you use state and other React features without writing a class. In this lesson you'll learn the basic hooks and when to use them." },
+        { type: "img", src: "/hooks-intro.png", alt: "React hooks illustration", caption: "React hooks lifecycle overview" },
+        { type: "h2", text: "Basic Hooks" },
+        { type: "p", text: "The most common hooks are useState, useEffect, and useRef." },
+        {
+          type: "code",
+          language: "javascript",
+          code: `// simple counter with useState
+import React, { useState } from 'react';
 
-    <pre><code>{`function useLocalStorage(key, initialValue) {
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(c => c + 1)}>Increment</button>
+    </div>
+  );
+}`
+        },
+        { type: "blockquote", text: "Hooks let you reuse stateful logic without changing your component hierarchy." }
+      ]
+    },
+    {
+      id: 2,
+      title: "Custom Hooks Patterns",
+      duration: "25 min",
+      status: "current",
+      content: [
+        { type: "h1", text: "Custom Hooks Patterns" },
+        { type: "p", text: "Custom hooks help you extract reusable logic. We'll walk through examples, from localStorage hooks to compound hooks." },
+        {
+          type: "code",
+          language: "javascript",
+          code: `function useLocalStorage(key, initialValue) {
   const [storedValue, setStoredValue] = useState(() => {
     try {
       const item = window.localStorage.getItem(key);
@@ -61,66 +87,18 @@ const sampleContent = (
   };
 
   return [storedValue, setValue];
-}`}</code></pre>
-
-    <blockquote>
-      <p>
-        Remember: Custom hooks should always start with "use" to follow React's naming conventions 
-        and ensure that the Rules of Hooks are properly enforced.
-      </p>
-    </blockquote>
-
-    <h2>Advanced Patterns</h2>
-
-    <p>
-      As your applications grow more complex, you'll encounter scenarios where simple custom hooks 
-      aren't sufficient. Let's explore some advanced patterns that can help you build more robust solutions.
-    </p>
-
-    <h3>1. Compound Custom Hooks</h3>
-
-    <p>
-      Sometimes you need to combine multiple pieces of state and logic. Compound custom hooks 
-      return objects with multiple values and functions:
-    </p>
-
-    <pre><code>{`function useCounter(initialValue = 0) {
-  const [count, setCount] = useState(initialValue);
-  
-  const increment = useCallback(() => setCount(c => c + 1), []);
-  const decrement = useCallback(() => setCount(c => c - 1), []);
-  const reset = useCallback(() => setCount(initialValue), [initialValue]);
-  
-  return {
-    count,
-    increment,
-    decrement,
-    reset,
-    isZero: count === 0,
-    isPositive: count > 0,
-    isNegative: count < 0
-  };
-}`}</code></pre>
-
-    <h3>Key Takeaways</h3>
-
-    <ul>
-      <li>Custom hooks promote code reuse and maintainability</li>
-      <li>Always start hook names with "use" to follow conventions</li>
-      <li>Use <code>useCallback</code> to optimize function references</li>
-      <li>Consider returning objects for complex hooks with multiple values</li>
-      <li>Test your custom hooks thoroughly to ensure reliability</li>
-    </ul>
-
-    <p>
-      In the next lesson, we'll dive deeper into performance optimization techniques and learn 
-      how to use React's built-in profiling tools to identify bottlenecks in your applications.
-    </p>
-  </div>
-);
-
+}`
+        },
+        { type: "h2", text: "Compound Hooks" },
+        { type: "p", text: "Return objects when your hook has multiple helpers." },
+        { type: "ul", items: ["Return objects for many helpers", "Use useCallback to memoize functions", "Test hooks with react-hooks-testing-library"] }
+      ]
+    },
+    // ... add more lessons here
+  ]
+};
 export default function View() {
-  const [currentLessonId, setCurrentLessonId] = useState(3);
+  const [currentLessonId, setCurrentLessonId] = useState(1);
   const [lessonProgress, setLessonProgress] = useState(45);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [completedLessons, setCompletedLessons] = useState(2);
@@ -209,7 +187,9 @@ export default function View() {
         />
 
         <div className="flex-1 overflow-y-auto">
-          <LessonContent content={sampleContent} />
+          {/* <LessonContent content={sampleContent} /> */}
+          <LessonContent content={sampleCourse.lessons.find(l => l.id === currentLessonId)?.content || []} />
+
           <NotesSection
             lessonId={currentLessonId}
             initialNotes={notes}

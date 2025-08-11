@@ -1,32 +1,43 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, CheckCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle, ArrowRight } from "lucide-react";
 
-// Tailwind Button Component
+// Enhanced Button Component
 function Button({
   children,
   onClick,
   disabled,
   variant = "default",
+  size = "md",
   className = "",
 }: {
   children: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
-  variant?: "default" | "outline";
+  variant?: "default" | "outline" | "primary";
+  size?: "sm" | "md" | "lg";
   className?: string;
 }) {
   const baseStyles =
-    "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
-  const variantStyles =
-    variant === "outline"
-      ? "border border-gray-200 bg-white hover:bg-gray-50 text-gray-700"
-      : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white";
+    "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95";
+  
+  const sizeStyles = {
+    sm: "px-3 py-2 text-sm",
+    md: "px-4 py-2.5 text-sm sm:text-base",
+    lg: "px-6 py-3 text-base"
+  };
+
+  const variantStyles = {
+    outline: "border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 text-gray-700 shadow-sm hover:shadow-md",
+    default: "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl",
+    primary: "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl"
+  };
+
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`${baseStyles} ${variantStyles} px-4 py-2 ${className}`}
+      className={`${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
     >
       {children}
     </button>
@@ -51,47 +62,52 @@ export function LessonNavigation({
   onMarkComplete,
 }: LessonNavigationProps) {
   return (
-    <div className="border-t border-gray-100 bg-white/95 backdrop-blur-sm">
-      <div className="px-8 py-6">
+    <div className="border-t border-gray-100 bg-white sm:sticky sm:bottom-0">
+      <div className="px-4 sm:px-8 py-4">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             {/* Previous Button */}
             <Button
               variant="outline"
               onClick={onPrevious}
               disabled={!hasPrevious}
-              className="flex items-center gap-2"
+              size="sm"
+              className="flex-shrink-0"
             >
               <ChevronLeft className="w-4 h-4" />
-              Previous Lesson
+              <span className="hidden sm:inline">Previous</span>
             </Button>
 
-            {/* Complete & Continue + Next Button */}
-            <div className="flex items-center gap-3">
-              {!isCompleted && (
-                <Button
-                  onClick={onMarkComplete}
-                  className="bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] text-white shadow-sm transition-all duration-200"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  Mark Complete & Continue
-                </Button>
-              )}
-
+            {/* Center Action */}
+            {!isCompleted ? (
               <Button
-                variant={isCompleted ? "default" : "outline"}
-                onClick={onNext}
-                disabled={!hasNext}
-                className={
-                  isCompleted
-                    ? "bg-[#2563EB] hover:bg-[#1D4ED8] text-white"
-                    : ""
-                }
+                onClick={onMarkComplete}
+                variant="primary"
+                size="sm"
+                className="flex-1 max-w-xs"
               >
-                Next Lesson
-                <ChevronRight className="w-4 h-4" />
+                <CheckCircle className="w-4 h-4" />
+                <span className="hidden xs:inline">Mark Complete</span>
+                <span className="xs:hidden">Complete</span>
               </Button>
-            </div>
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
+                <CheckCircle className="w-4 h-4" />
+                <span className="hidden sm:inline">Completed</span>
+              </div>
+            )}
+
+            {/* Next Button */}
+            <Button
+              variant={isCompleted ? "primary" : "outline"}
+              onClick={onNext}
+              disabled={!hasNext}
+              size="sm"
+              className="flex-shrink-0"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </div>
