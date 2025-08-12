@@ -142,8 +142,6 @@ export default function Footer() {
                 "Free Courses",
                 "Premium Courses",
                 "Course Categories",
-                "Become an Instructor",
-                "Student Dashboard",
               ].map((link) => (
                 <li key={link}>
                   <a href="#" className="text-slate-300 hover:text-white transition-colors">
@@ -161,10 +159,6 @@ export default function Footer() {
               {[
                 "Help Center",
                 "Contact Support",
-                "System Status",
-                "Course Refunds",
-                "Accessibility",
-                "Community Guidelines",
               ].map((link) => (
                 <li key={link}>
                   <a href="#" className="text-slate-300 hover:text-white transition-colors">

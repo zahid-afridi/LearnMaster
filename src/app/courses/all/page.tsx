@@ -169,28 +169,27 @@ export default function AllCoursesPage() {
           <div className="container max-w-6xl mx-auto px-4 sm:px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div>
-                <p className="text-sm uppercase tracking-widest opacity-90">All Courses</p>
-                <h1 className="mt-4 text-4xl sm:text-5xl font-extrabold leading-tight max-w-3xl">
+                {/* <p className="text-sm uppercase tracking-widest ">All Courses</p> */}
+                <h1 className="mt-4 text-4xl sm:text-3xl font-extrabold leading-tight max-w-3xl">
                   Elegant, expert-led courses to elevate your skills.
                 </h1>
                 <p className="mt-4 text-lg opacity-90 max-w-2xl">Explore {ALL_COURSES.length} curated courses • {totalStudents.toLocaleString()} students</p>
 
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-[1fr,auto] gap-3 items-center">
-                  <div className="relative">
-                    <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400" />
-                    <input
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      placeholder="Search courses, topics, or instructors..."
-                      className="w-full rounded-full py-3 pl-12 pr-4 text-white shadow-sm"
-                    />
+                  <div className="relative colot">
+                    <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-white-400 " />
+                   <input
+                        value={query}
+                              onChange={(e) => setQuery(e.target.value)}
+                               placeholder="Search courses, topics, or instructors..."
+                               className="w-full rounded-full py-3 pl-12 pr-4 text-white border-1 shadow-sm placeholder-white-400" 
+                          />
                   </div>
-
-                  <div className="flex gap-2 items-center justify-end">
+                  <div className="flex gap-2  justify-between">
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as any)}
-                      className="rounded-full py-2 px-4 bg-gray-100 text-black text-sm shadow-sm"
+                      className="rounded-full py-2 px-4 bg-gray-100 text-black text-sm shadow-sm "
                       aria-label="Sort courses"
                     >
                       <option value="popular">Most Popular</option>
@@ -209,7 +208,7 @@ export default function AllCoursesPage() {
                 </div>
 
                 {/* category chips */}
-                <div className="mt-6 flex flex-wrap gap-3">
+                <div className="mt-6 flex flex-wrap gap-3 ">
                   {categories.map((cat) => (
                     <button
                       key={cat}
@@ -225,8 +224,8 @@ export default function AllCoursesPage() {
                 </div>
               </div>
 
-              <div className="hidden md:block">
-                <div className="rounded-2xl bg-white/8 p-6 backdrop-blur-md border border-white/10">
+              <div className="hidden md:block mb-4">
+                <div className="rounded-2xl bg-white/8 p-6 backdrop-blur-md border border-white/10 mb-3">
                   <h3 className="text-lg font-semibold mb-3">Why LearnMaster?</h3>
                   <ul className="space-y-3 text-sm">
                     <li className="flex gap-3 items-start">
@@ -310,8 +309,8 @@ export default function AllCoursesPage() {
                     </div>
 
                     <div className="text-right">
-                      <div className="text-lg font-bold text-gray-900">${course.price.toFixed(2)}</div>
-                      <div className="text-xs line-through text-gray-400">${course.originalPrice.toFixed(2)}</div>
+                      {/* <div className="text-lg font-bold text-gray-900">${course.price.toFixed(2)}</div> */}
+                      {/* <div className="text-xs line-through text-gray-400">${course.originalPrice.toFixed(2)}</div> */}
                     </div>
                   </div>
 
@@ -320,7 +319,7 @@ export default function AllCoursesPage() {
                       onClick={() => handleOpenCourse(course.id)}
                       className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-indigo-600 text-white py-2 text-sm font-medium hover:bg-indigo-700 transition"
                     >
-                      Enroll Now
+                     Start Now
                     </button>
 
                     <button
