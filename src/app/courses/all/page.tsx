@@ -317,7 +317,7 @@ export default function AllCoursesPage() {
                   <div className="mt-5 flex items-center gap-3">
                     <button
                       onClick={() => handleOpenCourse(course.id)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-indigo-600 text-white py-2 text-sm font-medium hover:bg-indigo-700 transition"
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 text-white py-2 text-sm font-medium hover:bg-blue-700 transition"
                     >
                      Start Now
                     </button>

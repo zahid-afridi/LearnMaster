@@ -209,13 +209,13 @@ export default function FeaturedCourses() {
                 {/* Price + Button */}
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold">${course.price}</span>
+                    {/* <span className="text-lg font-bold">${course.price}</span>
                     <span className="text-sm text-gray-500 line-through">
                       ${course.originalPrice}
-                    </span>
+                    </span> */}
                   </div>
                   <button className="px-4 py-1.5 text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
-                    Enroll Now
+                   Start Now
                   </button>
                 </div>
               </div>
