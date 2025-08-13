@@ -70,7 +70,7 @@ export function LessonHeader({
         <div className="flex items-center justify-between gap-4">
           {/* Left Side - Title & Meta */}
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg sm:text-xl ml-[3px] font-semibold text-gray-900 line-clamp-2 leading-tight">
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-900 line-clamp-2 leading-tight">
               {title}
             </h1>
             <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">

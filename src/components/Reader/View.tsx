@@ -179,14 +179,6 @@ export default function View() {
           ${desktopSidebarOpen ? 'lg:w-64' : 'lg:w-0 lg:overflow-hidden'}
           w-64`}
       >
-        
-        {/* close mutton - mobile only */}
-        <div className="lg:hidden mt-[17] ml-[5px] text-[20px] p-2 border-b">
-          <button onClick={() => setMobileSidebarOpen(false)}>
-            ✕
-          </button>
-        </div>
-
         <LessonSidebar
           courseTitle={courseData.title}
           totalLessons={courseData.lessons.length}
@@ -198,7 +190,13 @@ export default function View() {
       </div>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${!desktopSidebarOpen ? 'lg:ml-0' : ''}`}>
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${!desktopSidebarOpen ? 'lg:ml-0' : ''}`}
+      onClick={()=>{
+        if(mobileSidebarOpen){
+          setMobileSidebarOpen(false)
+        }
+      }}
+      >
         <LessonHeader
           title={currentLesson?.title || 'Lesson'}
           readingTime="8 min"
@@ -207,6 +205,7 @@ export default function View() {
           onBookmark={() => setIsBookmarked(!isBookmarked)}
           onShare={() => console.log('Share clicked')}
           onComments={() => console.log('Comments clicked')}
+        
         />
 
         <div className="flex-1 overflow-y-auto">
