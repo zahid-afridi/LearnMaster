@@ -5,7 +5,7 @@ import { LessonHeader } from "./LessonHeader";
 import { LessonContent } from "./LessonContent";
 import { NotesSection } from "./NotesSection";
 import { LessonNavigation } from "./LessonNavigation";
-import { Menu } from "lucide-react";
+import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
 
 const courseData = {
   title: "Advanced React Development",
@@ -103,10 +103,11 @@ export default function View() {
   const [completedLessons, setCompletedLessons] = useState(2);
   const [notes, setNotes] = useState('');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
 
   const currentLesson = courseData.lessons.find(lesson => lesson.id === currentLessonId);
   const currentLessonIndex = courseData.lessons.findIndex(lesson => lesson.id === currentLessonId);
-  
+
   const handleLessonClick = (lessonId: number) => {
     const lesson = courseData.lessons.find(l => l.id === lessonId);
     if (lesson && lesson.status !== 'locked') {
@@ -146,7 +147,7 @@ export default function View() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
-      
+
       {/* Mobile Header */}
       <div className="lg:hidden flex items-center justify-between bg-white p-4 border-b">
         <button onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}>
@@ -156,12 +157,36 @@ export default function View() {
         <div></div>
       </div>
 
-      <div
-        className={`fixed lg:static inset-y-0 left-0 bg-white z-50 transform 
-          ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-          lg:translate-x-0 transition-transform duration-200 ease-in-out w-64 border-r 
-          flex xs:flex-row lg:flex-col`}
+      {/* Desktop Sidebar Toggle Button */}
+      <button
+        onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+        className="hidden lg:block fixed top-4 left-5 z-50 p-[3px] bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
+        style={{
+          left: desktopSidebarOpen ? '250px' : '16px',
+          transition: 'left 0.3s ease-in-out',
+          marginTop:'12px'
+        }}
       >
+        {desktopSidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+      </button>
+
+      {/* Sidebar */}
+      <div
+        className={`fixed lg:static inset-y-0 left-0 bg-white z-40 transform 
+          ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+          lg:translate-x-0 transition-all duration-300 ease-in-out border-r 
+          flex xs:flex-row lg:flex-col
+          ${desktopSidebarOpen ? 'lg:w-64' : 'lg:w-0 lg:overflow-hidden'}
+          w-64`}
+      >
+        
+        {/* close mutton - mobile only */}
+        <div className="lg:hidden mt-[17] ml-[5px] text-[20px] p-2 border-b">
+          <button onClick={() => setMobileSidebarOpen(false)}>
+            ✕
+          </button>
+        </div>
+
         <LessonSidebar
           courseTitle={courseData.title}
           totalLessons={courseData.lessons.length}
@@ -173,7 +198,7 @@ export default function View() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${!desktopSidebarOpen ? 'lg:ml-0' : ''}`}>
         <LessonHeader
           title={currentLesson?.title || 'Lesson'}
           readingTime="8 min"
@@ -185,7 +210,6 @@ export default function View() {
         />
 
         <div className="flex-1 overflow-y-auto">
-          {/* <LessonContent content={sampleContent} /> */}
           <LessonContent content={sampleCourse.lessons.find(l => l.id === currentLessonId)?.content || []} />
 
           <NotesSection
