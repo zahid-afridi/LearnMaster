@@ -72,6 +72,7 @@ export function LessonSidebar({
   return (
     <div className="w-72 sm:w-80 bg-white border-r border-gray-100 h-screen sticky top-0 flex flex-col">
       {/* Course Header */}
+      
       <div className="p-4 sm:p-6 border-b border-gray-100">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#2563EB] rounded-lg flex items-center justify-center">
