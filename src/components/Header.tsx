@@ -6,7 +6,7 @@ import {
   ShoppingCart,
   Menu,
   GraduationCap,
-    Code, 
+   Code, 
   Palette, 
   BarChart3, 
   Megaphone, 
@@ -66,12 +66,13 @@ export default function Header({ onNavigate }: ModernHeaderProps) {
           <div className="flex h-16 items-center justify-between px-4 sm:px-6">
             {/* Logo */}
             <div className="flex items-center gap-4">
+              {/* Mobile Menu 
               <button
                 onClick={() => setIsMobileMenuOpen(pre => !pre)}
                 className="p-2 rounded-md hover:bg-gray-100 md:hidden"
               >
                 <Menu className="h-5 w-5" />
-              </button>
+              </button> */}
               <div
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() =>router.push("/")}
@@ -137,23 +138,23 @@ export default function Header({ onNavigate }: ModernHeaderProps) {
           </div>
         </div>
       </header>
-
+{/* commit  menu icon for mobile from Header */}
       {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
+      {/* {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div
             className="fixed inset-0 bg-black/50"
             onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <div className="fixed top-0 right-0 w-64 h-full bg-white shadow-xl transform transition-transform duration-300 translate-x-0">
-            <div className="p-6 space-y-4">
-              <button
+          /> */}
+          {/* <div className="fixed top-0 right-0 w-64 h-full bg-white shadow-xl transform transition-transform duration-300 translate-x-0">
+            <div className="p-6 space-y-4"> */}
+              {/* <button
                 onClick={() => handleNavigation("home")}
                 className="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100/50"
               >
                 Home
-              </button>
-              <button
+              </button> */}
+              {/* <button
                 onClick={() => handleNavigation("dashboard")}
                 className="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100/50"
               >
@@ -170,11 +171,11 @@ export default function Header({ onNavigate }: ModernHeaderProps) {
                 className="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100/50"
               >
                 Categories
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              </button> */}
+            {/* </div>
+          </div> */}
+        {/* </div>
+      )} */}
 
       
     </>
