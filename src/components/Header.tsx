@@ -6,7 +6,7 @@ import {
   ShoppingCart,
   Menu,
   GraduationCap,
-    Code, 
+  Code, 
   Palette, 
   BarChart3, 
   Megaphone, 
@@ -15,9 +15,13 @@ import {
   Heart, 
   Globe,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  User,
+  Settings,
+  HelpCircle,
+  LogOut
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Profile from '../../public/assets/profile.jpg'
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -30,6 +34,8 @@ export default function Header({ onNavigate }: ModernHeaderProps) {
   const router= useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,21 +45,33 @@ export default function Header({ onNavigate }: ModernHeaderProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // close profile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleNavigation = (page: string) => {
     setIsMobileMenuOpen(false);
     onNavigate?.(page);
   };
 
   const categories = [
-  { id: 1, name: "Development", icon: Code, color: "bg-blue-500", courses: 450 },
-  { id: 2, name: "Design", icon: Palette, color: "bg-purple-500", courses: 320 },
-  { id: 3, name: "Data Science", icon: BarChart3, color: "bg-green-500", courses: 180 },
-  { id: 4, name: "Marketing", icon: Megaphone, color: "bg-orange-500", courses: 240 },
-  { id: 5, name: "Photography", icon: Camera, color: "bg-pink-500", courses: 160 },
-  { id: 6, name: "Business", icon: DollarSign, color: "bg-emerald-500", courses: 380 },
-  { id: 7, name: "Health", icon: Heart, color: "bg-red-500", courses: 120 },
-  { id: 8, name: "Languages", icon: Globe, color: "bg-indigo-500", courses: 200 },
-]
+    { id: 1, name: "Development", icon: Code, color: "bg-blue-500", courses: 450 },
+    { id: 2, name: "Design", icon: Palette, color: "bg-purple-500", courses: 320 },
+    { id: 3, name: "Data Science", icon: BarChart3, color: "bg-green-500", courses: 180 },
+    { id: 4, name: "Marketing", icon: Megaphone, color: "bg-orange-500", courses: 240 },
+    { id: 5, name: "Photography", icon: Camera, color: "bg-pink-500", courses: 160 },
+    { id: 6, name: "Business", icon: DollarSign, color: "bg-emerald-500", courses: 380 },
+    { id: 7, name: "Health", icon: Heart, color: "bg-red-500", courses: 120 },
+    { id: 8, name: "Languages", icon: Globe, color: "bg-indigo-500", courses: 200 },
+  ]
+  
   return (
     <>
       {/* Header */}
@@ -66,12 +84,6 @@ export default function Header({ onNavigate }: ModernHeaderProps) {
           <div className="flex h-16 items-center justify-between px-4 sm:px-6">
             {/* Logo */}
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsMobileMenuOpen(pre => !pre)}
-                className="p-2 rounded-md hover:bg-gray-100 md:hidden"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
               <div
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() =>router.push("/")}
@@ -120,63 +132,49 @@ export default function Header({ onNavigate }: ModernHeaderProps) {
               </button>
 
               {/* Profile */}
-              <div className="flex items-center gap-3">
-                <div className="text-right hidden lg:block">
-                  <p className="text-sm font-medium">John Doe</p>
-                  <p className="text-xs text-gray-500">Premium Student</p>
+              <div className="relative" ref={profileRef}>
+                <div 
+                  className="flex items-center gap-3 cursor-pointer"
+                  onClick={() => setIsProfileOpen((prev) => !prev)}
+                >
+                  <div className="text-right hidden lg:block">
+                    <p className="text-sm font-medium">John Doe</p>
+                    <p className="text-xs text-gray-500">Premium Student</p>
+                  </div>
+                  <div className="h-9 w-9 rounded-full overflow-hidden ring-2 ring-blue-700/20 flex items-center justify-center bg-blue-700 text-white">
+                    <Image
+                      src={Profile}
+                      alt="John Doe"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                 </div>
-                <div className="h-9 w-9 rounded-full overflow-hidden ring-2 ring-blue-700/20 flex items-center justify-center bg-blue-700 text-white">
-                  <Image
-                    src={Profile}
-                    alt="John Doe"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
+
+                {/* Profile Dropdown */}
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-3 w-56 rounded-xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden animate-fadeIn">
+                    <div className="p-2">
+                      <button className="flex w-full items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <User className="w-5 h-5 text-blue-600" /> Profile
+                      </button>
+                      <button className="flex w-full items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <Settings className="w-5 h-5 text-purple-600" /> Settings
+                      </button>
+                      <button className="flex w-full items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <HelpCircle className="w-5 h-5 text-green-600" /> Help & Support
+                      </button>
+                      <hr className="my-2"/>
+                      <button className="flex w-full items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <LogOut className="w-5 h-5 text-red-600" /> Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </header>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div
-            className="fixed inset-0 bg-black/50"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <div className="fixed top-0 right-0 w-64 h-full bg-white shadow-xl transform transition-transform duration-300 translate-x-0">
-            <div className="p-6 space-y-4">
-              <button
-                onClick={() => handleNavigation("home")}
-                className="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100/50"
-              >
-                Home
-              </button>
-              <button
-                onClick={() => handleNavigation("dashboard")}
-                className="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100/50"
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={() => handleNavigation("courses")}
-                className="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100/50"
-              >
-                Courses
-              </button>
-              <button
-                onClick={() => handleNavigation("categories")}
-                className="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100/50"
-              >
-                Categories
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      
     </>
   );
 }
