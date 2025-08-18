@@ -124,7 +124,7 @@ export default function Footer() {
                   key={idx}
                   variant="ghost"
                   size="sm"
-                  className="text-slate-400 hover:text-white"
+                  className="text-slate-400 "
                   aria-label={`Open social ${idx + 1}`}
                 >
                   <Icon className="h-5 w-5" />
