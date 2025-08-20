@@ -6,7 +6,9 @@ import { LessonContent } from "./LessonContent";
 import { NotesSection } from "./NotesSection";
 import { LessonNavigation } from "./LessonNavigation";
 import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
+import lessonData from '../../../public/index.js'
 
+console.log(lessonData)
 const courseData = {
   title: "Advanced React Development",
   lessons: [
@@ -96,6 +98,7 @@ function Counter() {
   ]
 };
 
+console.log("courser form home",lessonData.modules[0].lessons)
 export default function View() {
   const [currentLessonId, setCurrentLessonId] = useState(1);
   const [lessonProgress, setLessonProgress] = useState(45);
@@ -181,10 +184,12 @@ export default function View() {
       >
         <LessonSidebar
           courseTitle={courseData.title}
-          totalLessons={courseData.lessons.length}
-          completedLessons={completedLessons}
+          totalLessons={lessonData.metadata.totalLessons}
+          completedLessons={lessonData.metadata.completedlesson}
           currentLessonId={currentLessonId}
-          lessons={courseData.lessons}
+          // lessons={courseData.lessons}
+          lessons={lessonData.modules[0].lessons}
+
           onLessonClick={handleLessonClick}
         />
       </div>

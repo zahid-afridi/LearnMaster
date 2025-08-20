@@ -3,33 +3,6 @@
 import * as React from "react";
 import { CheckCircle, Clock, Lock, BookOpen } from "lucide-react";
 
-function Badge({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${className}`}>
-      {children}
-    </span>
-  );
-}
-
-function Progress({ value = 0, className = "" }: { value?: number; className?: string }) {
-  return (
-    <div className={`bg-primary/20 relative h-2 w-full overflow-hidden rounded-full ${className}`}>
-      <div className="bg-blue-600 h-full transition-all" style={{ width: `${value}%` }} />
-    </div>
-  );
-}
-
-function ScrollArea({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div
-      className={`relative overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent ${className}`}
-      style={{ scrollbarWidth: "thin" }}
-    >
-      {children}
-    </div>
-  );
-}
-
 interface Lesson {
   id: number;
   title: string;
@@ -55,7 +28,7 @@ export function LessonSidebar({
   onLessonClick,
 }: LessonSidebarProps) {
   const progressPercentage = (completedLessons / totalLessons) * 100;
-
+console.log(lessons)
   const getStatusIcon = (status: string, isActive: boolean) => {
     switch (status) {
       case "completed":
@@ -72,7 +45,6 @@ export function LessonSidebar({
   return (
     <div className="w-72 sm:w-80 bg-white border-r border-gray-100 h-screen sticky top-0 flex flex-col">
       {/* Course Header */}
-      
       <div className="p-4 sm:p-6 border-b border-gray-100">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#2563EB] rounded-lg flex items-center justify-center">
@@ -88,11 +60,13 @@ export function LessonSidebar({
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-xs sm:text-sm text-gray-600">Course Progress</span>
-            <Badge className="bg-[#EFF6FF] text-[#2563EB] border-[#2563EB]/20">
+            <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-[#EFF6FF] text-[#2563EB] border-[#2563EB]/20">
               {Math.round(progressPercentage)}%
-            </Badge>
+            </span>
           </div>
-          <Progress value={progressPercentage} className="h-2" />
+          <div className="bg-primary/20 relative h-2 w-full overflow-hidden rounded-full">
+            <div className="bg-blue-600 h-full transition-all" style={{ width: `${progressPercentage}%` }} />
+          </div>
           <p className="text-[10px] sm:text-xs text-gray-500">
             {completedLessons} of {totalLessons} lessons completed
           </p>
@@ -100,13 +74,17 @@ export function LessonSidebar({
       </div>
 
       {/* Lessons List */}
-      <ScrollArea className="flex-1">
+      <div
+        className="flex-1 relative overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+        style={{ scrollbarWidth: "thin" }}
+      >
         <div className="p-3 sm:p-4 space-y-2">
           {lessons.map((lesson) => {
             const isActive = lesson.id === currentLessonId;
             const isClickable = lesson.status !== "locked";
-
+              {console.log("map:",lesson)}
             return (
+              
               <div
                 key={lesson.id}
                 onClick={() => isClickable && onLessonClick(lesson.id)}
@@ -135,7 +113,7 @@ export function LessonSidebar({
             );
           })}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }

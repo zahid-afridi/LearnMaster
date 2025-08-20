@@ -1,130 +1,159 @@
-const lessondata = [
-  {
-    id: 1,
-    title: "Introduction to React.js",
-    lesson: [
-      "React.js (commonly called React) is a JavaScript library used for building user interfaces (UI), especially for single-page applications (SPAs).",
-      "It was developed by Facebook (Meta) in 2013 and is now maintained by Meta and a large community of developers.",
-      "React is component-based, declarative, and makes building dynamic UIs easier."
-    ]
-  },
+const lessonData = {
+  courseId: "react-101",
+  slug: "react-tutorial",
+  hasModules: true,
+  metadata: {
+    title: "React Tutorial",
+    shortDescription: "Learn React step by step — from basics to advanced concepts with real-world examples.",
+    level: "Beginner → Advanced",
+    tags: ["react", "frontend", "hooks", "javascript"],
+    estimatedTime: "14h",
+    prerequisites: ["HTML & CSS", "JavaScript (ES6+)"],
+    author: { id: "team-1", name: "LMS Academy" },
+    version: "1.0.0",
+    published: true,
+    totalLessons:10,
+    completedlesson:4,
+    createdAt: "2025-08-20T20:00:00Z",
+    updatedAt: "2025-08-20T20:00:00Z"
 
-  {
-    id: 2,
-    title: "Understanding JSX",
-    lesson: [
-      "JSX stands for JavaScript XML. It allows you to write HTML-like syntax inside JavaScript.",
-      "JSX makes it easier to visualize the structure of the UI inside the code.",
-      "Example: const element = <h1>Hello World</h1>;"
-    ]
   },
+  modules: [
+    {
+      moduleId: "m1",
+      order: 1,
+      slug: "basics",
+      title: "React Basics",
+      description: "Fundamental building blocks of React.",
+      lessons: [
+        {
+          lessonId: "l1-intro",
+          order: 1,
+          slug: "introduction-to-react",
+          title: "Introduction to React",
+          difficulty: "easy",
+          estimatedTime: "12m",
+          status: 'completed',
+          content: [
+            { type: "heading", level: 2, text: "What is React?" },
+            { type: "paragraph", text: "React is a JavaScript library for building user interfaces. It enables you to create reusable UI components." },
+            { type: "image", src: "/assets/react-lifecycle.png", alt: "React lifecycle" },
+            { type: "code", language: "javascript", code: "function Welcome(){ return <h1>Hello, React!</h1> } export default Welcome;" },
+            { type: "warning", text: "React only manages the view layer — for routing and state management, you need extra libraries." },
+            { type: "quiz", id: "q-l1-1", question: "React is a:", options: ["Library", "Framework", "Database"], correctIndex: 0 }
+          ],
+          resources: [
+            { type: "link", title: "React Official Docs", url: "https://react.dev" }
+          ],
+          meta: { published: true, updatedAt: "2025-08-20T20:00:00Z" }
+        },
+        {
+          lessonId: "l2-jsx",
+          order: 2,
+          slug: "jsx-in-react",
+          title: "JSX in React",
+          difficulty: "easy",
+          status: 'current',
+          estimatedTime: "15m",
+          content: [
+            { type: "heading", level: 2, text: "What is JSX?" },
+            { type: "paragraph", text: "JSX looks like HTML but compiles to JavaScript. It makes writing UI components easier." },
+            { type: "code", language: "javascript", code: "const el = <h1 className='title'>Hello</h1>;" },
+            { type: "note", text: "JSX must return a single root node." }
+          ]
+        },
+        {
+          lessonId: "l2-jsx",
+          order: 2,
+          slug: "jsx-in-react",
+          title: "JSX in React",
+          difficulty: "easy",
+          status: 'locked',
+          estimatedTime: "15m",
+          content: [
+            { type: "heading", level: 2, text: "What is JSX?" },
+            { type: "paragraph", text: "JSX looks like HTML but compiles to JavaScript. It makes writing UI components easier." },
+            { type: "code", language: "javascript", code: "const el = <h1 className='title'>Hello</h1>;" },
+            { type: "note", text: "JSX must return a single root node." }
+          ]
+        },
+        
+        
+      ]
+    },
 
-  {
-    id: 3,
-    title: "Components in React",
-    lesson: [
-      "Components are the building blocks of React applications.",
-      "There are two types of components: Functional Components and Class Components.",
-      "Components help in reusing UI and logic."
-    ]
-  },
+    {
+      moduleId: "m2",
+      order: 2,
+      slug: "hooks",
+      title: "React Hooks",
+      description: "Learn how to use hooks for state and lifecycle management.",
+      lessons: [
+        {
+          lessonId: "l3-usestate",
+          order: 1,
+          slug: "useState",
+          title: "useState Hook",
+          difficulty: "medium",
+          estimatedTime: "18m",
+          content: [
+            { type: "paragraph", text: "useState allows you to manage state in functional components." },
+            { type: "code", language: "javascript", code: "const [count,setCount] = useState(0);" },
+            { type: "quiz", id: "q-l3-1", question: "What does useState return?", options: ["value", "[value, setter]", "setter only"], correctIndex: 1 }
+          ]
+        },
+        {
+          lessonId: "l4-useeffect",
+          order: 2,
+          slug: "useEffect",
+          title: "useEffect Hook",
+          difficulty: "medium",
+          estimatedTime: "20m",
+          content: [
+            { type: "paragraph", text: "useEffect lets you perform side effects such as fetching data or subscriptions." },
+            { type: "code", language: "javascript", code: "useEffect(()=>{ fetchData(); },[])" },
+            { type: "warning", text: "Empty dependency array runs the effect only once after mount." }
+          ]
+        }
+      ]
+    },
 
-  {
-    id: 4,
-    title: "useState Hook",
-    lesson: [
-      "useState is a React Hook that lets you add state to functional components.",
-      "Before Hooks, only class components could have state.",
-      "Example: const [count, setCount] = useState(0);"
-    ]
-  },
+    {
+      moduleId: "m3",
+      order: 3,
+      slug: "advanced",
+      title: "Advanced React",
+      description: "Complex concepts and performance patterns.",
+      lessons: [
+        {
+          lessonId: "l5-context",
+          order: 1,
+          slug: "context-api",
+          title: "React Context API",
+          difficulty: "hard",
+          estimatedTime: "25m",
+          content: [
+            { type: "paragraph", text: "Context helps avoid prop-drilling by providing global state." },
+            { type: "code", language: "javascript", code: "const ThemeContext = createContext('light');" }
+          ]
+        },
+        {
+          lessonId: "l6-performance",
+          order: 2,
+          slug: "performance-optimization",
+          title: "Performance Optimization",
+          difficulty: "hard",
+          estimatedTime: "30m",
+          content: [
+            { type: "paragraph", text: "React provides memoization, lazy loading, and virtualization for performance optimization." },
+            { type: "code", language: "javascript", code: "const MemoComp = React.memo(MyComponent);" },
+            { type: "note", text: "Always measure before optimizing!" }
+          ]
+        }
+      ]
+    }
+  ]
+};
 
-  {
-    id: 5,
-    title: "useEffect Hook",
-    lesson: [
-      "useEffect is a React Hook that lets you perform side effects in functional components.",
-      "It replaces lifecycle methods like componentDidMount, componentDidUpdate, and componentWillUnmount.",
-      "Common uses: Fetching data, updating the DOM, setting up subscriptions."
-    ]
-  },
 
-  {
-    id: 6,
-    title: "Props in React",
-    lesson: [
-      "Props (short for properties) are used to pass data from parent to child components.",
-      "Props are read-only; a child cannot modify props directly.",
-      "Example: <Greeting name='Shakir' />"
-    ]
-  },
-
-  {
-    id: 7,
-    title: "Conditional Rendering",
-    lesson: [
-      "React allows conditional rendering using JavaScript operators like if, &&, and ternary.",
-      "Example: {isLoggedIn ? <Dashboard /> : <Login />}"
-    ]
-  },
-
-  {
-    id: 8,
-    title: "Lists and Keys",
-    lesson: [
-      "Lists in React are rendered using the map() function.",
-      "Each list item should have a unique 'key' prop for better performance.",
-      "Example: items.map(item => <li key={item.id}>{item.name}</li>)"
-    ]
-  },
-
-  {
-    id: 9,
-    title: "Forms in React",
-    lesson: [
-      "Forms in React are controlled using state.",
-      "You handle form input values using useState.",
-      "Example: <input type='text' value={name} onChange={(e) => setName(e.target.value)} />"
-    ]
-  },
-
-  {
-    id: 10,
-    title: "Custom Hooks",
-    lesson: [
-      "A Custom Hook is a JavaScript function that starts with the word 'use'.",
-      "It allows you to extract and reuse logic across multiple components.",
-      "Example: useFetch(), useAuth()"
-    ]
-  },
-
-  {
-    id: 11,
-    title: "Performance Optimization",
-    lesson: [
-      "In React.js, performance optimization means making your app faster and smoother.",
-      "Techniques include: React.memo, useCallback, useMemo, and code splitting.",
-      "Avoid unnecessary re-renders by using keys properly and optimizing state."
-    ]
-  },
-
-  {
-    id: 12,
-    title: "React Router",
-    lesson: [
-      "React Router is used for navigation between different pages in a React app.",
-      "It enables Single Page Application (SPA) behavior without reloading the page.",
-      "Example: <Route path='/about' element={<About />} />"
-    ]
-  },
-
-  {
-    id: 13,
-    title: "State Management",
-    lesson: [
-      "State management is crucial for handling data across components.",
-      "For small apps: useState, useReducer.",
-      "For larger apps: Context API, Redux, Zustand, or Recoil."
-    ]
-  }
-];
+export default lessonData
