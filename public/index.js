@@ -37,7 +37,7 @@ const lessonData = {
           content: [
             { type: "heading", level: 2, text: "What is React?" },
             { type: "paragraph", text: "React is a JavaScript library for building user interfaces. It enables you to create reusable UI components." },
-            { type: "image", src: "/assets/react-lifecycle.png", alt: "React lifecycle" },
+            { type: "image", src: "https://www.logo.wine/a/logo/React_(web_framework)/React_(web_framework)-Logo.wine.svg", alt: "React lifecycle" },
             { type: "code", language: "javascript", code: "function Welcome(){ return <h1>Hello, React!</h1> } export default Welcome;" },
             { type: "warning", text: "React only manages the view layer — for routing and state management, you need extra libraries." },
             { type: "quiz", id: "q-l1-1", question: "React is a:", options: ["Library", "Framework", "Database"], correctIndex: 0 }
@@ -62,21 +62,8 @@ const lessonData = {
             { type: "note", text: "JSX must return a single root node." }
           ]
         },
-        {
-          lessonId: "l2-jsx",
-          order: 2,
-          slug: "jsx-in-react",
-          title: "JSX in React",
-          difficulty: "easy",
-          status: 'locked',
-          estimatedTime: "15m",
-          content: [
-            { type: "heading", level: 2, text: "What is JSX?" },
-            { type: "paragraph", text: "JSX looks like HTML but compiles to JavaScript. It makes writing UI components easier." },
-            { type: "code", language: "javascript", code: "const el = <h1 className='title'>Hello</h1>;" },
-            { type: "note", text: "JSX must return a single root node." }
-          ]
-        },
+       
+     
         
         
       ]
@@ -151,7 +138,8 @@ const lessonData = {
           ]
         }
       ]
-    }
+    },
+    
   ]
 };
 

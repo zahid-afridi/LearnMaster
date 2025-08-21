@@ -1,6 +1,11 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, CheckCircle, ArrowRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle,
+  ArrowRight,
+} from "lucide-react";
 
 // Enhanced Button Component
 function Button({
@@ -20,17 +25,20 @@ function Button({
 }) {
   const baseStyles =
     "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95";
-  
+
   const sizeStyles = {
     sm: "px-3 py-2 text-sm",
     md: "px-4 py-2.5 text-sm sm:text-base",
-    lg: "px-6 py-3 text-base"
+    lg: "px-6 py-3 text-base",
   };
 
   const variantStyles = {
-    outline: "border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 text-gray-700 shadow-sm hover:shadow-md",
-    default: "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl",
-    primary: "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl"
+    outline:
+      "border-2 border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 text-gray-700 shadow-sm hover:shadow-md",
+    default:
+      "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl",
+    primary:
+      "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl",
   };
 
   return (

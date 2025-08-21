@@ -1,173 +1,138 @@
-'use client'
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { LessonSidebar } from "./LessonSidebar";
 import { LessonHeader } from "./LessonHeader";
 import { LessonContent } from "./LessonContent";
 import { NotesSection } from "./NotesSection";
 import { LessonNavigation } from "./LessonNavigation";
 import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
-import lessonData from '../../../public/index.js'
+import lessonData from "../../../public/index.js";
 
-console.log(lessonData)
-const courseData = {
-  title: "Advanced React Development",
-  lessons: [
-    { id: 1, title: "Introduction to React Hooks", duration: "15 min", status: 'completed' as const },
-    { id: 2, title: "Understanding useEffect", duration: "20 min", status: 'completed' as const },
-    { id: 3, title: "Custom Hooks Patterns", duration: "25 min", status: 'current' as const },
-    { id: 4, title: "Performance Optimization", duration: "30 min", status: 'locked' as const },
-    { id: 5, title: "Testing React Components", duration: "35 min", status: 'locked' as const },
-    { id: 6, title: "State Management with Context", duration: "25 min", status: 'locked' as const },
-    { id: 7, title: "Advanced Patterns", duration: "40 min", status: 'locked' as const },
-  ]
-};
+// Import centralized types
+import type { Lesson, Module, LessonData, ExtendedLesson } from "../../types/lesson";
 
-const sampleCourse = {
-  id: 1,
-  title: "Advanced React Development",
-  lessons: [
-    {
-      id: 1,
-      title: "Introduction to React Hooks",
-      duration: "15 min",
-      status: "completed",
-      content: [
-        { type: "h1" as const, text: "Introduction to React Hooks" },
-        { type: "p" as const, text: "React Hooks let you use state and other React features without writing a class. In this lesson you'll learn the basic hooks and when to use them." },
-        { type: "img" as const, src: "/hooks-intro.png", alt: "React hooks illustration", caption: "React hooks lifecycle overview" },
-        { type: "h2" as const, text: "Basic Hooks" },
-        { type: "p" as const, text: "The most common hooks are useState, useEffect, and useRef." },
-        {
-          type: "code" as const,
-          language: "javascript",
-          code: `// simple counter with useState
-import React, { useState } from 'react';
+// Safe cast to centralized type
+const typedLessonData = lessonData as unknown as LessonData;
 
-function Counter() {
-  const [count, setCount] = useState(0);
-  return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount(c => c + 1)}>Increment</button>
-    </div>
-  );
-}`
-        },
-        { type: "blockquote" as const, text: "Hooks let you reuse stateful logic without changing your component hierarchy." }
-      ]
-    },
-    {
-      id: 2,
-      title: "Custom Hooks Patterns",
-      duration: "25 min",
-      status: "current",
-      content: [
-        { type: "h1" as const, text: "Custom Hooks Patterns" },
-        { type: "p" as const, text: "Custom hooks help you extract reusable logic. We'll walk through examples, from localStorage hooks to compound hooks." },
-        {
-          type: "code" as const,
-          language: "javascript",
-          code: `function useLocalStorage(key, initialValue) {
-  const [storedValue, setStoredValue] = useState(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      return initialValue;
+export default function View() {
+  const [lessonProgress, setLessonProgress] = useState(45);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+  const [clickLesson, setClickLesson] = useState<ExtendedLesson | null>(null);
+  const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
+
+  // Create flat list of all lessons
+  const getAllLessons = (): ExtendedLesson[] => {
+    const allLessons: ExtendedLesson[] = [];
+    typedLessonData.modules.forEach((module, moduleIndex) => {
+      module.lessons.forEach((lesson, lessonIndex) => {
+        allLessons.push({
+          ...lesson,
+          moduleIndex,
+          lessonIndex,
+          moduleTitle: module.title,
+        });
+      });
+    });
+    return allLessons;
+  };
+
+  const allLessons = getAllLessons();
+
+  // Initialize first lesson
+  useEffect(() => {
+    if (allLessons.length > 0) {
+      setClickLesson(allLessons[0]);
+      setCurrentLessonIndex(0);
     }
-  });
+  }, []);
 
-  const setValue = (value) => {
-    try {
-      setStoredValue(value);
-      window.localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      console.error('Error saving to localStorage:', error);
+  // Update current lesson index when lesson changes
+  useEffect(() => {
+    if (clickLesson?.lessonId) {
+      const index = allLessons.findIndex(
+        (lesson) => lesson.lessonId === clickLesson.lessonId
+      );
+      if (index !== -1) {
+        setCurrentLessonIndex(index);
+      }
+    }
+  }, [clickLesson, allLessons]);
+
+  // Navigation handlers
+  const handlePrevious = () => {
+    if (currentLessonIndex > 0) {
+      const prevLesson = allLessons[currentLessonIndex - 1];
+      setClickLesson(prevLesson);
+      setCurrentLessonIndex(currentLessonIndex - 1);
     }
   };
 
-  return [storedValue, setValue];
-}`
-        },
-        { type: "h2" as const, text: "Compound Hooks" },
-        { type: "p" as const, text: "Return objects when your hook has multiple helpers." },
-        { type: "ul" as const, items: ["Return objects for many helpers", "Use useCallback to memoize functions", "Test hooks with react-hooks-testing-library"] }
-      ]
-    },
-    // ... add more lessons here
-  ]
-};
+  const handleNext = () => {
+    if (currentLessonIndex < allLessons.length - 1) {
+      const nextLesson = allLessons[currentLessonIndex + 1];
+      setClickLesson(nextLesson);
+      setCurrentLessonIndex(currentLessonIndex + 1);
 
-console.log("courser form home",lessonData.modules[0].lessons)
-export default function View() {
-  const [currentLessonId, setCurrentLessonId] = useState(1);
-  const [lessonProgress, setLessonProgress] = useState(45);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [completedLessons, setCompletedLessons] = useState(2);
-  const [notes, setNotes] = useState('');
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
-
-  const currentLesson = courseData.lessons.find(lesson => lesson.id === currentLessonId);
-  const currentLessonIndex = courseData.lessons.findIndex(lesson => lesson.id === currentLessonId);
-
-  const handleLessonClick = (lessonId: number) => {
-    const lesson = courseData.lessons.find(l => l.id === lessonId);
-    if (lesson && lesson.status !== 'locked') {
-      setCurrentLessonId(lessonId);
-      setLessonProgress(0);
-      setMobileSidebarOpen(false); // Close sidebar on mobile
+      if (lessonProgress < 100) {
+        setLessonProgress(100);
+      }
     }
   };
 
   const handleMarkComplete = () => {
     setLessonProgress(100);
-    setCompletedLessons(prev => Math.max(prev, currentLessonId));
+
+    setTimeout(() => {
+      if (currentLessonIndex < allLessons.length - 1) {
+        handleNext();
+      }
+    }, 500);
   };
 
-  const handlePrevious = () => {
-    if (currentLessonIndex > 0) {
-      const prevLesson = courseData.lessons[currentLessonIndex - 1];
-      if (prevLesson.status !== 'locked') {
-        setCurrentLessonId(prevLesson.id);
-      }
+  // Handle lesson selection from sidebar
+  const handleLessonClick = (lesson: Lesson) => {
+    const extendedLesson = allLessons.find(
+      (l) => l.lessonId === lesson.lessonId
+    );
+    if (extendedLesson) {
+      setClickLesson(extendedLesson);
+    }
+    if (mobileSidebarOpen) {
+      setMobileSidebarOpen(false);
     }
   };
 
-  const handleNext = () => {
-    if (currentLessonIndex < courseData.lessons.length - 1) {
-      const nextLesson = courseData.lessons[currentLessonIndex + 1];
-      if (nextLesson.status !== 'locked') {
-        setCurrentLessonId(nextLesson.id);
-      }
-    }
-  };
-
-  const handleSaveNotes = (newNotes: string) => {
-    setNotes(newNotes);
-    console.log('Notes saved:', newNotes);
-  };
+  // Wait until lesson selected
+  if (!clickLesson) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
-
       {/* Mobile Header */}
       <div className="lg:hidden flex items-center justify-between bg-white p-4 border-b">
         <button onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}>
           <Menu size={24} />
         </button>
-        <h1 className="font-bold">{courseData.title}</h1>
+        <h1 className="font-bold">{typedLessonData.metadata.title}</h1>
         <div></div>
       </div>
 
-      {/* Desktop Sidebar Toggle Button */}
+      {/* Desktop Sidebar Toggle */}
       <button
         onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
         className="hidden lg:block fixed top-4 left-5 z-50 p-[3px] bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
         style={{
-          left: desktopSidebarOpen ? '250px' : '16px',
-          transition: 'left 0.3s ease-in-out',
-          marginTop:'12px'
+          left: desktopSidebarOpen ? "250px" : "16px",
+          transition: "left 0.3s ease-in-out",
+          marginTop: "12px",
         }}
       >
         {desktopSidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
@@ -175,61 +140,51 @@ export default function View() {
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:static inset-y-0 left-0 bg-white z-40 transform 
-          ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-          lg:translate-x-0 transition-all duration-300 ease-in-out border-r 
-          flex xs:flex-row lg:flex-col
-          ${desktopSidebarOpen ? 'lg:w-64' : 'lg:w-0 lg:overflow-hidden'}
+        className={`fixed lg:static inset-y-0 left-0 bg-white z-40 transform
+           ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+           lg:translate-x-0 transition-all duration-300 ease-in-out border-r
+           flex xs:flex-row lg:flex-col
+          ${desktopSidebarOpen ? "lg:w-64" : "lg:w-0 lg:overflow-hidden"}
           w-64`}
       >
         <LessonSidebar
-          courseTitle={courseData.title}
-          totalLessons={lessonData.metadata.totalLessons}
-          completedLessons={lessonData.metadata.completedlesson}
-          currentLessonId={currentLessonId}
-          // lessons={courseData.lessons}
-          lessons={lessonData.modules[0].lessons}
-
-          onLessonClick={handleLessonClick}
+          lessonData={typedLessonData}
+          setClickLesson={handleLessonClick}
         />
       </div>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${!desktopSidebarOpen ? 'lg:ml-0' : ''}`}
-      onClick={()=>{
-        if(mobileSidebarOpen){
-          setMobileSidebarOpen(false)
-        }
-      }}
+      <div
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${
+          !desktopSidebarOpen ? "lg:ml-0" : ""
+        }`}
+        onClick={() => {
+          if (mobileSidebarOpen) setMobileSidebarOpen(false);
+        }}
       >
         <LessonHeader
-          title={currentLesson?.title || 'Lesson'}
-          readingTime="8 min"
+          HeaderData={clickLesson}
           progress={lessonProgress}
           isBookmarked={isBookmarked}
           onBookmark={() => setIsBookmarked(!isBookmarked)}
-          onShare={() => console.log('Share clicked')}
-          onComments={() => console.log('Comments clicked')}
-        
+          onShare={() => console.log("Share clicked")}
+          onComments={() => console.log("Comments clicked")}
         />
 
         <div className="flex-1 overflow-y-auto">
-          <LessonContent content={sampleCourse.lessons.find(l => l.id === currentLessonId)?.content || []} />
-
-          <NotesSection
-            lessonId={currentLessonId}
-            initialNotes={notes}
-            onSave={handleSaveNotes}
-          />
+          <LessonContent clickLesson={clickLesson} />
+          <NotesSection />
         </div>
 
         <LessonNavigation
           hasPrevious={currentLessonIndex > 0}
-          hasNext={currentLessonIndex < courseData.lessons.length - 1}
+          hasNext={currentLessonIndex < allLessons.length - 1}
           isCompleted={lessonProgress === 100}
           onPrevious={handlePrevious}
           onNext={handleNext}
           onMarkComplete={handleMarkComplete}
+          currentLesson={currentLessonIndex + 1}
+          totalLessons={allLessons.length}
         />
       </div>
     </div>

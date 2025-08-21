@@ -39,46 +39,26 @@ function Button({
 interface NotesSectionProps {
   lessonId: number;
   initialNotes?: string;
-  onSave: (notes: string) => void;
+
 }
 
 export function NotesSection({
-  lessonId,
-  initialNotes = "",
-  onSave,
+
+
+
 }: NotesSectionProps) {
-  const [notes, setNotes] = useState(initialNotes);
+  const [notes, setNotes] = useState();
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Auto-save after inactivity
-  useEffect(() => {
-    if (hasUnsavedChanges) {
-      const timer = setTimeout(() => {
-        handleSave();
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [notes, hasUnsavedChanges]);
 
-  const handleNotesChange = (value: string) => {
-    setNotes(value);
-    setHasUnsavedChanges(true);
-  };
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      onSave(notes);
-      setHasUnsavedChanges(false);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+
+
+
 
   const getSaveStatus = () => {
-    if (isSaving) return { text: "Saving...", icon: Save, color: "text-blue-500" };
+    
     if (hasUnsavedChanges) return { text: "Unsaved", icon: Edit3, color: "text-orange-500" };
     return { text: "Saved", icon: Check, color: "text-green-500" };
   };
@@ -106,7 +86,7 @@ export function NotesSection({
 
               {/* Save Button */}
               <Button
-                onClick={handleSave}
+                
                 disabled={!hasUnsavedChanges || isSaving}
                 className={!hasUnsavedChanges && !isSaving ? 'opacity-50' : ''}
               >
@@ -119,7 +99,7 @@ export function NotesSection({
           {/* Textarea */}
           <Textarea
             value={notes}
-            onChange={(e) => handleNotesChange(e.target.value)}
+          
             placeholder="Take notes about this lesson..."
             className="min-h-[100px]"
           />

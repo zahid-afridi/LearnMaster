@@ -1,22 +1,42 @@
-import React, { useState } from 'react';
-import { Copy, Check, ExternalLink, Info, Lightbulb, AlertTriangle } from 'lucide-react';
+"use client";
+import React, { useState } from "react";
+import { Copy, Check, AlertTriangle } from "lucide-react";
 
-interface LessonContentBlock {
-  type: "h1" | "h2" | "h3" | "p" | "img" | "code" | "blockquote" | "ul" | "ol";
-  text?: string;
-  src?: string;
-  alt?: string;
-  caption?: string;
-  language?: string;
-  code?: string;
-  items?: string[];
+// Content block types
+type LessonContentBlock =
+  | { type: "heading"; level: 1 | 2 | 3; text: string }
+  | { type: "paragraph"; text: string }
+  | { type: "image"; src: string; alt: string }
+  | { type: "code"; language?: string; code: string }
+  | { type: "warning"; text: string }
+  | {
+      type: "quiz";
+      id: string;
+      question: string;
+      options: string[];
+      correctIndex: number;
+    };
+
+interface LessonData {
+  lessonId: string;
+  order: number;
+  slug: string;
+  title: string;
+  difficulty: string;
+  estimatedTime: string;
+  status: string;
+  content: LessonContentBlock[];
+  meta?: {
+    published?: boolean;
+    updatedAt?: string;
+  };
 }
 
 interface LessonContentProps {
-  content: LessonContentBlock[];
+  clickLesson?: LessonData | null;
 }
 
-export function LessonContent({ content }: LessonContentProps) {
+export function LessonContent({ clickLesson }: LessonContentProps) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const copyToClipboard = async (text: string, index: number) => {
@@ -25,216 +45,144 @@ export function LessonContent({ content }: LessonContentProps) {
       setCopiedIndex(index);
       setTimeout(() => setCopiedIndex(null), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error("Failed to copy text: ", err);
     }
   };
 
-  const CodeBlock = ({ code, language, index }: { code: string; language?: string; index: number }) => (
-    <div className="relative group my-8">
-      <div className="flex items-center justify-between bg-gray-900 text-gray-300 px-4 py-3 rounded-t-lg border border-gray-700">
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-          </div>
-          <span className="text-sm font-medium ml-2">{language || 'javascript'}</span>
-        </div>
+  if (!clickLesson) {
+    return (
+      <div className="flex items-center justify-center h-screen text-gray-400 text-lg">
+        Select a lesson to start learning 📘
+      </div>
+    );
+  }
+
+  // ✅ Code block with copy button
+  const CodeBlock = ({
+    code,
+    language,
+    index,
+  }: {
+    code: string;
+    language?: string;
+    index: number;
+  }) => (
+    <div className="relative group my-6">
+      <div className="flex items-center justify-between bg-gray-900 text-gray-300 px-4 py-2 rounded-t-lg border border-gray-700">
+        <span className="text-sm font-medium">{language || "javascript"}</span>
         <button
           onClick={() => copyToClipboard(code, index)}
-          className="flex items-center gap-1 px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 transition-colors text-xs"
+          className="flex items-center gap-1 px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 text-xs transition-colors"
         >
           {copiedIndex === index ? (
             <>
-              <Check size={14} />
-              Copied!
+              <Check size={14} /> Copied!
             </>
           ) : (
             <>
-              <Copy size={14} />
-              Copy
+              <Copy size={14} /> Copy
             </>
           )}
         </button>
       </div>
       <pre className="bg-gray-900 text-gray-100 p-4 rounded-b-lg border border-t-0 border-gray-700 overflow-x-auto">
-        <code className="text-sm leading-relaxed font-mono">
-          {code}
-        </code>
+        <code className="text-sm leading-relaxed font-mono">{code}</code>
       </pre>
     </div>
   );
 
-  const InfoBox = ({ children, type = 'info' }: { children: React.ReactNode; type?: 'info' | 'tip' | 'warning' }) => {
-    const configs = {
-      info: {
-        icon: Info,
-        bgColor: 'bg-blue-50',
-        borderColor: 'border-blue-200',
-        iconColor: 'text-blue-600',
-        textColor: 'text-blue-900'
-      },
-      tip: {
-        icon: Lightbulb,
-        bgColor: 'bg-green-50',
-        borderColor: 'border-green-200',
-        iconColor: 'text-green-600',
-        textColor: 'text-green-900'
-      },
-      warning: {
-        icon: AlertTriangle,
-        bgColor: 'bg-yellow-50',
-        borderColor: 'border-yellow-200',
-        iconColor: 'text-yellow-600',
-        textColor: 'text-yellow-900'
-      }
-    };
-
-    const config = configs[type];
-    const IconComponent = config.icon;
-
-    return (
-      <div className={`${config.bgColor} ${config.borderColor} ${config.textColor} border-l-4 p-4 my-6 rounded-r-lg`}>
-        <div className="flex items-start gap-3">
-          <IconComponent className={`${config.iconColor} flex-shrink-0 mt-0.5`} size={20} />
-          <div className="flex-1">{children}</div>
-        </div>
-      </div>
-    );
-  };
+  // ✅ Info warning box
+  const InfoBox = ({ text }: { text: string }) => (
+    <div className="bg-yellow-50 border border-yellow-200 text-yellow-900 p-4 my-6 rounded-lg flex gap-3 shadow-sm">
+      <AlertTriangle className="text-yellow-600 flex-shrink-0" size={20} />
+      <p className="text-base m-0">{text}</p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto px-6 sm:px-8 py-8">
+      <div className="max-w-3xl mx-auto px-5 sm:px-8 py-8">
         <article className="prose prose-lg max-w-none">
-          {content.map((block, index) => {
+          {clickLesson.content?.map((block, index) => {
             switch (block.type) {
-              case "h1":
-                return null; // Skip rendering h1
-
-              case "h2":
-                return (
-                  <h2 
-                    key={index} 
-                    className="text-2xl sm:text-3xl font-semibold text-gray-800 mt-12 mb-6 leading-tight flex items-center gap-3"
+              case "heading":
+                return block.level === 2 ? (
+                  <h2
+                    key={index}
+                    className="text-2xl font-bold mt-10 mb-4 text-gray-800"
                   >
-                    <span className="w-1 h-8 bg-blue-600 rounded-full"></span>
                     {block.text}
                   </h2>
-                );
-
-              case "h3":
-                return (
-                  <h3 
-                    key={index} 
-                    className="text-xl sm:text-2xl font-semibold text-gray-700 mt-10 mb-4 leading-tight"
+                ) : block.level === 3 ? (
+                  <h3
+                    key={index}
+                    className="text-xl font-semibold mt-8 mb-3 text-gray-700"
                   >
                     {block.text}
                   </h3>
-                );
+                ) : null;
 
-              case "p":
+              case "paragraph":
                 return (
-                  <p 
-                    key={index} 
-                    className="text-lg text-gray-700 leading-relaxed mb-6 font-normal"
+                  <p
+                    key={index}
+                    className="text-lg text-gray-700 mb-6 leading-relaxed"
                   >
                     {block.text}
                   </p>
                 );
 
-              case "img":
+              case "image":
                 return (
-                  <figure key={index} className="my-10">
-                    <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                      <img 
-                        src={block.src} 
-                        alt={block.alt}
-                        className="w-full rounded-lg shadow-md border border-gray-200" 
-                      />
-                      {block.caption && (
-                        <figcaption className="text-center text-gray-600 mt-4 text-base italic">
-                          {block.caption}
-                        </figcaption>
-                      )}
-                    </div>
+                  <figure key={index} className="my-8 flex justify-center">
+                    <img
+                      src={block.src}
+                      alt={block.alt}
+                      className="max-h-72 w-auto rounded-lg border shadow-md object-contain"
+                    />
                   </figure>
                 );
 
               case "code":
                 return (
-                  <CodeBlock 
+                  <CodeBlock
                     key={index}
-                    code={block.code || ''} 
-                    language={block.language} 
+                    code={block.code}
+                    language={block.language}
                     index={index}
                   />
                 );
 
-              case "blockquote":
+              case "warning":
+                return <InfoBox key={index} text={block.text} />;
+
+              case "quiz":
                 return (
-                  <InfoBox key={index} type="tip">
-                    <p className="text-lg font-medium italic m-0">
-                      {block.text}
+                  <div
+                    key={index}
+                    className="p-5 my-8 border rounded-lg bg-blue-50 border-blue-200 shadow-sm"
+                  >
+                    <p className="font-semibold mb-3 text-gray-800">
+                      {block.question}
                     </p>
-                  </InfoBox>
-                );
-
-              case "ul":
-                return (
-                  <ul key={index} className="space-y-3 my-6">
-                    {block.items?.map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 text-lg text-gray-700">
-                        <span className="w-2 h-2 bg-blue-600 rounded-full mt-3 flex-shrink-0"></span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                );
-
-              case "ol":
-                return (
-                  <ol key={index} className="space-y-3 my-6 counter-reset">
-                    {block.items?.map((item, i) => (
-                      <li key={i} className="flex items-start gap-4 text-lg text-gray-700">
-                        <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-1">
-                          {i + 1}
-                        </span>
-                        <span className="flex-1">{item}</span>
-                      </li>
-                    ))}
-                  </ol>
+                    <ul className="space-y-2">
+                      {block.options.map((opt, i) => (
+                        <li
+                          key={i}
+                          className="px-3 py-2 border rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-colors"
+                        >
+                          {opt}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 );
 
               default:
                 return null;
             }
           })}
-
-          {/* Reading Progress Indicator - Removed */}
-
-          {/* Table of Contents - Removed */}
         </article>
-
-        {/* Reading time and metadata */}
-        <div className="mt-16 pt-8 border-t border-gray-200">
-          <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-600">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                8 min read
-              </span>
-              <span>•</span>
-              <span>Updated 2 days ago</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>Share:</span>
-              <button className="p-1 hover:bg-gray-100 rounded">
-                <ExternalLink size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
