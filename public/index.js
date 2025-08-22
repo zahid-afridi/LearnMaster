@@ -55,6 +55,7 @@ const lessonData = {
           title: "JSX in React",
           difficulty: "easy",
           status: 'current',
+          
           estimatedTime: "15m",
           content: [
             { type: "heading", level: 2, text: "What is JSX?" },

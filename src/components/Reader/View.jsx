@@ -9,24 +9,18 @@ import { LessonNavigation } from "./LessonNavigation";
 import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
 import lessonData from "../../../public/index.js";
 
-// Import centralized types
-import type { Lesson, Module, LessonData, ExtendedLesson } from "../../types/lesson";
-
-// Safe cast to centralized type
-const typedLessonData = lessonData as unknown as LessonData;
-
 export default function View() {
   const [lessonProgress, setLessonProgress] = useState(45);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
-  const [clickLesson, setClickLesson] = useState<ExtendedLesson | null>(null);
+  const [clickLesson, setClickLesson] = useState(null);
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
 
   // Create flat list of all lessons
-  const getAllLessons = (): ExtendedLesson[] => {
-    const allLessons: ExtendedLesson[] = [];
-    typedLessonData.modules.forEach((module, moduleIndex) => {
+  const getAllLessons = () => {
+    const allLessons = [];
+    lessonData.modules.forEach((module, moduleIndex) => {
       module.lessons.forEach((lesson, lessonIndex) => {
         allLessons.push({
           ...lesson,
@@ -47,6 +41,7 @@ export default function View() {
       setClickLesson(allLessons[0]);
       setCurrentLessonIndex(0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update current lesson index when lesson changes
@@ -93,7 +88,7 @@ export default function View() {
   };
 
   // Handle lesson selection from sidebar
-  const handleLessonClick = (lesson: Lesson) => {
+  const handleLessonClick = (lesson) => {
     const extendedLesson = allLessons.find(
       (l) => l.lessonId === lesson.lessonId
     );
@@ -121,7 +116,7 @@ export default function View() {
         <button onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}>
           <Menu size={24} />
         </button>
-        <h1 className="font-bold">{typedLessonData.metadata.title}</h1>
+        <h1 className="font-bold">{lessonData.metadata.title}</h1>
         <div></div>
       </div>
 
@@ -135,7 +130,11 @@ export default function View() {
           marginTop: "12px",
         }}
       >
-        {desktopSidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+        {desktopSidebarOpen ? (
+          <ChevronLeft size={20} />
+        ) : (
+          <ChevronRight size={20} />
+        )}
       </button>
 
       {/* Sidebar */}
@@ -148,7 +147,7 @@ export default function View() {
           w-64`}
       >
         <LessonSidebar
-          lessonData={typedLessonData}
+          lessonData={lessonData}
           setClickLesson={handleLessonClick}
         />
       </div>
