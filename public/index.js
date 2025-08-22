@@ -18,6 +18,7 @@ const lessonData = {
     updatedAt: "2025-08-20T20:00:00Z"
 
   },
+  // basic React.Js
   modules: [
     {
       moduleId: "m1",
@@ -68,7 +69,7 @@ const lessonData = {
         
       ]
     },
-
+// React.Js hooks
     {
       moduleId: "m2",
       order: 2,
@@ -104,7 +105,7 @@ const lessonData = {
         }
       ]
     },
-
+// Advanced React.Js
     {
       moduleId: "m3",
       order: 3,
