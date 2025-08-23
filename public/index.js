@@ -37,8 +37,11 @@ const lessonData = {
           status: 'completed',
           content: [
             { type: "heading", level: 2, text: "What is React?" },
-            { type: "paragraph", text: "React is a JavaScript library for building user interfaces. It enables you to create reusable UI components." },
+            { type: "paragraph", text: "React is a JavaScript library for building user interfaces. It enables you to create reusable UI components. React is a JavaScript library for building user interfaces. It enables you to create reusable UI components. React is a JavaScript library for building user interfaces. It enables you to create reusable UI components. React is a JavaScript library for building user interfaces. It enables you to create reusable UI components." },
             { type: "image", src: "https://www.logo.wine/a/logo/React_(web_framework)/React_(web_framework)-Logo.wine.svg", alt: "React lifecycle" },
+            { type: "heading", level: 2, text: "What is React?" },
+            { type: "paragraph", text: "React is a JavaScript library for building user interfaces. It enables you to create reusable UI components. React is a JavaScript library for building user interfaces. It enables you to create reusable UI components. React is a JavaScript library for building user interfaces. It enables you to create reusable UI components. React is a JavaScript library for building user interfaces. It enables you to create reusable UI components." },
+            { type: "video", src: "https://d3c33hcgiwev3.cloudfront.net/KK4OyulLR6KXEaaEzSJqvw.mediaconvert/full/KK4OyulLR6KXEaaEzSJqvw_390e0f2f922342159cae8be70704a2a1_AI4E23-C1-W1-L1_Intro_v4_MP4_540.mp4?Expires=1755993600&Signature=iqEJ6qQYuQW5iH44UDzvc9f9jbok4gsNJ4~sMf6uLpHhgVjuG~HZce4HpXz2kjRjWe84MTRC5M5iOlwp9jiP0MhjscEtnr16h5MDKys~se7QgU6dawntXQmRBMD~xQ5DzNgEK8z7AINDtF8vHJxUvTiYjxvayjROl-Gz~Ak-F5c_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A", alt: "React lifecycle" },
             { type: "code", language: "javascript", code: "function Welcome(){ return <h1>Hello, React!</h1> } export default Welcome;" },
             { type: "warning", text: "React only manages the view layer — for routing and state management, you need extra libraries." },
             { type: "quiz", id: "q-l1-1", question: "React is a:", options: ["Library", "Framework", "Database"], correctIndex: 0 }

@@ -9,29 +9,6 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 
-interface HeaderData {
-  lessonId: string;
-  order: number;
-  slug: string;
-  title: string;
-  difficulty: string;
-  estimatedTime: string;
-  status: string;
-  meta?: {
-    published?: boolean;
-    updatedAt?: string;
-  };
-}
-
-interface LessonHeaderProps {
-  HeaderData: HeaderData;
-  progress: number;
-  isBookmarked: boolean;
-  onBookmark: () => void;
-  onShare: () => void;
-  onComments: () => void;
-}
-
 export function LessonHeader({
   HeaderData,
   progress,
@@ -39,7 +16,7 @@ export function LessonHeader({
   onBookmark,
   onShare,
   onComments,
-}: LessonHeaderProps) {
+}) {
   const [showMenu, setShowMenu] = useState(false);
 
   return (
@@ -68,12 +45,11 @@ export function LessonHeader({
           <div className="hidden sm:flex gap-1">
             <button
               onClick={onBookmark}
-              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm transition
-                ${
-                  isBookmarked
-                    ? "text-blue-600 bg-blue-50"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm transition ${
+                isBookmarked
+                  ? "text-blue-600 bg-blue-50"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
             >
               <Bookmark
                 className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`}
@@ -98,12 +74,11 @@ export function LessonHeader({
           <div className="sm:hidden flex items-center gap-1">
             <button
               onClick={onBookmark}
-              className={`w-8 h-8 flex items-center justify-center rounded-lg transition
-                ${
-                  isBookmarked
-                    ? "text-blue-600 bg-blue-50"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
+              className={`w-8 h-8 flex items-center justify-center rounded-lg transition ${
+                isBookmarked
+                  ? "text-blue-600 bg-blue-50"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
             >
               <Bookmark
                 className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`}

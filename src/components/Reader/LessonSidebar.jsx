@@ -1,71 +1,27 @@
 "use client";
 
-import * as React from "react";
+import React, { useState } from "react";
 import { CheckCircle, Clock, Lock, BookOpen, ChevronDown } from "lucide-react";
 
-type Lesson = {
-  id: string;
-  title: string;
-  duration?: string;
-  estimatedTime: string;
-  status: "completed" | "current" | "locked";
-};
-
-type Module = {
-  title: string;
-  lessons: Lesson[];
-};
-
-type LessonData = {
-  metadata: {
-    totalLessons: number;
-    completedlesson: number;
-  };
-  modules: Module[];
-};
-
-type LessonSidebarProps = {
-  lessonData: LessonData;
-  setClickLesson: (lesson: Lesson) => void;
-};
-
-export function LessonSidebar({
-  lessonData,
-  setClickLesson,
-}: LessonSidebarProps) {
+export function LessonSidebar({ lessonData, setClickLesson }) {
   const totalLessons = lessonData.metadata.totalLessons;
   const completedLessons = lessonData.metadata.completedlesson;
   const progressPercentage = (completedLessons / totalLessons) * 100;
 
   // ✅ Collapse state for modules (first module open by default)
-  const [openModules, setOpenModules] = React.useState<Record<string, boolean>>(
-    () => {
-      if (!lessonData?.modules?.length) return {} as Record<string, boolean>;
-      return { "module-0": true } as Record<string, boolean>; // 👈 keep first module open initially
-    }
-  );
+  const [openModules, setOpenModules] = useState(() => {
+    if (!lessonData?.modules?.length) return {};
+    return { "module-0": true }; // 👈 keep first module open initially
+  });
 
-  const toggleModule = (moduleKey: string) => {
+  const toggleModule = (moduleKey) => {
     setOpenModules((prev) => ({
       ...prev,
       [moduleKey]: !prev[moduleKey],
     }));
   };
 
-  const onChevronKeyDown = (
-    e: React.KeyboardEvent<SVGSVGElement>,
-    moduleKey: string
-  ) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      toggleModule(moduleKey);
-    }
-  };
-
-  const getStatusIcon = (
-    status: "completed" | "current" | "locked",
-    isActive: boolean
-  ) => {
+  const getStatusIcon = (status, isActive) => {
     switch (status) {
       case "completed":
         return <CheckCircle className="w-5 h-5 text-green-500" />;
@@ -84,7 +40,7 @@ export function LessonSidebar({
     }
   };
 
-  const HandleLessonSelect = (lesson: Lesson) => {
+  const HandleLessonSelect = (lesson) => {
     setClickLesson(lesson);
   };
 

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  ChevronLeft,
-  ChevronRight,
-  CheckCircle,
-  ArrowRight,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle } from "lucide-react";
 
 // Enhanced Button Component
 function Button({
@@ -15,13 +10,6 @@ function Button({
   variant = "default",
   size = "md",
   className = "",
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  variant?: "default" | "outline" | "primary";
-  size?: "sm" | "md" | "lg";
-  className?: string;
 }) {
   const baseStyles =
     "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95";
@@ -52,15 +40,7 @@ function Button({
   );
 }
 
-interface LessonNavigationProps {
-  hasPrevious: boolean;
-  hasNext: boolean;
-  isCompleted: boolean;
-  onPrevious: () => void;
-  onNext: () => void;
-  onMarkComplete: () => void;
-}
-
+// Lesson Navigation Component
 export function LessonNavigation({
   hasPrevious,
   hasNext,
@@ -68,10 +48,10 @@ export function LessonNavigation({
   onPrevious,
   onNext,
   onMarkComplete,
-}: LessonNavigationProps) {
+}) {
   return (
     <div className="border-t border-gray-100 bg-white sm:sticky sm:bottom-0">
-      <div className="px-4 sm:px-8 py-4">
+      <div className="px-4 sm:px-8 py-3">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between gap-3">
             {/* Previous Button */}

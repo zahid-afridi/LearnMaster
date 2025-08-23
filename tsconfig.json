@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/Reader/LessonSidebar.tsx", "src/components/Reader/View.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/Reader/LessonSidebar.jsx", "src/components/Reader/View.jsx", "src/components/Reader/LessonContent.jsx", "src/components/Reader/LessonNavigation.jsx", "src/components/Reader/LessonHeader.jsx", "src/app/courses/all/page.jsx"],
   "exclude": ["node_modules"]
 }
