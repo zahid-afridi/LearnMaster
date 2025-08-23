@@ -14,7 +14,7 @@ export default function FeaturedCourses() {
 
   const GetCourseMeta = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/course", {
+      const res = await fetch("/api/course", {
         method: "GET",
       });
       const data = await res.json();
