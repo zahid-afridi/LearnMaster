@@ -2,7 +2,9 @@
 import React, { useState } from "react";
 import { Copy, Check, AlertTriangle } from "lucide-react";
 
-export function LessonContent({ clickLesson }) {
+export function LessonContent({ clickLesson, course }) {
+  console.log('clickLesson', clickLesson)
+  console.log('course', course)
   const [copiedIndex, setCopiedIndex] = useState(null);
 
   const copyToClipboard = async (text, index) => {
@@ -28,7 +30,6 @@ export function LessonContent({ clickLesson }) {
     <div className="relative my-4 rounded-md shadow-md overflow-hidden border border-gray-700">
       {/* Header with three dots, language, and copy button */}
       <div className="flex items-center justify-between bg-gray-900 px-3 py-1.5 border-b border-gray-700">
-
         {/* Left: three dots */}
         <div className="flex gap-2">
           <span className="w-3 h-3 bg-red-500 rounded-full"></span>
@@ -47,7 +48,7 @@ export function LessonContent({ clickLesson }) {
           >
             {copiedIndex === index ? (
               <>
-                <Check color="white"  size={14} /> Copied!
+                <Check color="white" size={14} /> Copied!
               </>
             ) : (
               <>
@@ -64,7 +65,6 @@ export function LessonContent({ clickLesson }) {
       </pre>
     </div>
   );
-
 
   // Warning box
   const InfoBox = ({ text }) => (
@@ -91,7 +91,14 @@ export function LessonContent({ clickLesson }) {
           {clickLesson.content?.map((block, index) => {
             switch (block.type) {
               case "heading":
-                return block.level === 2 ? (
+                return block.level === 1 ? (
+                  <h1
+                    key={index}
+                    className="text-3xl font-bold mt-8 mb-4 text-gray-900"
+                  >
+                    {block.text}
+                  </h1>
+                ) : block.level === 2 ? (
                   <h2
                     key={index}
                     className="text-2xl font-bold mt-6 mb-3 text-gray-800"
@@ -129,7 +136,6 @@ export function LessonContent({ clickLesson }) {
                       className="max-h-64 w-full max-w-2xl rounded-lg border shadow-sm object-contain"
                     />
                   </figure>
-
                 );
 
               case "code":
@@ -173,6 +179,52 @@ export function LessonContent({ clickLesson }) {
             }
           })}
         </article>
+
+        {/* Display lesson resources if available */}
+        {clickLesson.resources && clickLesson.resources.length > 0 && (
+          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-gray-800">Additional Resources</h3>
+            <ul className="space-y-2">
+              {clickLesson.resources.map((resource, index) => (
+                <li key={index}>
+                  <a
+                    href={resource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    {resource.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Display lesson quizzes if available */}
+        {clickLesson.quizzes && clickLesson.quizzes.length > 0 && (
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">Knowledge Check</h3>
+            {clickLesson.quizzes.map((quiz, index) => (
+              <div
+                key={index}
+                className="p-4 mb-4 border rounded-md bg-blue-50 border-blue-200 shadow-sm"
+              >
+                <p className="font-semibold mb-3 text-gray-800">{quiz.question}</p>
+                <ul className="space-y-2">
+                  {quiz.options.map((option, i) => (
+                    <li
+                      key={i}
+                      className="px-3 py-2 border rounded-md bg-white hover:bg-gray-50 cursor-pointer transition-colors text-sm"
+                    >
+                      {option}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

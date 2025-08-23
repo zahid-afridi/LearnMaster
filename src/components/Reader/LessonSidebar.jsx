@@ -3,15 +3,19 @@
 import React, { useState } from "react";
 import { CheckCircle, Clock, Lock, BookOpen, ChevronDown } from "lucide-react";
 
-export function LessonSidebar({ lessonData, setClickLesson }) {
-  const totalLessons = lessonData.metadata.totalLessons;
-  const completedLessons = lessonData.metadata.completedlesson;
-  const progressPercentage = (completedLessons / totalLessons) * 100;
+export function LessonSidebar({ course, setClickLesson }) {
+  console.log("course", course);
+
+  // total lessons comes directly from course
+  const totalLessons = course.total_lessons || 0;
+  const completedLessons = course.completed_lessons || 0; // you can pass this from backend
+  const progressPercentage =
+    totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
 
   // ✅ Collapse state for modules (first module open by default)
   const [openModules, setOpenModules] = useState(() => {
-    if (!lessonData?.modules?.length) return {};
-    return { "module-0": true }; // 👈 keep first module open initially
+    if (!course?.modules?.length) return {};
+    return { "module-0": true };
   });
 
   const toggleModule = (moduleKey) => {
@@ -21,18 +25,12 @@ export function LessonSidebar({ lessonData, setClickLesson }) {
     }));
   };
 
-  const getStatusIcon = (status, isActive) => {
+  const getStatusIcon = (status) => {
     switch (status) {
       case "completed":
         return <CheckCircle className="w-5 h-5 text-green-500" />;
       case "current":
-        return (
-          <Clock
-            className={`w-5 h-5 ${
-              isActive ? "text-[#2563EB]" : "text-[#60A5FA]"
-            }`}
-          />
-        );
+        return <Clock className="w-5 h-5 text-blue-500" />;
       case "locked":
         return <Lock className="w-5 h-5 text-gray-400" />;
       default:
@@ -41,6 +39,7 @@ export function LessonSidebar({ lessonData, setClickLesson }) {
   };
 
   const HandleLessonSelect = (lesson) => {
+    // console.log(lesson)
     setClickLesson(lesson);
   };
 
@@ -54,7 +53,7 @@ export function LessonSidebar({ lessonData, setClickLesson }) {
           </div>
           <div>
             <h2 className="font-medium text-gray-900 text-sm sm:text-base">
-              React Course
+              {course.title}
             </h2>
             <p className="text-xs sm:text-sm text-gray-500">
               {totalLessons} lessons
@@ -62,7 +61,7 @@ export function LessonSidebar({ lessonData, setClickLesson }) {
           </div>
         </div>
 
-        {/* ✅ Dynamic Progress */}
+        {/* Progress */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-xs sm:text-sm text-gray-600">
@@ -90,7 +89,7 @@ export function LessonSidebar({ lessonData, setClickLesson }) {
         style={{ scrollbarWidth: "thin" }}
       >
         <div className="p-4 space-y-5">
-          {lessonData.modules.map((module, index) => {
+          {course.modules?.map((module, index) => {
             const moduleKey = `module-${index}`;
             return (
               <div
@@ -106,30 +105,29 @@ export function LessonSidebar({ lessonData, setClickLesson }) {
                     {module.title}
                   </h3>
                   <ChevronDown
-                    className={`w-5 h-5 text-gray-500 transform transition-transform ${
-                      openModules[moduleKey] ? "rotate-180" : ""
-                    }`}
+                    className={`w-5 h-5 text-gray-500 transform transition-transform ${openModules[moduleKey] ? "rotate-180" : ""
+                      }`}
                   />
                 </div>
 
                 {/* Lessons inside Module */}
                 {openModules[moduleKey] && (
                   <div className="divide-y">
-                    {module.lessons.map((lesson, lessonIndex) => (
+                    {module.lessons?.map((lesson, lessonIndex) => (
                       <div
                         key={`lesson-${lessonIndex}`}
                         onClick={() => HandleLessonSelect(lesson)}
                         className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 transition cursor-pointer"
                       >
                         <div className="flex-shrink-0">
-                          {getStatusIcon(lesson.status, true)}
+                          {getStatusIcon(lesson.status)}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-medium text-gray-800 truncate">
                             {lesson.title}
                           </h4>
                           <p className="text-xs text-gray-500">
-                            {lesson.estimatedTime}
+                            {lesson.estimated_time || "—"}
                           </p>
                         </div>
                       </div>

@@ -8,19 +8,46 @@ import { NotesSection } from "./NotesSection";
 import { LessonNavigation } from "./LessonNavigation";
 import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
 import lessonData from "../../../public/index.js";
+import { useParams } from "next/navigation";
 
 export default function View() {
+  const params = useParams()
+  console.log(params.id)
+
   const [lessonProgress, setLessonProgress] = useState(45);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [clickLesson, setClickLesson] = useState(null);
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
+  const [course, setCourse] = useState([])
+  console.log('course', course)
 
-  // Create flat list of all lessons
+  useEffect(() => {
+    GetCourseMeta();
+  }, []);
+
+  const GetCourseMeta = async () => {
+    try {
+      const res = await fetch(`/api/course/${params.id}`, {
+        method: "GET",
+      });
+      const data = await res.json();
+      if (data) {
+        setCourse(data.data[0])
+        console.log(data)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Create flat list of all lessons from course data instead of static lessonData
   const getAllLessons = () => {
+    if (!course?.modules) return [];
+
     const allLessons = [];
-    lessonData.modules.forEach((module, moduleIndex) => {
+    course.modules.forEach((module, moduleIndex) => {
       module.lessons.forEach((lesson, lessonIndex) => {
         allLessons.push({
           ...lesson,
@@ -34,21 +61,21 @@ export default function View() {
   };
 
   const allLessons = getAllLessons();
+  { allLessons && console.log(allLessons) }
 
-  // Initialize first lesson
+  // Initialize first lesson - wait for course data to load
   useEffect(() => {
-    if (allLessons.length > 0) {
+    if (course?.modules && allLessons.length > 0 && !clickLesson) {
       setClickLesson(allLessons[0]);
       setCurrentLessonIndex(0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [course, allLessons.length]);
 
   // Update current lesson index when lesson changes
   useEffect(() => {
-    if (clickLesson?.lessonId) {
+    if (clickLesson?.lesson_id) {
       const index = allLessons.findIndex(
-        (lesson) => lesson.lessonId === clickLesson.lessonId
+        (lesson) => lesson.lesson_id === clickLesson.lesson_id
       );
       if (index !== -1) {
         setCurrentLessonIndex(index);
@@ -90,7 +117,7 @@ export default function View() {
   // Handle lesson selection from sidebar
   const handleLessonClick = (lesson) => {
     const extendedLesson = allLessons.find(
-      (l) => l.lessonId === lesson.lessonId
+      (l) => l.lesson_id === lesson.lesson_id
     );
     if (extendedLesson) {
       setClickLesson(extendedLesson);
@@ -100,8 +127,8 @@ export default function View() {
     }
   };
 
-  // Wait until lesson selected
-  if (!clickLesson) {
+  // Wait until course data is loaded and lesson is selected
+  if (!course?.modules || !clickLesson) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-gray-500">Loading...</div>
@@ -116,7 +143,7 @@ export default function View() {
         <button onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}>
           <Menu size={24} />
         </button>
-        <h1 className="font-bold">{lessonData.metadata.title}</h1>
+        <h1 className="font-bold">{course.title}</h1>
         <div></div>
       </div>
 
@@ -147,16 +174,15 @@ export default function View() {
           w-64`}
       >
         <LessonSidebar
-          lessonData={lessonData}
+          course={course}
           setClickLesson={handleLessonClick}
         />
       </div>
 
       {/* Main Content */}
       <div
-        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${
-          !desktopSidebarOpen ? "lg:ml-0" : ""
-        }`}
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${!desktopSidebarOpen ? "lg:ml-0" : ""
+          }`}
         onClick={() => {
           if (mobileSidebarOpen) setMobileSidebarOpen(false);
         }}
@@ -165,13 +191,14 @@ export default function View() {
           HeaderData={clickLesson}
           progress={lessonProgress}
           isBookmarked={isBookmarked}
+          setClickLesson={setClickLesson}
           onBookmark={() => setIsBookmarked(!isBookmarked)}
           onShare={() => console.log("Share clicked")}
           onComments={() => console.log("Comments clicked")}
         />
 
         <div className="flex-1 overflow-y-auto">
-          <LessonContent clickLesson={clickLesson} />
+          <LessonContent clickLesson={clickLesson} course={course} />
           <NotesSection />
         </div>
 
