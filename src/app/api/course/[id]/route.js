@@ -35,7 +35,6 @@ export async function GET(req, { params }) {
     LEFT JOIN (
         SELECT 
             m.*,
-            
             COALESCE(
                 json_agg(
                     json_build_object(
@@ -77,24 +76,28 @@ export async function GET(req, { params }) {
                                 json_build_object(
                                     'type', lc.type,
                                     'level', lc.level,
-                                    'text', lc.text
+                                    'text', lc.text,
+                                    'order', lc."order"
                                 )
                             WHEN lc.type = 'code' THEN
                                 json_build_object(
                                     'type', lc.type,
                                     'language', lc.language,
-                                    'code', lc.code
+                                    'code', lc.code,
+                                    'order', lc."order"
                                 )
                             WHEN lc.type IN ('image','video') THEN
                                 json_build_object(
                                     'type', lc.type,
                                     'src', lc.src,
-                                    'alt', lc.alt
+                                    'alt', lc.alt,
+                                    'order', lc."order"
                                 )
                             WHEN lc.type IN ('paragraph','note','warning') THEN
                                 json_build_object(
                                     'type', lc.type,
-                                    'text', lc.text
+                                    'text', lc.text,
+                                    'order', lc."order"
                                 )
                             ELSE
                                 json_build_object(
@@ -104,10 +107,11 @@ export async function GET(req, { params }) {
                                     'code', lc.code,
                                     'language', lc.language,
                                     'src', lc.src,
-                                    'alt', lc.alt
+                                    'alt', lc.alt,
+                                    'order', lc."order"
                                 )
                         END
-                        ORDER BY lc.content_id
+                        ORDER BY lc."order"
                     ) FILTER (WHERE lc.content_id IS NOT NULL),
                     '[]'::json
                 ) as content,
@@ -152,6 +156,7 @@ export async function GET(req, { params }) {
     WHERE c.course_id = $1
     GROUP BY c.course_id
 `;
+
         const result = await pool.query(q, [id])
         if (!result.rows[0]) {
             return NextResponse.json({ success: false, error: "Course not Found" }, { status: 404 });
