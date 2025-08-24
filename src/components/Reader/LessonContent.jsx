@@ -353,12 +353,13 @@ export function LessonContent({ clickLesson, course }) {
   };
 
   // Enhanced Video block
+  // Enhanced Video block
   const VideoBlock = ({ src, alt }) => (
-    <div className="my-8 group">
-      <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-black/5 backdrop-blur-sm border border-gray-200">
+    <div className="my-8 flex justify-center">
+      <div className="relative w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl bg-black/5 backdrop-blur-sm border border-gray-200">
         <video
           controls
-          className="w-full aspect-video object-cover rounded-2xl group-hover:scale-[1.02] transition-transform duration-300"
+          className="w-full h-auto aspect-video object-contain rounded-2xl"
           poster="/api/placeholder/800/450"
         >
           <source src={src} type="video/mp4" />
@@ -367,6 +368,7 @@ export function LessonContent({ clickLesson, course }) {
       </div>
     </div>
   );
+
 
   // Enhanced Quiz component
   const QuizBlock = ({ question, options, quizIndex }) => (
@@ -409,16 +411,16 @@ export function LessonContent({ clickLesson, course }) {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
       {/* Hero section with lesson title */}
       <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-16">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+        <div className="max-w-5xl mx-auto px-6 py-5">
+          <div className="flex items-center gap-4 mb-3">
+            <div className="w-12 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
               <BookOpen size={24} className="text-white" />
             </div>
             <div className="text-indigo-200 font-medium">
               {course?.title || 'Current Lesson'}
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
+          <h1 className="text-4xl  md:text-5xl font-bold  bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
             {clickLesson.title || 'Lesson Content'}
           </h1>
           {clickLesson.duration && (
@@ -431,7 +433,7 @@ export function LessonContent({ clickLesson, course }) {
       </div>
 
       {/* Main content */}
-      <div className="max-w-5xl mx-auto px-6 py-12">
+      <div className="max-w-5xl mx-auto px-6 ">
         <article className="space-y-8">
           {clickLesson.content?.map((block, index) => {
             switch (block.type) {
@@ -471,22 +473,19 @@ export function LessonContent({ clickLesson, course }) {
 
               case "image":
                 return (
-                  <figure key={index} className="my-8">
-                    <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-200 group">
+                  <figure key={index} className="my-8 flex justify-center">
+                    <div className="relative w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl border border-gray-200 group">
                       <img
                         src={block.src}
                         alt={block.alt}
-                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
-                    {block.alt && (
-                      <figcaption className="text-center text-gray-600 mt-4 italic">
-                        {block.alt}
-                      </figcaption>
-                    )}
+                    
                   </figure>
                 );
+
 
               case "code":
                 return (

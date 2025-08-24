@@ -411,10 +411,10 @@ export default function View() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-100/40 via-transparent to-purple-100/40 pointer-events-none"></div>
 
       {/* Mobile Header with Glass Effect */}
-      <div className="lg:hidden flex items-center justify-between bg-white/80 backdrop-blur-xl p-4 border-b border-slate-200/60 relative z-20 shadow-sm">
+      <div className="lg:hidden flex items-center justify-between  p-4 border-b relative z-20 ">
         <button
           onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-          className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/60 backdrop-blur-sm border border-slate-200/60 text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md"
+          className="w-10 h-10"
         >
           <Menu size={20} />
         </button>
@@ -425,10 +425,10 @@ export default function View() {
       {/* Desktop Sidebar Toggle with Enhanced Styling */}
       <button
         onClick={handleDesktopSidebarToggle}
-        className="hidden lg:block fixed top-6 z-50 p-3 bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-lg hover:shadow-xl text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition-all duration-300 hover:scale-105 group"
+        className="hidden lg:block fixed top-6 z-50 p-3 bg-white/80  border border-slate-200/60 rounded-2xl shadow-lg hover:shadow-xl text-slate-600 hover:text-indigo-600 hover:border-indigo-300 transition-all duration-300 hover:scale-105 group"
         style={{
-          left: desktopSidebarOpen ? "280px" : "20px",
-          transition: "left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          left: desktopSidebarOpen ? "290px" : "20px",
+          // transition: "left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
         {desktopSidebarOpen ? (
@@ -462,7 +462,7 @@ export default function View() {
       {/* Mobile Sidebar Backdrop */}
       {mobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden transition-opacity duration-300"
+          className="fixed inset-0  z-30 lg:hidden transition-opacity duration-300"
           onClick={() => setMobileSidebarOpen(false)}
         />
       )}
@@ -492,7 +492,7 @@ export default function View() {
           <div className="flex-1 overflow-hidden">
             <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300/50 scrollbar-track-transparent hover:scrollbar-thumb-slate-400/50">
               <LessonContent clickLesson={clickLesson} course={course} />
-              <NotesSection />
+              {/* <NotesSection /> */}
             </div>
           </div>
 

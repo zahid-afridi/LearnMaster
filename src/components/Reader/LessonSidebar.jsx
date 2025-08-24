@@ -186,14 +186,14 @@ export function LessonSidebar({ course, setClickLesson }) {
   };
 
   return (
-    <div className="w-72 sm:w-80 bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 border-r border-slate-200/60 h-screen sticky top-0 flex flex-col backdrop-blur-xl">
+    <div className=" bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 border-r border-slate-200/60 h-screen sticky top-0 flex flex-col ">
       {/* Enhanced Course Header with Glass Effect */}
-      <div className="p-6 border-b border-slate-200/60 bg-white/70 backdrop-blur-xl relative overflow-hidden">
+      <div className="p-6 border-b    relative overflow-hidden">
         {/* Subtle background pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/30 -z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br"></div>
 
         <div className="relative z-10">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-3">
             <div className="relative">
               <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg">
                 <BookOpen className="w-6 h-6 text-white" />
@@ -206,14 +206,14 @@ export function LessonSidebar({ course, setClickLesson }) {
               <h2 className="font-bold text-slate-900 text-base leading-tight">
                 {course.title}
               </h2>
-              <p className="text-sm text-slate-600 mt-1">
+              <p className="text-sm text-slate-600 ">
                 {totalLessons} lessons • Premium Course
               </p>
             </div>
           </div>
 
           {/* Enhanced Progress Section */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-slate-700">
                 Course Progress
@@ -312,7 +312,7 @@ export function LessonSidebar({ course, setClickLesson }) {
                             onClick={() => HandleLessonSelect(lesson)}
                             onMouseEnter={() => setHoveredLesson(lessonKey)}
                             onMouseLeave={() => setHoveredLesson(null)}
-                            className="group/lesson relative flex items-center gap-4 px-6 py-4 hover:bg-gradient-to-r hover:from-indigo-50/60 hover:to-purple-50/40 transition-all duration-200 cursor-pointer"
+                            className="group/lesson relative flex items-center  gap-4 px-6 py-4 hover:bg-gradient-to-r hover:from-indigo-50/60 hover:to-purple-50/40 transition-all duration-200 cursor-pointer"
                           >
                             {/* Status Icon with Enhanced Styling */}
                             <div className="flex-shrink-0 relative">
@@ -325,7 +325,7 @@ export function LessonSidebar({ course, setClickLesson }) {
                             </div>
 
                             {/* Lesson Content */}
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 ">
                               <h4 className="text-sm font-semibold text-slate-800 group-hover/lesson:text-indigo-700 transition-colors duration-200 truncate">
                                 {lesson.title}
                               </h4>
@@ -369,7 +369,7 @@ export function LessonSidebar({ course, setClickLesson }) {
       </div>
 
       {/* Enhanced Footer with Achievement */}
-      <div className="p-6 border-t border-slate-200/60 bg-white/70 backdrop-blur-xl">
+      <div className="p-6 border-t border-slate-200/6 bg-white/70 backdrop-blur-xl">
         <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-2xl p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
