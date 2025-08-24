@@ -184,6 +184,7 @@ function ProgressIndicator({ current, total }) {
 
 // Lesson Navigation Component
 export function LessonNavigation({
+  loading,
   hasPrevious,
   hasNext,
   isCompleted,
@@ -193,6 +194,10 @@ export function LessonNavigation({
   currentLesson,
   totalLessons,
 }) {
+
+  if (loading) {
+    return null
+  }
   return (
     <div className="border-t border-slate-200/70 bg-white/80 backdrop-blur-xl sticky bottom-0 z-20">
       <div className="px-4 lg:px-6 py-2">

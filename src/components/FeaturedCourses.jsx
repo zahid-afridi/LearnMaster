@@ -1,10 +1,14 @@
 "use client";
 
+import { setCourseMeta } from "../redux/slices/CourseMetaSlice";
 import { Star, Clock, BookOpen, Award } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+
 
 export default function FeaturedCourses() {
+  const dispatch =useDispatch()
   const router = useRouter();
   const [course, setCourse] = useState([]);
 
@@ -26,8 +30,10 @@ export default function FeaturedCourses() {
     }
   };
 
-  const handleCourseClick = (id) => {
-    router.push(`/courses/${id}`);
+  const handleCourseClick = (c) => {
+    dispatch(setCourseMeta(c));
+    router.push(`/courses/${c.course_id}`);
+    // dipatch({type:"COURSE",payload:course})
   };
 
   return (
@@ -57,7 +63,7 @@ export default function FeaturedCourses() {
             course.map((c) => (
               <div
                 key={c.course_id}
-                onClick={() => handleCourseClick(c.course_id)}
+                onClick={() => handleCourseClick(c)}
                 className="bg-white rounded-xl shadow-md overflow-hidden transition hover:shadow-xl hover:-translate-y-1 cursor-pointer"
               >
                 {/* Image */}

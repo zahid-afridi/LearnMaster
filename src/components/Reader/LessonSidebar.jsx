@@ -145,10 +145,16 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CheckCircle, Clock, Lock, BookOpen, ChevronDown, Star, Play, Award } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
-export function LessonSidebar({ course, setClickLesson }) {
+
+
+export function LessonSidebar({ setClickLesson }) {
+  const params = useParams();
+  const [course,setCrourse]=useState({})
   const totalLessons = course.total_lessons || 0;
   const completedLessons = course.completed_lessons || 0;
   const progressPercentage = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
@@ -167,23 +173,56 @@ export function LessonSidebar({ course, setClickLesson }) {
       [moduleKey]: !prev[moduleKey],
     }));
   };
+  const HandleLessonSelect = (lesson) => {
+    console.log('clickablelesson', lesson)
+    setClickLesson(lesson);
+  };
+  useEffect(() => {
+    getCourseModule();
+  }, []);
 
+  const getCourseModule = async () => {
+    try {
+
+      const res = await fetch(`/api/course/modules/${params.id}`, {
+        method: "GET",
+      });
+      const data = await res.json();
+      if (data) {data.data.modules[0].lessons
+        setCrourse(data.data);
+        HandleLessonSelect(data.data.modules[0].lessons[0])
+        console.log('modules',data)
+      }
+    } catch (error) {
+      console.log(error);
+      // setLoading(false);
+    }
+  };
+  // const getStatusIcon = (status) => {
+  //   switch (status) {
+  //     case "completed":
+  //       return <CheckCircle className="w-5 h-5 text-emerald-500" />;
+  //     case "current":
+  //       return <Play className="w-5 h-5 text-indigo-500" />;
+  //     case "locked":
+  //       return <Lock className="w-5 h-5 text-gray-400" />;
+  //     default:
+  //       return <Clock className="w-5 h-5 text-slate-400" />;
+  //   }
+  // };
   const getStatusIcon = (status) => {
     switch (status) {
       case "completed":
         return <CheckCircle className="w-5 h-5 text-emerald-500" />;
       case "current":
         return <Play className="w-5 h-5 text-indigo-500" />;
-      case "locked":
-        return <Lock className="w-5 h-5 text-gray-400" />;
       default:
         return <Clock className="w-5 h-5 text-slate-400" />;
     }
   };
 
-  const HandleLessonSelect = (lesson) => {
-    setClickLesson(lesson);
-  };
+
+ 
 
   return (
     <div className=" bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 border-r border-slate-200/60 h-screen sticky top-0 flex flex-col ">
@@ -194,14 +233,16 @@ export function LessonSidebar({ course, setClickLesson }) {
 
         <div className="relative z-10">
           <div className="flex items-center gap-4 mb-3">
-            <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg">
-                <BookOpen className="w-6 h-6 text-white" />
+            <Link href={'/'}>
+              <div className="relative">
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg">
+                  <BookOpen className="w-6 h-6 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center">
+                  <Star className="w-2.5 h-2.5 text-white" />
+                </div>
               </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center">
-                <Star className="w-2.5 h-2.5 text-white" />
-              </div>
-            </div>
+            </Link>
             <div className="flex-1">
               <h2 className="font-bold text-slate-900 text-base leading-tight">
                 {course.title}
@@ -303,6 +344,7 @@ export function LessonSidebar({ course, setClickLesson }) {
                   {isOpen && (
                     <div className="divide-y divide-slate-100/60 bg-white/40 backdrop-blur-sm">
                       {module.lessons?.map((lesson, lessonIndex) => {
+                        
                         const lessonKey = `lesson-${index}-${lessonIndex}`;
                         const isHovered = hoveredLesson === lessonKey;
 

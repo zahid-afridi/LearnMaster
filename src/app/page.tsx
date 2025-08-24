@@ -26,20 +26,65 @@ import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 
 const categories = [
-  { id: 1, name: "Development", icon: Code, color: "bg-blue-500", courses: 450 },
-  { id: 2, name: "Design", icon: Palette, color: "bg-purple-500", courses: 320 },
-  { id: 3, name: "Data Science", icon: BarChart3, color: "bg-green-500", courses: 180 },
-  { id: 4, name: "Marketing", icon: Megaphone, color: "bg-orange-500", courses: 240 },
-  { id: 5, name: "Photography", icon: Camera, color: "bg-pink-500", courses: 160 },
-  { id: 6, name: "Business", icon: DollarSign, color: "bg-emerald-500", courses: 380 },
+  {
+    id: 1,
+    name: "Development",
+    icon: Code,
+    color: "bg-blue-500",
+    courses: 450,
+  },
+  {
+    id: 2,
+    name: "Design",
+    icon: Palette,
+    color: "bg-purple-500",
+    courses: 320,
+  },
+  {
+    id: 3,
+    name: "Data Science",
+    icon: BarChart3,
+    color: "bg-green-500",
+    courses: 180,
+  },
+  {
+    id: 4,
+    name: "Marketing",
+    icon: Megaphone,
+    color: "bg-orange-500",
+    courses: 240,
+  },
+  {
+    id: 5,
+    name: "Photography",
+    icon: Camera,
+    color: "bg-pink-500",
+    courses: 160,
+  },
+  {
+    id: 6,
+    name: "Business",
+    icon: DollarSign,
+    color: "bg-emerald-500",
+    courses: 380,
+  },
   { id: 7, name: "Health", icon: Heart, color: "bg-red-500", courses: 120 },
-  { id: 8, name: "Languages", icon: Globe, color: "bg-indigo-500", courses: 200 },
+  {
+    id: 8,
+    name: "Languages",
+    icon: Globe,
+    color: "bg-indigo-500",
+    courses: 200,
+  },
 ];
 
 // ---- Category Carousel Component ----
 
-
-function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string) => void }) {
+function CategoryCarousel({
+  onCategorySelect,
+}: {
+  onCategorySelect?: (c: string) => void;
+}) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsToShow, setItemsToShow] = useState(4);
 
@@ -67,7 +112,9 @@ function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string)
 
   const prevSlide = () => {
     setCurrentIndex((prev) =>
-      prev === 0 ? Math.max(0, categories.length - itemsToShow) : prev - itemsToShow
+      prev === 0
+        ? Math.max(0, categories.length - itemsToShow)
+        : prev - itemsToShow
     );
   };
 
@@ -79,7 +126,8 @@ function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string)
             Explore Top Categories
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover courses across various fields and start your learning journey today
+            Discover courses across various fields and start your learning
+            journey today
           </p>
         </div>
 
@@ -107,7 +155,9 @@ function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string)
             <div
               className="flex transition-transform duration-300 ease-in-out gap-6"
               style={{
-                transform: `translateX(-${currentIndex * (100 / itemsToShow)}%)`,
+                transform: `translateX(-${
+                  currentIndex * (100 / itemsToShow)
+                }%)`,
                 width: `${(categories.length / itemsToShow) * 100}%`,
               }}
             >
@@ -125,8 +175,12 @@ function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string)
                       <category.icon className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg mb-1">{category.name}</h3>
-                      <p className="text-sm text-gray-600">{category.courses} courses</p>
+                      <h3 className="font-semibold text-lg mb-1">
+                        {category.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {category.courses} courses
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -136,7 +190,9 @@ function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string)
 
           {/* Dots */}
           <div className="flex justify-center mt-8 gap-2">
-            {Array.from({ length: Math.ceil(categories.length / itemsToShow) }).map((_, index) => (
+            {Array.from({
+              length: Math.ceil(categories.length / itemsToShow),
+            }).map((_, index) => (
               <button
                 key={index}
                 className={`w-2 h-2 rounded-full transition-colors ${
@@ -155,13 +211,12 @@ function CategoryCarousel({ onCategorySelect }: { onCategorySelect?: (c: string)
   );
 }
 
-
 // ---- Home Client Component ----
 export default function HomeClient() {
-  const router= useRouter();
+  const router = useRouter();
   const onGetStarted = () => {
     // Put navigation logic here (e.g., router.push('/courses'))
-    router.push('/courses/234234');
+    router.push("/courses/234234");
     console.log("Get started clicked");
   };
 
@@ -176,10 +231,25 @@ export default function HomeClient() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-700/5 via-white to-gray-100/30">
         <div className="absolute inset-0 opacity-5 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 100 100" fill="none" aria-hidden>
+          <svg
+            className="w-full h-full"
+            viewBox="0 0 100 100"
+            fill="none"
+            aria-hidden
+          >
             <defs>
-              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5" />
+              <pattern
+                id="grid"
+                width="10"
+                height="10"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 10 0 L 0 0 0 10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.5"
+                />
               </pattern>
             </defs>
             <rect width="100" height="100" fill="url(#grid)" />
@@ -199,8 +269,9 @@ export default function HomeClient() {
                 </span>
               </h1>
               <p className="text-lg sm:text-xl text-gray-600 max-w-lg leading-relaxed">
-                Join millions of learners and unlock your potential with our comprehensive,
-                text-based courses designed for deep understanding and practical application.
+                Join millions of learners and unlock your potential with our
+                comprehensive, text-based courses designed for deep
+                understanding and practical application.
               </p>
 
               <div className="flex flex-wrap gap-6 sm:gap-8">
@@ -261,15 +332,22 @@ export default function HomeClient() {
                     <div className="w-20 h-20 bg-gradient-to-br from-blue-700 to-blue-500 rounded-full flex items-center justify-center mx-auto">
                       <BookOpen className="w-10 h-10 text-white" />
                     </div>
-                    <h3 className="font-semibold text-lg">Interactive Learning</h3>
-                    <p className="text-sm text-gray-600">Engage with rich content, take notes, and track your progress</p>
+                    <h3 className="font-semibold text-lg">
+                      Interactive Learning
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Engage with rich content, take notes, and track your
+                      progress
+                    </p>
                   </div>
                 </div>
 
                 <div className="p-6 border-t">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium">Advanced React Development</h4>
+                      <h4 className="font-medium">
+                        Advanced React Development
+                      </h4>
                       <p className="text-sm text-gray-600">by Sarah Chen</p>
                     </div>
                     <div className="flex items-center gap-1">
@@ -287,10 +365,10 @@ export default function HomeClient() {
       </section>
 
       {/* Categories Section */}
-       <CategoryCarousel />
+      <CategoryCarousel />
 
       {/* Featured Courses Section */}
-       <FeaturedCourses />
+      <FeaturedCourses />
 
       <TestimonialsSection />
 
