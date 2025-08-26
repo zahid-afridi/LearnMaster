@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import pool from "../../../../../utils/db";
+import bcrypt from "bcrypt"
 
 export async function POST(req) {
     try {
@@ -22,7 +23,13 @@ export async function POST(req) {
                 { success: false, message: "User with this email already exists" },
                 { status: 409 } // Conflict
             );
-        }
+        };
+
+
+        // Hash password 
+         const hashpassword  = await bcrypt.hash(password,10);
+         console.log('hashpassword:',hashpassword)
+        
 
         // ✅ Insert new user
         const insertQuery = `
@@ -30,7 +37,7 @@ export async function POST(req) {
             VALUES ($1, $2, $3)
             RETURNING *
         `;
-        const values = [email, password, name];
+        const values = [email, hashpassword, name];
         const { rows } = await pool.query(insertQuery, values);
 
         return NextResponse.json(
