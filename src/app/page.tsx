@@ -24,6 +24,7 @@ import FeaturedCourses from "@/components/FeaturedCourses";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const categories = [
   {
@@ -215,6 +216,8 @@ function CategoryCarousel({
 export default function HomeClient() {
   const router = useRouter();
   const onGetStarted = () => {
+ 
+
     // Put navigation logic here (e.g., router.push('/courses'))
     router.push("/courses/234234");
     console.log("Get started clicked");
