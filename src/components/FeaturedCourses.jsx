@@ -1,9 +1,9 @@
 "use client";
 
+import {  useEffect, useState } from "react";
 import { setCourseMeta } from "../redux/slices/CourseMetaSlice";
 import { Star, Clock, BookOpen, Award } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 

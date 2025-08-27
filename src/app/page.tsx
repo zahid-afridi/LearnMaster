@@ -25,6 +25,7 @@ import TestimonialsSection from "@/components/TestimonialsSection";
 import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 const categories = [
   {
@@ -310,21 +311,25 @@ export default function HomeClient() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={onGetStarted}
-                  className="flex items-center justify-center bg-gradient-to-r from-blue-700 to-blue-500 text-white rounded-full px-8 h-12 text-lg font-medium hover:scale-105 transition-transform shadow-lg hover:shadow-xl"
-                >
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </button>
+                <Link href={"/blogs"}>
+                  <button
+                    onClick={onGetStarted}
+                    className="flex items-center cursor-pointer justify-center bg-gradient-to-r from-blue-700 to-blue-500 text-white rounded-full px-8 h-12 text-lg font-medium hover:scale-105 transition-transform shadow-lg hover:shadow-xl"
+                  >
+                    Explore Blgos
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </button>
+                </Link>
 
-                <button
-                  onClick={onExploreCourses}
-                  className="flex items-center justify-center border border-blue-700/20 rounded-full px-8 h-12 text-lg font-medium hover:bg-blue-700/5"
-                >
-                  <Play className="mr-2 h-4 w-4" />
-                  Explore Courses
-                </button>
+                <Link href={"/courses/all"}>
+                  <button
+                    onClick={onExploreCourses}
+                    className="flex items-center cursor-pointer justify-center border border-blue-700/20 rounded-full px-8 h-12 text-lg font-medium hover:bg-blue-700/5"
+                  >
+                    <Play className="mr-2 h-4 w-4" />
+                    Explore Courses
+                  </button>
+                </Link>
               </div>
             </div>
 
