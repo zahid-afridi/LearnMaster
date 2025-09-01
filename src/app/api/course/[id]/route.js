@@ -7,6 +7,7 @@ import { validate as isUuid } from "uuid";
 export async function GET(req, { params }) {
     const { id } = params; // get id from route
     // 1. Validate UUID format
+   
     if (!isUuid(id)) {
         return NextResponse.json(
             { success: false, error: "Invalid course ID format" },

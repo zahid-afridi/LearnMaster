@@ -4,11 +4,14 @@
 "use client";
 import React, { useState } from "react";
 import { Copy, Check, AlertTriangle, Play, Sparkles, BookOpen, Award, ExternalLink, Loader2, Menu, ChevronLeft, ChevronRight, } from "lucide-react";
+import { useSelector } from "react-redux";
 
 
-export function LessonContent({ clickLesson, course, loading }) {
+export function LessonContent({ clickLesson, loading }) {
+  const { coursemeta, module, lesson } = useSelector((state) => state.course);
 
-console.log(course)
+
+
  
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [selectedQuizAnswers, setSelectedQuizAnswers] = useState({});
@@ -220,11 +223,11 @@ console.log(course)
               <BookOpen size={24} className="text-white" />
             </div>
             <div className="text-indigo-200 font-medium">
-              {course?.title || 'Current Lesson'}
+              {coursemeta?.title || 'Current Lesson'}
             </div>
           </div>
           <h1 className="text-4xl  md:text-5xl font-bold  bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
-            {clickLesson.title || 'Lesson Content'}
+            {lesson.title || 'Lesson Content'}
           </h1>
           {clickLesson.duration && (
             <div className="flex items-center gap-2 text-indigo-200">

@@ -1,21 +1,30 @@
-
-
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { CheckCircle, Clock, Lock, BookOpen, ChevronDown, Star, Play, Award } from "lucide-react";
+import {
+  CheckCircle,
+  Clock,
+  BookOpen,
+  ChevronDown,
+  Star,
+  Play,
+  Award,
+} from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-
-
-
-export function LessonSidebar({ setClickLesson, setcourseUpdate }) {
+import NocourseFound from "../NocourseFound";
+import { useDispatch,useSelector } from "react-redux";
+import { setCourseMeta, setError, setLesson, setModule } from "@/redux/slices/course/courseSlice";
+export function LessonSidebar({  setcourseUpdate, setCoursenotfound }) {
+  const dispatch=useDispatch()
+  const { coursemeta, module, lesson } = useSelector((state) => state.course);
+  console.log('courseData from rduxt',module)
   const params = useParams();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const totalLessons = course?.total_lessons || 0;
-  const completedLessons = course?.completed_lessons || 0;
+  const totalLessons = coursemeta?.total_lessons || 0;
+  const completedLessons = coursemeta?.completed_lessons || 0;
   const progressPercentage =
     totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
 
@@ -30,52 +39,63 @@ export function LessonSidebar({ setClickLesson, setcourseUpdate }) {
     }));
   };
 
-  const HandleLessonSelect = (lesson) => {
+  const HandleLessonSelect = (lesson, module) => {
     if (!lesson) return;
-    setClickLesson(lesson); // delegate lesson fetch to parent
+   
+    dispatch(setLesson(lesson))
+    dispatch(setModule(module))
   };
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    async function getCourseModule() {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/course/modules/${params.id}`, {
-          method: "GET",
-          signal: controller.signal,
-        });
-        const data = await res.json();
-        if (data?.data) {
-          
-          const courseData = data.data;
-          setCourse(courseData);
-          setcourseUpdate(courseData);
-
-          // Auto-open first module
-          if (courseData.modules?.length > 0) {
-            setOpenModules({ "module-0": true });
-
-            // Auto-select first lesson
-            const firstLesson = courseData.modules[0]?.lessons?.[0];
-            if (firstLesson) {
-              HandleLessonSelect(firstLesson);
-            }
-          }
-        }
-      } catch (error) {
-        if (error.name !== "AbortError") {
-          console.error("Failed to fetch course:", error);
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    getCourseModule();
-
-    return () => controller.abort(); // cancel fetch on unmount
+    GetCourseModule();
   }, [params.id]);
+
+  const GetCourseModule = async () => {
+    try {
+      setLoading(true);
+
+      const res = await fetch(`/api/course/modules/${params.id}`, {
+        method: "GET",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        dispatch(setError('course not found'))
+        
+        setCoursenotfound(true);
+        return;
+      }
+
+      const courseData = data.data;
+      dispatch(setCourseMeta(courseData))
+      setCourse(courseData);
+      setcourseUpdate(courseData);
+
+      // auto-open and auto-select first lesson
+      if (courseData.modules?.length > 0) {
+        setOpenModules({ "module-0": true });
+        const firstLesson = courseData.modules[0]?.lessons?.[0];
+        if (firstLesson){
+           
+          HandleLessonSelect(firstLesson);
+          dispatch(setLesson(firstLesson))
+          
+          
+        }
+       
+        dispatch(setModule(courseData.modules[0]))
+      }
+    } catch (error) {
+      console.error("Fetch error:", error.message || error);
+      dispatch(setError(error.message || "Something went wrong"))
+      setCoursenotfound(true);
+      
+    } finally {
+      
+      setLoading(false);
+    }
+  };
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -90,23 +110,71 @@ export function LessonSidebar({ setClickLesson, setcourseUpdate }) {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <p className="text-slate-500 text-sm">Loading course...</p>
+      <div className="bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 border-r border-slate-200/60 h-screen sticky top-0 flex flex-col animate-pulse">
+
+        {/* Skeleton Header */}
+        <div className="p-6 border-b relative">
+          <div className="flex items-center gap-4 mb-3">
+            <div className="w-12 h-12 bg-slate-200 rounded-2xl" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-slate-200 rounded w-3/4" />
+              <div className="h-3 bg-slate-200 rounded w-1/2" />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <div className="h-3 bg-slate-200 rounded w-1/3" />
+              <div className="h-5 bg-slate-200 rounded-full w-12" />
+            </div>
+            <div className="h-3 bg-slate-200 rounded w-full" />
+            <div className="flex justify-between items-center text-xs">
+              <div className="h-3 bg-slate-200 rounded w-1/3" />
+              <div className="h-3 bg-slate-200 rounded w-1/4" />
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton Modules */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-slate-200 rounded-xl" />
+                <div className="h-4 bg-slate-200 rounded w-1/2" />
+              </div>
+              <div className="space-y-2 pl-11">
+                {Array.from({ length: 3 }).map((_, j) => (
+                  <div key={j} className="h-4 bg-slate-200 rounded w-3/4" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Skeleton Footer */}
+        <div className="p-6 border-t border-slate-200/60 bg-white/70">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-slate-200 rounded-xl" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-slate-200 rounded w-2/3" />
+              <div className="h-3 bg-slate-200 rounded w-1/2" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (!course) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <p className="text-slate-500 text-sm">Course not found.</p>
-      </div>
-    );
+
+  // after loading check
+  if (!course || !coursemeta.modules || coursemeta.modules.length === 0) {
+    return <NocourseFound />;
   }
 
 
 
- 
+
 
   return (
     <div className=" bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 border-r border-slate-200/60 h-screen sticky top-0 flex flex-col ">
@@ -129,7 +197,7 @@ export function LessonSidebar({ setClickLesson, setcourseUpdate }) {
             </Link>
             <div className="flex-1">
               <h2 className="font-bold text-slate-900 text-base leading-tight">
-                {course.title}
+                {coursemeta.title}
               </h2>
               <p className="text-sm text-slate-600 ">
                 {totalLessons} lessons • Premium Course
@@ -228,14 +296,14 @@ export function LessonSidebar({ setClickLesson, setcourseUpdate }) {
                   {isOpen && (
                     <div className="divide-y divide-slate-100/60 bg-white/40 backdrop-blur-sm">
                       {module.lessons?.map((lesson, lessonIndex) => {
-                        
+
                         const lessonKey = `lesson-${index}-${lessonIndex}`;
                         const isHovered = hoveredLesson === lessonKey;
 
                         return (
                           <div
                             key={lessonKey}
-                            onClick={() => HandleLessonSelect(lesson)}
+                            onClick={() => HandleLessonSelect(lesson,module)}
                             onMouseEnter={() => setHoveredLesson(lessonKey)}
                             onMouseLeave={() => setHoveredLesson(null)}
                             className="group/lesson relative flex items-center  gap-4 px-6 py-4 hover:bg-gradient-to-r hover:from-indigo-50/60 hover:to-purple-50/40 transition-all duration-200 cursor-pointer"

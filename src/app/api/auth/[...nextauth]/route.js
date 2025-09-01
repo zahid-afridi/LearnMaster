@@ -98,7 +98,7 @@ const handler = NextAuth({
         // Attach user data to JWT
         async jwt({ token, user }) {
             if (user) {
-                token.id = user.id;
+                token.user_id = user.user_id || user.id;
                 token.name = user.name;
                 token.email = user.email;
             }
@@ -108,7 +108,7 @@ const handler = NextAuth({
         // Attach JWT data to session
         async session({ session, token }) {
             if (token) {
-                session.user.id = token.id;
+                session.user.user_id = token.user_id;
                 session.user.name = token.name;
                 session.user.email = token.email;
             }

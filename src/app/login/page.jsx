@@ -83,8 +83,8 @@ export default function Page() {
             {message && (
               <div
                 className={`text-center text-sm font-medium mb-4 px-3 py-2 rounded-lg ${messageType === "success"
-                    ? "bg-green-50 text-green-600 border border-green-200"
-                    : "bg-red-50 text-red-600 border border-red-200"
+                  ? "bg-green-50 text-green-600 border border-green-200"
+                  : "bg-red-50 text-red-600 border border-red-200"
                   }`}
               >
                 {message}

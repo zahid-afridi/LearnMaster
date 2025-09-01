@@ -10,11 +10,11 @@ export function Providers({ children }) {
     return (
         <SessionProvider>
             <Provider store={store}>
-                <PersistGate loading={null} persistor={persistor}>
+                
                     <Toaster position="top-right" richColors/>
                     {children}
                     
-                </PersistGate>
+              
             </Provider>
         </SessionProvider>
     );
