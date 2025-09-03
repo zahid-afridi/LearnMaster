@@ -7,7 +7,8 @@ import { validate as isUuid } from "uuid";
 export async function GET(req, { params }) {
     const { id } = params; // get id from route
     // 1. Validate UUID format
-   
+
+
     if (!isUuid(id)) {
         return NextResponse.json(
             { success: false, error: "Invalid course ID format" },
@@ -15,7 +16,7 @@ export async function GET(req, { params }) {
         );
     }
     try {
-        
+
         const q = `
             SELECT 
                 c.*,
@@ -43,7 +44,6 @@ export async function GET(req, { params }) {
                                 'title', l.title,
                                 'slug', l.slug,
                                 'difficulty', l.difficulty,
-                                'status', l.status,
                                 'estimated_time', l.estimated_time,
                                 'order', l."order",
                                 'published', l.published,
@@ -63,7 +63,7 @@ export async function GET(req, { params }) {
                         l.title,
                         l.slug,
                         l.difficulty,
-                        l.status,
+                        
                         l.estimated_time,
                         l."order",
                         l.published,
@@ -174,7 +174,7 @@ export async function GET(req, { params }) {
             return NextResponse.json({ success: false, error: "Course not Found" }, { status: 404 });
 
         }
-        return NextResponse.json({ success: true, data: result.rows },{status:200});
+        return NextResponse.json({ success: true, data: result.rows }, { status: 200 });
 
     } catch (error) {
         console.log(error)

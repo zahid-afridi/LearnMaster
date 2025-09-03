@@ -13,14 +13,18 @@ import {
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import NocourseFound from "../NocourseFound";
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCourseMeta, setError, setLesson, setModule } from "@/redux/slices/course/courseSlice";
-export function LessonSidebar({  setcourseUpdate, setCoursenotfound }) {
-  const dispatch=useDispatch()
+import { useSession } from "next-auth/react";
+
+export function LessonSidebar({ setcourseUpdate, setCoursenotfound }) {
+  const { data: session } = useSession();
+  const userId = session?.user?.user_id;
+  const dispatch = useDispatch();
   const { coursemeta, module, lesson } = useSelector((state) => state.course);
-  console.log('courseData from rduxt',module)
+  console.log("courseData from redux", coursemeta);
+
   const params = useParams();
-  const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const totalLessons = coursemeta?.total_lessons || 0;
@@ -41,10 +45,10 @@ export function LessonSidebar({  setcourseUpdate, setCoursenotfound }) {
 
   const HandleLessonSelect = (lesson, module) => {
     if (!lesson) return;
-   
-    dispatch(setLesson(lesson))
-    dispatch(setModule(module))
+    dispatch(setLesson(lesson));
+    dispatch(setModule(module));
   };
+
 
   useEffect(() => {
     GetCourseModule();
@@ -53,46 +57,36 @@ export function LessonSidebar({  setcourseUpdate, setCoursenotfound }) {
   const GetCourseModule = async () => {
     try {
       setLoading(true);
-
-      const res = await fetch(`/api/course/modules/${params.id}`, {
+      const query = userId ? `?userId=${userId}` : '';
+      const res = await fetch(`/api/course/modules/${params.id} ${query}`, {
         method: "GET",
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        dispatch(setError('course not found'))
-        
+        dispatch(setError("course not found"));
         setCoursenotfound(true);
         return;
       }
 
       const courseData = data.data;
-      dispatch(setCourseMeta(courseData))
-      setCourse(courseData);
+      dispatch(setCourseMeta(courseData));
       setcourseUpdate(courseData);
 
       // auto-open and auto-select first lesson
       if (courseData.modules?.length > 0) {
         setOpenModules({ "module-0": true });
         const firstLesson = courseData.modules[0]?.lessons?.[0];
-        if (firstLesson){
-           
-          HandleLessonSelect(firstLesson);
-          dispatch(setLesson(firstLesson))
-          
-          
+        if (firstLesson) {
+          HandleLessonSelect(firstLesson, courseData.modules[0]);
         }
-       
-        dispatch(setModule(courseData.modules[0]))
       }
     } catch (error) {
       console.error("Fetch error:", error.message || error);
-      dispatch(setError(error.message || "Something went wrong"))
+      dispatch(setError(error.message || "Something went wrong"));
       setCoursenotfound(true);
-      
     } finally {
-      
       setLoading(false);
     }
   };
@@ -111,7 +105,6 @@ export function LessonSidebar({  setcourseUpdate, setCoursenotfound }) {
   if (loading) {
     return (
       <div className="bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 border-r border-slate-200/60 h-screen sticky top-0 flex flex-col animate-pulse">
-
         {/* Skeleton Header */}
         <div className="p-6 border-b relative">
           <div className="flex items-center gap-4 mb-3">
@@ -166,15 +159,10 @@ export function LessonSidebar({  setcourseUpdate, setCoursenotfound }) {
     );
   }
 
-
   // after loading check
-  if (!course || !coursemeta.modules || coursemeta.modules.length === 0) {
+  if (!coursemeta || !coursemeta.modules || coursemeta.modules.length === 0) {
     return <NocourseFound />;
   }
-
-
-
-
 
   return (
     <div className=" bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 border-r border-slate-200/60 h-screen sticky top-0 flex flex-col ">
@@ -185,7 +173,7 @@ export function LessonSidebar({  setcourseUpdate, setCoursenotfound }) {
 
         <div className="relative z-10">
           <div className="flex items-center gap-4 mb-3">
-            <Link href={'/'}>
+            <Link href={"/"}>
               <div className="relative">
                 <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg">
                   <BookOpen className="w-6 h-6 text-white" />
@@ -259,18 +247,14 @@ export function LessonSidebar({  setcourseUpdate, setCoursenotfound }) {
       {/* Enhanced Modules + Lessons */}
       <div className="flex-1 relative overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300/50 scrollbar-track-transparent hover:scrollbar-thumb-slate-400/50">
         <div className="p-4 space-y-6">
-          {course.modules?.map((module, index) => {
+          {coursemeta.modules?.map((module, index) => {
             const moduleKey = `module-${index}`;
             const isOpen = openModules[moduleKey];
 
             return (
-              <div
-                key={moduleKey}
-                className="group relative"
-              >
+              <div key={moduleKey} className="group relative">
                 {/* Module Container with Glass Effect */}
                 <div className="bg-white/60 backdrop-blur-sm border border-slate-200/60 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:border-indigo-200/60">
-
                   {/* Module Header */}
                   <div
                     className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-slate-50/80 to-white/80 hover:from-indigo-50/80 hover:to-purple-50/40 transition-all duration-300 cursor-pointer group/header"
@@ -296,24 +280,23 @@ export function LessonSidebar({  setcourseUpdate, setCoursenotfound }) {
                   {isOpen && (
                     <div className="divide-y divide-slate-100/60 bg-white/40 backdrop-blur-sm">
                       {module.lessons?.map((lesson, lessonIndex) => {
-
                         const lessonKey = `lesson-${index}-${lessonIndex}`;
                         const isHovered = hoveredLesson === lessonKey;
 
                         return (
                           <div
                             key={lessonKey}
-                            onClick={() => HandleLessonSelect(lesson,module)}
+                            onClick={() => HandleLessonSelect(lesson, module)}
                             onMouseEnter={() => setHoveredLesson(lessonKey)}
                             onMouseLeave={() => setHoveredLesson(null)}
                             className="group/lesson relative flex items-center  gap-4 px-6 py-4 hover:bg-gradient-to-r hover:from-indigo-50/60 hover:to-purple-50/40 transition-all duration-200 cursor-pointer"
                           >
                             {/* Status Icon with Enhanced Styling */}
                             <div className="flex-shrink-0 relative">
-                              {getStatusIcon(lesson.status)}
+                              {getStatusIcon('completed')}
 
                               {/* Pulse effect for current lesson */}
-                              {lesson.status === 'current' && (
+                              {lesson.status === "current" && (
                                 <div className="absolute inset-0 rounded-full bg-indigo-500/20 animate-pulse"></div>
                               )}
                             </div>
@@ -327,13 +310,13 @@ export function LessonSidebar({  setcourseUpdate, setCoursenotfound }) {
                                 <span className="text-xs text-slate-500 group-hover/lesson:text-indigo-600 transition-colors duration-200">
                                   {lesson.estimated_time || "5 min"}
                                 </span>
-                                {lesson.status === 'completed' && (
+                                {lesson.status === "completed" && (
                                   <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium">
                                     <CheckCircle className="w-3 h-3" />
                                     Done
                                   </span>
                                 )}
-                                {lesson.status === 'current' && (
+                                {lesson.status === "current" && (
                                   <span className="inline-flex items-center gap-1 text-xs text-indigo-600 font-medium">
                                     <Play className="w-3 h-3" />
                                     Continue
@@ -343,8 +326,12 @@ export function LessonSidebar({  setcourseUpdate, setCoursenotfound }) {
                             </div>
 
                             {/* Hover indicator */}
-                            <div className={`w-1 h-8 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-full transition-all duration-200 ${isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-                              }`}></div>
+                            <div
+                              className={`w-1 h-8 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-full transition-all duration-200 ${isHovered
+                                ? "opacity-100 scale-100"
+                                : "opacity-0 scale-75"
+                                }`}
+                            ></div>
 
                             {/* Lesson number */}
                             <div className="text-xs text-slate-400 group-hover/lesson:text-indigo-500 transition-colors duration-200 font-medium">

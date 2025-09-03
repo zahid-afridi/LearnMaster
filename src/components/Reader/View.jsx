@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -8,20 +6,20 @@ import { LessonHeader } from "./LessonHeader";
 import { LessonContent } from "./LessonContent";
 import { NotesSection } from "./NotesSection";
 import { LessonNavigation } from "./LessonNavigation";
-import { Menu, ChevronLeft, ChevronRight, Sparkles, BookOpen, Loader2 } from "lucide-react";
+import { Menu, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 
 import { useParams } from "next/navigation";
 import NocourseFound from "../NocourseFound";
 import { useSession } from "next-auth/react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setLesson, setModule } from "@/redux/slices/course/courseSlice";
 
 export default function View() {
-
   const { data: session } = useSession();
   const userId = session?.user?.user_id;
   const { coursemeta, module, lesson } = useSelector((state) => state.course);
-  console.log('lesson',lesson)
-
+  const dispatch = useDispatch();
+console.log('leson from redux:',module,)
   const [lessonProgress, setLessonProgress] = useState(0);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -33,32 +31,21 @@ export default function View() {
   const [sidebarTransition, setSidebarTransition] = useState(false);
 
   const [coursenotfound, setCoursenotfound] = useState(false);
-  
-  const mainContentRef = useRef(null); // Add ref for scroll control
-  console.log(course)
-  // Improved scroll to top function
+
+  const mainContentRef = useRef(null);
+
   const scrollToTop = () => {
-    // First try to scroll the main content area (most likely to work for your layout)
     if (mainContentRef.current) {
       mainContentRef.current.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-
-
-
-    // Final fallback: scroll the window
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-
-
-
-
   const getAllLessons = () => {
     if (!course?.modules) return [];
-
     const allLessons = [];
     course.modules.forEach((module, moduleIndex) => {
       module.lessons.forEach((lesson, lessonIndex) => {
@@ -67,6 +54,7 @@ export default function View() {
           moduleIndex,
           lessonIndex,
           moduleTitle: module.title,
+          parentModule: module, // keep reference
         });
       });
     });
@@ -75,115 +63,97 @@ export default function View() {
 
   const allLessons = getAllLessons();
 
-
   const handlePrevious = () => {
     if (currentLessonIndex > 0) {
       const prevLesson = allLessons[currentLessonIndex - 1];
-      setClickLesson(prevLesson);
+      dispatch(setLesson(prevLesson));
+      dispatch(setModule(prevLesson.parentModule));
       setCurrentLessonIndex(currentLessonIndex - 1);
-
-      // Add small delay to ensure content is rendered before scrolling
-      setTimeout(() => {
-        scrollToTop();
-      }, 100);
+      setTimeout(scrollToTop, 100);
     }
   };
 
   const handleNext = () => {
     if (currentLessonIndex < allLessons.length - 1) {
       const nextLesson = allLessons[currentLessonIndex + 1];
-      setClickLesson(nextLesson);
+      dispatch(setLesson(nextLesson));
+      dispatch(setModule(nextLesson.parentModule));
       setCurrentLessonIndex(currentLessonIndex + 1);
 
       if (lessonProgress < 100) {
         setLessonProgress(100);
       }
-
-      // Add small delay to ensure content is rendered before scrolling
-      setTimeout(() => {
-        scrollToTop();
-      }, 100);
+      setTimeout(scrollToTop, 100);
     }
   };
 
-  const handleMarkComplete = async() => {
-    const lessondata={
+  const handleMarkComplete = async () => {
+    const lessondata = {
       userId: userId,
       courseId: course.course_id,
-      moduleId: clickLesson.module_id,}
+      moduleId: module?.module_id,
+      lessonId: clickLesson?.lesson_id,
+    };
+    console.log('data to send:', lessondata);
+    try {
+      const res = await fetch("/api/course/modules/completedlesson", {
+        method: "POST",
+        headers: {  "Content-Type": "application/json" },
+        body: JSON.stringify(lessondata),
+      }); 
+      const data= await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to mark lesson as complete");
+      }
+      // Optionally handle response data
+      console.log("Lesson marked as complete:", data);
 
-      console.log(lessondata)
-    // try {
-    //   const res = await fetch('/api/course/modules/completedlesson',{
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify({
-    //       userId: clickLesson.lesson_id,
-    //       courseId: userId,
-    //       moduleId: clickLesson.module_id,
-
-    //     })
+    } catch (error) {
+      console.error("Error marking lesson as complete:", error);
+      // Optionally show error to user
       
-      
-      
-    //   });
-    //   const data = await res.json();
-    //   if (res.ok) {
-    //     console.log('Lesson marked as completed:', data);
-    //     setLessonProgress(100);
-    //   } else {
-    //     console.error('Error marking lesson as completed:', data);
-    //   }
-      
-    // } catch (error) {
-    //   console.log('Error marking lesson as completed:', error);
-      
-    // }
-    // setLessonProgress(100);
-
-    // setTimeout(() => {
-    //   if (currentLessonIndex < allLessons.length - 1) {
-    //     handleNext();
-    //   }
-    // }, 500);
+    }
+    setLessonProgress(100);
   };
 
   useEffect(() => {
-    const fetchCourse = async () => {
+    const fetchLesson = async () => {
       if (!lesson) return;
-      
-      setLoading(true);
-     try {
-      const query = userId ? `?userId=${userId}` : "";
-      const res = await fetch(`/api/course/modules/lesson/${lesson.lesson_id}${query}`);
-      const data = await res.json();
 
-      if (res.ok && data?.data?.length > 0) {
-        console.log('data', data);
-        setClickLesson(data.data[0]);
-      } else {
+      setLoading(true);
+      try {
+        const query = userId ? `?userId=${userId}` : "";
+        const res = await fetch(
+          `/api/course/modules/lesson/${lesson.lesson_id}${query}`
+        );
+        const data = await res.json();
+
+        if (res.ok && data?.data?.length > 0) {
+          setClickLesson(data.data[0]);
+
+          // update index based on allLessons
+          const idx = allLessons.findIndex((l) => l.lesson_id === lesson.lesson_id);
+          if (idx !== -1) setCurrentLessonIndex(idx);
+        } else {
+          setCoursenotfound(true);
+        }
+      } catch (err) {
+        console.error(err);
         setCoursenotfound(true);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-      setCoursenotfound(true);
-    } finally {
-      setLoading(false);
-    }
     };
 
-    fetchCourse();
-  }, [lesson,coursemeta, userId]);
-
+    fetchLesson();
+  }, [lesson, coursemeta, userId]);
 
   const handleDesktopSidebarToggle = () => {
     setSidebarTransition(true);
     setDesktopSidebarOpen(!desktopSidebarOpen);
     setTimeout(() => setSidebarTransition(false), 300);
   };
-  console.log('coursnt', coursenotfound)
+
   if (coursenotfound) {
     return <NocourseFound />;
   }
@@ -211,9 +181,15 @@ export default function View() {
         }}
       >
         {desktopSidebarOpen ? (
-          <ChevronLeft size={20} className="group-hover:scale-110 transition-transform" />
+          <ChevronLeft
+            size={20}
+            className="group-hover:scale-110 transition-transform"
+          />
         ) : (
-          <ChevronRight size={20} className="group-hover:scale-110 transition-transform" />
+          <ChevronRight
+            size={20}
+            className="group-hover:scale-110 transition-transform"
+          />
         )}
 
         <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-slate-800 text-white text-sm px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
@@ -226,15 +202,12 @@ export default function View() {
            ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}
            lg:translate-x-0 border-r border-slate-200/60
            ${desktopSidebarOpen ? "lg:w-80" : "lg:w-0 lg:overflow-hidden"}
-           w-80 ${sidebarTransition ? 'transition-all duration-300' : ''}`}
+           w-80 ${sidebarTransition ? "transition-all duration-300" : ""}`}
       >
         <div className="h-full bg-white/60 backdrop-blur-xl">
           <LessonSidebar
             setcourseUpdate={setCourse}
-            
             setCoursenotfound={setCoursenotfound}
-
-
           />
         </div>
       </div>
@@ -253,12 +226,11 @@ export default function View() {
       >
         <div className="flex flex-col h-screen">
           <div className="flex-1 overflow-hidden">
-            {/* Add the ref to this scrollable container */}
             <div
               ref={mainContentRef}
               className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300/50 scrollbar-track-transparent hover:scrollbar-thumb-slate-400/50"
             >
-              <LessonContent clickLesson={clickLesson}  loading={loading} />
+              <LessonContent clickLesson={clickLesson} loading={loading} />
             </div>
           </div>
 
