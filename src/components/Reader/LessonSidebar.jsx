@@ -58,7 +58,8 @@ export function LessonSidebar({ setcourseUpdate, setCoursenotfound }) {
     try {
       setLoading(true);
       const query = userId ? `?userId=${userId}` : '';
-      const res = await fetch(`/api/course/modules/${params.id} ${query}`, {
+
+      const res = await fetch(`/api/course/modules/${params.id}${query}`, {
         method: "GET",
       });
 
