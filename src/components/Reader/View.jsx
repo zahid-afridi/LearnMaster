@@ -12,28 +12,42 @@ import { useParams } from "next/navigation";
 import NocourseFound from "../NocourseFound";
 import { useSession } from "next-auth/react";
 import { useSelector, useDispatch } from "react-redux";
-import { setLesson, setModule } from "@/redux/slices/course/courseSlice";
+import { setCourseMeta, setLesson, setModule } from "@/redux/slices/course/courseSlice";
+import { toast } from "sonner";
 
 export default function View() {
   const { data: session } = useSession();
   const userId = session?.user?.user_id;
   const { coursemeta, module, lesson } = useSelector((state) => state.course);
+  console.log('lessonrdeuxView',lesson)
+
   const dispatch = useDispatch();
-console.log('leson from redux:',module,)
-  const [lessonProgress, setLessonProgress] = useState(0);
+  console.log('leson from redux:', module,)
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [clickLesson, setClickLesson] = useState(null);
+  
+  
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
   const [course, setCourse] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sidebarTransition, setSidebarTransition] = useState(false);
+  const [lessonProgress, setLessonProgress] = useState(0);
+  
+
+  useEffect(() => {
+    if (lesson) {
+      setLessonProgress(lesson.is_completed ? 100 : 0);
+    }
+  }, [lesson]);
+
 
   const [coursenotfound, setCoursenotfound] = useState(false);
 
   const mainContentRef = useRef(null);
-
+  console.log('courseMeataformviewreduex', coursemeta)
+  console.log('course_______________', course)
   const scrollToTop = () => {
     if (mainContentRef.current) {
       mainContentRef.current.scrollTo({ top: 0, behavior: "smooth" });
@@ -45,9 +59,9 @@ console.log('leson from redux:',module,)
   };
 
   const getAllLessons = () => {
-    if (!course?.modules) return [];
+    if (!coursemeta?.modules) return [];
     const allLessons = [];
-    course.modules.forEach((module, moduleIndex) => {
+    coursemeta.modules.forEach((module, moduleIndex) => {
       module.lessons.forEach((lesson, lessonIndex) => {
         allLessons.push({
           ...lesson,
@@ -90,28 +104,50 @@ console.log('leson from redux:',module,)
   const handleMarkComplete = async () => {
     const lessondata = {
       userId: userId,
-      courseId: course.course_id,
+      courseId: coursemeta.course_id,
       moduleId: module?.module_id,
       lessonId: clickLesson?.lesson_id,
     };
-    console.log('data to send:', lessondata);
+
+    if (!userId) {
+      return toast.error('Please Login ')
+    }
     try {
       const res = await fetch("/api/course/modules/completedlesson", {
         method: "POST",
-        headers: {  "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(lessondata),
-      }); 
-      const data= await res.json();
+      });
+      const data = await res.json();
       if (!res.ok) {
         throw new Error(data.message || "Failed to mark lesson as complete");
       }
       // Optionally handle response data
       console.log("Lesson marked as complete:", data);
 
+      const updatedCourse = {
+        ...coursemeta,
+        completed_lessons: (coursemeta.completed_lessons || 0) + 1, // update count here
+        modules: coursemeta.modules.map((m) => {
+          if (m.module_id !== module.module_id) return m;
+          return {
+            ...m,
+            lessons: m.lessons.map((l) =>
+              l.lesson_id === clickLesson.lesson_id
+                ? { ...l, is_completed: true }
+                : l
+            ),
+          };
+        }),
+      };
+      dispatch(setCourseMeta(updatedCourse));
+       // also keep your local `course` in sync
+      toast.success("Lesson completed!");
+
     } catch (error) {
       console.error("Error marking lesson as complete:", error);
       // Optionally show error to user
-      
+
     }
     setLessonProgress(100);
   };
@@ -169,7 +205,7 @@ console.log('leson from redux:',module,)
         >
           <Menu size={20} />
         </button>
-        <h1 className="font-bold text-slate-800 truncate px-4">{course.title}</h1>
+        <h1 className="font-bold text-slate-800 truncate px-4">{coursemeta.title}</h1>
         <div className="w-10"></div>
       </div>
 
@@ -206,7 +242,7 @@ console.log('leson from redux:',module,)
       >
         <div className="h-full bg-white/60 backdrop-blur-xl">
           <LessonSidebar
-            setcourseUpdate={setCourse}
+            
             setCoursenotfound={setCoursenotfound}
           />
         </div>
@@ -243,7 +279,7 @@ console.log('leson from redux:',module,)
               onPrevious={handlePrevious}
               onNext={handleNext}
               onMarkComplete={handleMarkComplete}
-              currentLesson={currentLessonIndex + 1}
+              currentLesson={coursemeta?.completed_lessons || 0}
               totalLessons={allLessons.length}
             />
           </div>

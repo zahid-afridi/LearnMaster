@@ -17,8 +17,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCourseMeta, setError, setLesson, setModule } from "@/redux/slices/course/courseSlice";
 import { useSession } from "next-auth/react";
 
-export function LessonSidebar({ setcourseUpdate, setCoursenotfound }) {
-  const { data: session } = useSession();
+export function LessonSidebar({  setCoursenotfound }) {
+  const { data: session, status } = useSession();
+  console.log('sessionstatus', status)
   const userId = session?.user?.user_id;
   const dispatch = useDispatch();
   const { coursemeta, module, lesson } = useSelector((state) => state.course);
@@ -51,20 +52,30 @@ export function LessonSidebar({ setcourseUpdate, setCoursenotfound }) {
 
 
   useEffect(() => {
+    if (status === "loading") return; // wait for session to finish
+    if (!params.id) return; // make sure course id exists
+
     GetCourseModule();
-  }, [params.id]);
+  }, [params.id, status]);
+
 
   const GetCourseModule = async () => {
     try {
+
       setLoading(true);
       const query = userId ? `?userId=${userId}` : '';
 
+      console.log(
+        'userId', query,
+        "courserid", params.id
+      )
       const res = await fetch(`/api/course/modules/${params.id}${query}`, {
         method: "GET",
       });
 
       const data = await res.json();
 
+      console.log('coouredatamodulefomr api', data)
       if (!res.ok) {
         dispatch(setError("course not found"));
         setCoursenotfound(true);
@@ -73,7 +84,7 @@ export function LessonSidebar({ setcourseUpdate, setCoursenotfound }) {
 
       const courseData = data.data;
       dispatch(setCourseMeta(courseData));
-      setcourseUpdate(courseData);
+      // setcourseUpdate(courseData);
 
       // auto-open and auto-select first lesson
       if (courseData.modules?.length > 0) {
@@ -294,13 +305,16 @@ export function LessonSidebar({ setcourseUpdate, setCoursenotfound }) {
                           >
                             {/* Status Icon with Enhanced Styling */}
                             <div className="flex-shrink-0 relative">
-                              {getStatusIcon('completed')}
+                              {lesson.is_completed
+                                ? getStatusIcon("completed")
+                                : getStatusIcon("current")}
 
                               {/* Pulse effect for current lesson */}
-                              {lesson.status === "current" && (
+                              {!lesson.is_completed && lesson.status === "current" && (
                                 <div className="absolute inset-0 rounded-full bg-indigo-500/20 animate-pulse"></div>
                               )}
                             </div>
+
 
                             {/* Lesson Content */}
                             <div className="flex-1 min-w-0 ">

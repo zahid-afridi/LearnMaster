@@ -16,49 +16,49 @@ export async function GET(req, { params }) {
         }
 
         const q = `
-            SELECT 
-                c.*,
-                COALESCE(
-                    json_agg(
-                        json_build_object(
-                            'module_id', m.module_id,
-                            'title', m.title,
-                            'slug', m.slug,
-                            'description', m.description,
-                            'order', m."order",
-                            'lessons', COALESCE(
-                                (SELECT json_agg(
-                                    json_build_object(
-                                        'lesson_id', l.lesson_id,
-                                        'title', l.title,
-                                        'slug', l.slug,
-                                        'difficulty', l.difficulty,
-                                        'estimated_time', l.estimated_time,
-                                        'order', l."order",
-                                        'published', l.published,
-                                        'is_completed', ${userId
+      SELECT 
+        c.*,
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'module_id', m.module_id,
+                    'title', m.title,
+                    'slug', m.slug,
+                    'description', m.description,
+                    'order', m."order",
+                    'lessons', COALESCE(
+                        (SELECT json_agg(
+                            json_build_object(
+                                'lesson_id', l.lesson_id,
+                                'title', l.title,
+                                'slug', l.slug,
+                                'difficulty', l.difficulty,
+                                'estimated_time', l.estimated_time,
+                                'order', l."order",
+                                'published', l.published,
+                                'is_completed', ${userId
                 ? `COALESCE((
-                                                        SELECT ulp.is_completed
-                                                        FROM user_lesson_progress ulp
-                                                        WHERE ulp.lesson_id = l.lesson_id 
-                                                        AND ulp.user_id = $2
-                                                    ), false)`
+                                      SELECT ulp.is_completed
+                                      FROM user_lesson_progress ulp
+                                      WHERE ulp.lesson_id = l.lesson_id 
+                                      AND ulp.user_id = $2
+                                  ), false)`
                 : `false`
             }
-                                    ) ORDER BY l."order")
-                                FROM lessons l 
-                                WHERE l.module_id = m.module_id),
-                                '[]'::json
-                            )
-                        ) ORDER BY m."order"
-                    ) FILTER (WHERE m.module_id IS NOT NULL),
-                    '[]'::json
-                ) as modules
-            FROM courses c
-            LEFT JOIN modules m ON c.course_id = m.course_id
-            WHERE c.course_id = $1
-            GROUP BY c.course_id
-        `;
+                            ) ORDER BY l."order")
+                        FROM lessons l 
+                        WHERE l.module_id = m.module_id),
+                        '[]'::json
+                    )
+                ) ORDER BY m."order"
+            ) FILTER (WHERE m.module_id IS NOT NULL),
+            '[]'::json
+        ) as modules
+      FROM courses c
+      LEFT JOIN modules m ON c.course_id = m.course_id
+      WHERE c.course_id = $1
+      GROUP BY c.course_id
+    `;
 
         const result = await pool.query(
             q,
@@ -72,7 +72,22 @@ export async function GET(req, { params }) {
             );
         }
 
-        return NextResponse.json({ success: true, data: result.rows[0] });
+        const courseData = result.rows[0];
+
+        // ✅ Extra query: count completed lessons if userId exists
+        if (userId) {
+            const completedQuery = `
+        SELECT COUNT(*) AS completed_lessons
+        FROM user_lesson_progress
+        WHERE user_id = $1 AND course_id = $2 AND is_completed = true
+      `;
+            const completedResult = await pool.query(completedQuery, [userId, id]);
+            courseData.completed_lessons = parseInt(completedResult.rows[0].completed_lessons, 10);
+        } else {
+            courseData.completed_lessons = 0;
+        }
+
+        return NextResponse.json({ success: true, data: courseData });
     } catch (error) {
         console.log(error);
         return NextResponse.json(

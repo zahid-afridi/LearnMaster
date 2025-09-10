@@ -129,7 +129,8 @@ export function LessonNavigation({
                   onClick={onMarkComplete}
                   variant="primary"
                   size="md"
-                  className="min-w-[160px]"
+                  
+                  className="min-w-[160px] cursor-pointer"
                   icon={<CheckCircle className="w-4 h-4" />}
                 >
                   <span className="hidden xs:inline">Mark Complete</span>
