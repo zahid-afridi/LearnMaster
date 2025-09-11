@@ -31,7 +31,10 @@ export default function RootLayout({
       >
         {/* 🔑 Provide session to the whole app */}
         
-          <Providers>{children}</Providers>
+          <Providers>
+            
+            {children}
+            </Providers>
       
       </body>
     </html>

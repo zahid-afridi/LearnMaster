@@ -16,12 +16,15 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import ProfileFallback from "../../public/assets/profile.jpg";
+import { useDispatch } from "react-redux";
+import { setActiveTab, setShowLogin } from "@/redux/slices/course/ShowLogin";
 
 interface ModernHeaderProps {
   onNavigate?: (page: string) => void;
 }
 
 export default function Header({ onNavigate }: ModernHeaderProps) {
+  const disptch=useDispatch()
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -173,7 +176,7 @@ export default function Header({ onNavigate }: ModernHeaderProps) {
               <div className="flex items-center gap-2 sm:gap-3">
                 {/* Login Button - Subtle, sophisticated */}
                 <button
-                  onClick={() => router.push("/login")}
+                  onClick={() => disptch(setShowLogin(true))}
                   className="group cursor-pointer relative overflow-hidden px-4 sm:px-6 py-2.5 rounded-xl text-sm font-semibold text-gray-700 hover:text-blue-700 transition-all duration-300 ease-out border border-gray-200/60 hover:border-blue-300/40 bg-white/80 hover:bg-blue-50/30 backdrop-blur-sm hover:shadow-md hover:-translate-y-0.5"
                 >
                   <span className="relative z-10">Sign In</span>
@@ -182,7 +185,13 @@ export default function Header({ onNavigate }: ModernHeaderProps) {
 
                 {/* Register Button - Bold, attention-grabbing */}
                 <button
-                  onClick={() => router.push("/register")}
+                  onClick={() =>{
+                    disptch(setActiveTab("register"));
+                    disptch(setShowLogin(true));
+                  }
+                    
+
+                  }
                   className="group cursor-pointer relative overflow-hidden px-4 sm:px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-0.5 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 hover:from-blue-800 hover:via-blue-700 hover:to-indigo-700"
                 >
                   <span className="relative z-10 flex items-center gap-1.5">

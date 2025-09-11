@@ -5,6 +5,7 @@ import { persistor, store } from "../redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 import { SessionProvider } from "next-auth/react";
 import { Toaster, toast } from 'sonner'
+import LoginModal from "@/components/Login/LoginModal";
 
 export function Providers({ children }) {
     return (
@@ -12,6 +13,7 @@ export function Providers({ children }) {
             <Provider store={store}>
                 
                     <Toaster position="top-right" richColors/>
+                    <LoginModal/>
                     {children}
                     
               
