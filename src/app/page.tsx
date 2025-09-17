@@ -121,95 +121,97 @@ function CategoryCarousel({
   };
 
   return (
-    <section className="py-16 bg-gray-100/30">
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-12">
-          <h2 className="font-poppins text-3xl sm:text-4xl font-bold mb-4">
-            Explore Top Categories
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover courses across various fields and start your learning
-            journey today
-          </p>
-        </div>
+    <>
+      {/* <section className="py-16 bg-gray-100/30">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="font-poppins text-3xl sm:text-4xl font-bold mb-4">
+              Explore Top Categories
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Discover courses across various fields and start your learning
+              journey today
+            </p>
+          </div>
 
-        <div className="relative">
-          {/* Prev Button */}
-          <button
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 h-12 w-12 rounded-full shadow-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
-            onClick={prevSlide}
-            disabled={currentIndex === 0}
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-
-          {/* Next Button */}
-          <button
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 h-12 w-12 rounded-full shadow-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
-            onClick={nextSlide}
-            disabled={currentIndex + itemsToShow >= categories.length}
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-
-          {/* Carousel Items */}
-          <div className="overflow-hidden">
-            <div
-              className="flex transition-transform duration-300 ease-in-out gap-6"
-              style={{
-                transform: `translateX(-${
-                  currentIndex * (100 / itemsToShow)
-                }%)`,
-                width: `${(categories.length / itemsToShow) * 100}%`,
-              }}
+          <div className="relative">
+           
+            <button
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 h-12 w-12 rounded-full shadow-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
+              onClick={prevSlide}
+              disabled={currentIndex === 0}
             >
-              {categories.map((category) => (
-                <div
-                  key={category.id}
-                  className="flex-shrink-0 bg-white rounded-xl border border-gray-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-pointer"
-                  style={{ width: `${100 / categories.length}%` }}
-                  onClick={() => onCategorySelect?.(category.name)}
-                >
-                  <div className="p-6 text-center space-y-4">
-                    <div
-                      className={`w-16 h-16 ${category.color} rounded-2xl flex items-center justify-center mx-auto shadow-lg`}
-                    >
-                      <category.icon className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg mb-1">
-                        {category.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {category.courses} courses
-                      </p>
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+
+           
+            <button
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 h-12 w-12 rounded-full shadow-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-40"
+              onClick={nextSlide}
+              disabled={currentIndex + itemsToShow >= categories.length}
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+
+            
+            <div className="overflow-hidden">
+              <div
+                className="flex transition-transform duration-300 ease-in-out gap-6"
+                style={{
+                  transform: `translateX(-${
+                    currentIndex * (100 / itemsToShow)
+                  }%)`,
+                  width: `${(categories.length / itemsToShow) * 100}%`,
+                }}
+              >
+                {categories.map((category) => (
+                  <div
+                    key={category.id}
+                    className="flex-shrink-0 bg-white rounded-xl border border-gray-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-pointer"
+                    style={{ width: `${100 / categories.length}%` }}
+                    onClick={() => onCategorySelect?.(category.name)}
+                  >
+                    <div className="p-6 text-center space-y-4">
+                      <div
+                        className={`w-16 h-16 ${category.color} rounded-2xl flex items-center justify-center mx-auto shadow-lg`}
+                      >
+                        <category.icon className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">
+                          {category.name}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {category.courses} courses
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ))}
+              </div>
+            </div>
+
+            
+            <div className="flex justify-center mt-8 gap-2">
+              {Array.from({
+                length: Math.ceil(categories.length / itemsToShow),
+              }).map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    Math.floor(currentIndex / itemsToShow) === index
+                      ? "bg-blue-700"
+                      : "bg-gray-300"
+                  }`}
+                  onClick={() => setCurrentIndex(index * itemsToShow)}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
               ))}
             </div>
           </div>
-
-          {/* Dots */}
-          <div className="flex justify-center mt-8 gap-2">
-            {Array.from({
-              length: Math.ceil(categories.length / itemsToShow),
-            }).map((_, index) => (
-              <button
-                key={index}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  Math.floor(currentIndex / itemsToShow) === index
-                    ? "bg-blue-700"
-                    : "bg-gray-300"
-                }`}
-                onClick={() => setCurrentIndex(index * itemsToShow)}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
         </div>
-      </div>
-    </section>
+      </section> */}
+    </>
   );
 }
 

@@ -5,14 +5,15 @@
 import React, { useState } from "react";
 import { Copy, Check, AlertTriangle, Play, Sparkles, BookOpen, Award, ExternalLink, Loader2, Menu, ChevronLeft, ChevronRight, } from "lucide-react";
 import { useSelector } from "react-redux";
+import VideoPlayer from './VideoPlayer'
 
 
 export function LessonContent({ clickLesson, loading }) {
   const { coursemeta, module, lesson } = useSelector((state) => state.course);
+  console.log('zero index', clickLesson?.contents[0])
 
 
 
- 
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [selectedQuizAnswers, setSelectedQuizAnswers] = useState({});
 
@@ -288,7 +289,7 @@ export function LessonContent({ clickLesson, loading }) {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
-                    
+
                   </figure>
                 );
 
@@ -307,7 +308,8 @@ export function LessonContent({ clickLesson, loading }) {
                 return <InfoBox key={index} text={block.text} type="warning" />;
 
               case "video":
-                return <VideoBlock key={index} src={block.src} alt={block.alt} />;
+                // return <VideoBlock key={index} src={block.src} alt={block.alt} />;
+                return <VideoPlayer key={index} src={block.src} alt={block.alt} />
 
               case "quiz":
                 return (

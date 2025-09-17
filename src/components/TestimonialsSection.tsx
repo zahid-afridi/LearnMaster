@@ -65,60 +65,57 @@ const testimonials = [
 
 export default function TestimonialsSection() {
   return (
-    <section className="py-16 bg-gray-100/30">
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6">
-        {/* Heading */}
-        <div className="text-center mb-12">
-          <h2 className="font-poppins text-3xl sm:text-4xl font-bold mb-4">
-            What Our Students Say
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Join thousands of successful learners who have transformed their
-            careers with our courses
-          </p>
-        </div>
+    <>
+      {/* <section className="py-16 bg-gray-100/30">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="font-poppins text-3xl sm:text-4xl font-bold mb-4">
+              What Our Students Say
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Join thousands of successful learners who have transformed their
+              careers with our courses
+            </p>
+          </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-          {testimonials.map((t) => (
-            <div
-              key={t.id}
-              className="bg-white rounded-xl shadow-md border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between p-6 space-y-4"
-            >
-              {/* Rating */}
-              <div className="flex items-center gap-1">
-                {Array.from({ length: t.rating }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                  />
-                ))}
-              </div>
-
-              {/* Quote */}
-              <div className="relative flex-1">
-                <Quote className="absolute -top-2 -left-2 w-6 h-6 text-blue-700/20" />
-                <p className="text-gray-600 leading-relaxed pl-4">
-                  "{t.content}"
-                </p>
-              </div>
-
-              {/* Author */}
-              <div className="flex items-center gap-3 pt-4 border-t">
-                <div className="h-10 w-10 rounded-full bg-blue-700/10 flex items-center justify-center font-medium text-xs">
-                  {t.avatar}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+            {testimonials.map((t) => (
+              <div
+                key={t.id}
+                className="bg-white rounded-xl shadow-md border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between p-6 space-y-4"
+              >
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: t.rating }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                    />
+                  ))}
                 </div>
-                <div>
-                  <p className="font-semibold">{t.name}</p>
-                  <p className="text-sm text-gray-600">
-                    {t.role} at {t.company}
+
+                <div className="relative flex-1">
+                  <Quote className="absolute -top-2 -left-2 w-6 h-6 text-blue-700/20" />
+                  <p className="text-gray-600 leading-relaxed pl-4">
+                    "{t.content}"
                   </p>
                 </div>
+
+                <div className="flex items-center gap-3 pt-4 border-t">
+                  <div className="h-10 w-10 rounded-full bg-blue-700/10 flex items-center justify-center font-medium text-xs">
+                    {t.avatar}
+                  </div>
+                  <div>
+                    <p className="font-semibold">{t.name}</p>
+                    <p className="text-sm text-gray-600">
+                      {t.role} at {t.company}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section> */}
+    </>
   );
 }
