@@ -2,7 +2,7 @@
 import React from "react";
 
 const VideoPlayer = ({ src, alt }) => {
-    console.log('src',src)
+    console.log('src', src)
     // detect YouTube url
     const isYouTube = /youtube\.com|youtu\.be/.test(src);
 

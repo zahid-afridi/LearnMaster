@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCourseMeta, setError, setLesson, setModule } from "@/redux/slices/course/courseSlice";
 import { useSession } from "next-auth/react";
 
-export function LessonSidebar({  setCoursenotfound }) {
+export function LessonSidebar({ setCoursenotfound }) {
   const { data: session, status } = useSession();
   console.log('sessionstatus', status)
   const userId = session?.user?.user_id;

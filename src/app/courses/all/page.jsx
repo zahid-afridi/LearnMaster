@@ -108,8 +108,8 @@ export default function YouTubeLikeCourses() {
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
                   className={`px-3 py-1.5 rounded-lg whitespace-nowrap text-sm font-medium transition-all ${activeCategory === cat
-                      ? "bg-black text-white"
-                      : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    ? "bg-black text-white"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                     }`}
                 >
                   {cat}
