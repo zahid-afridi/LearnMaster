@@ -10,12 +10,20 @@ import {
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import VideoPlayer from "./VideoPlayer";
+import { useRouter } from "next/navigation";
 
 export function LessonContent({ clickLesson, loading }) {
+  const router=useRouter()
   const { coursemeta, lesson } = useSelector((state) => state.course);
 
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [selectedQuizAnswers, setSelectedQuizAnswers] = useState({});
+
+  const handleRun = async (code, language) => {
+    const encodedCode = encodeURIComponent(code);
+    const url = `/online-compiler?code=${encodedCode}&lang=${language}`;
+    window.open(url, "_blank"); // ✅ opens in new tab
+  };
 
   // Reset quiz answers when lesson changes
   useEffect(() => {
@@ -102,50 +110,65 @@ export function LessonContent({ clickLesson, loading }) {
   };
 
   // ------------------ CODE BLOCK ------------------
-  const CodeBlock = ({ code, language = "javascript", index }) => (
-    <div className="my-6 rounded-xl overflow-hidden border border-slate-300 shadow-lg bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <div className="flex items-center justify-between bg-slate-800/90 px-4 py-2">
-        {/* Left side: language + traffic lights */}
-        <div className="flex items-center gap-3">
-          {/* MacOS style traffic lights */}
-          <div className="flex gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-red-500/80"></span>
-            <span className="w-3 h-3 rounded-full bg-yellow-400/80"></span>
-            <span className="w-3 h-3 rounded-full bg-green-500/80"></span>
+  const CodeBlock = ({ code: initialCode, language = "javascript", index }) => {
+    const [editableCode, setEditableCode] = useState(initialCode);
+
+    return (
+      <div className="my-6 rounded-xl overflow-hidden border border-slate-300 shadow-lg bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        {/* Header */}
+        <div className="flex items-center justify-between bg-slate-800/90 px-4 py-2">
+          {/* Left side */}
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-red-500/80"></span>
+              <span className="w-3 h-3 rounded-full bg-yellow-400/80"></span>
+              <span className="w-3 h-3 rounded-full bg-green-500/80"></span>
+            </div>
+            <span className="font-mono text-xs uppercase tracking-wide text-slate-300">
+              {language}
+            </span>
           </div>
-          <span className="font-mono text-xs uppercase tracking-wide text-slate-300">
-            {language}
-          </span>
+
+          {/* Right side: copy + run */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleRun(editableCode, language)}
+              className="flex items-center cursor-pointer gap-1.5 px-2 py-1 rounded-md text-green-400 hover:text-white hover:bg-green-600 transition-colors"
+            >
+              <Play size={14} />
+              <span className="text-xs">Run</span>
+            </button>
+
+            <button
+              onClick={() => copyToClipboard(editableCode, index)}
+              className="flex items-center gap-1.5 px-2 py-1 rounded-md text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+            >
+              {copiedIndex === index ? (
+                <>
+                  <Check size={14} className="text-green-400" />
+                  <span className="text-xs">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy size={14} />
+                  <span className="text-xs">Copy</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Right side: copy button */}
-        <button
-          onClick={() => copyToClipboard(code, index)}
-          className="flex items-center gap-1.5 px-2 py-1 rounded-md text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
-        >
-          {copiedIndex === index ? (
-            <>
-              <Check size={14} className="text-green-400" />
-              <span className="text-xs">Copied</span>
-            </>
-          ) : (
-            <>
-              <Copy size={14} />
-              <span className="text-xs">Copy</span>
-            </>
-          )}
-        </button>
+        {/* Editable Code Area */}
+        <textarea
+          value={editableCode}
+          onChange={(e) => setEditableCode(e.target.value)}
+          spellCheck="false"
+          className="w-full bg-slate-900 text-slate-100 text-sm px-5 py-4 font-mono leading-relaxed resize-y min-h-[160px] focus:outline-none"
+        />
       </div>
+    );
+  };
 
-      {/* Code content */}
-      <pre className="bg-slate-900 text-slate-100 text-sm px-5 py-4 overflow-x-auto font-mono leading-relaxed relative">
-        <code className="whitespace-pre-wrap">{code}</code>
-        {/* subtle glow effect */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
-      </pre>
-    </div>
-  );
 
 
   // ------------------ UI STATES ------------------

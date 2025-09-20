@@ -11,8 +11,12 @@ import {
     X,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
+import { useSearchParams } from "next/navigation";
 
 export default function Page() {
+    const params = useSearchParams();
+    const prefillCode = params.get("code");
+    const prefillLang = params.get("lang");
     const [language, setLanguage] = useState("javascript");
     const [code, setCode] = useState(
         `// Write your code here\nconsole.log("Hello, World!");`
@@ -30,7 +34,6 @@ export default function Page() {
         if (newWidth > 20 && newWidth < 80) setEditorWidth(newWidth);
     };
 
-
     useEffect(() => {
         window.addEventListener("mousemove", resize);
         window.addEventListener("mouseup", stopResizing);
@@ -40,10 +43,41 @@ export default function Page() {
         };
     }, []);
 
+    useEffect(() => {
+        if (prefillCode) {
+            setCode(decodeURIComponent(prefillCode));
+        }
+        if (prefillLang) {
+            setLanguage(prefillLang);
+        }
+    }, [prefillCode, prefillLang]);
+
+    useEffect(() => {
+        if (prefillCode) {
+            SendCode(); // auto run when coming from lesson
+        }
+    }, [prefillCode]);
+
     const SendCode = async () => {
         try {
             setLoading(true);
             setOutput("");
+
+            // ✅ NEW: handle HTML & CSS locally (no API call)
+            if (language === "html" || language === "css") {
+                const iframeContent =
+                    language === "html"
+                        ? code
+                        : `<style>${code}</style><div>Write some HTML to see it styled</div>`;
+
+                setOutput(
+                    `<iframe style="width:100%;height:100%;border:none;" srcdoc="${iframeContent.replace(
+                        /"/g,
+                        "&quot;"
+                    )}"></iframe>`
+                );
+                return;
+            }
 
             // Map supported runtimes
             const runtimeMap = {
@@ -91,7 +125,6 @@ export default function Page() {
                 },
             };
 
-
             const runtime = runtimeMap[language];
             if (!runtime) {
                 setOutput("❌ Unsupported language selected.");
@@ -124,7 +157,6 @@ export default function Page() {
         }
     };
 
-
     return (
         <div className="h-screen flex flex-col bg-[#1e1e1e] text-gray-200 font-mono">
             {/* Top Navbar */}
@@ -148,6 +180,9 @@ export default function Page() {
                         <option value="csharp">C#</option>
                         <option value="go">Go</option>
                         <option value="php">PHP</option>
+                        {/* ✅ NEW */}
+                        <option value="html">HTML</option>
+                        <option value="css">CSS</option>
                     </select>
 
                     <button
@@ -207,9 +242,16 @@ export default function Page() {
                                                     ? "go"
                                                     : language === "php"
                                                         ? "php"
-                                                        : "js"}
+                                                        : language === "html"
+                                                            ? "html"
+                                                            : language === "css"
+                                                                ? "css"
+                                                                : "js"}
                             </span>
-                            <X size={12} className="ml-2 text-gray-500 hover:text-gray-300" />
+                            <X
+                                size={12}
+                                className="ml-2 text-gray-500 hover:text-gray-300"
+                            />
                         </div>
                     </div>
 
@@ -252,12 +294,18 @@ export default function Page() {
                                 </button>
                             </div>
 
+                            {/* ✅ NEW: render HTML/CSS preview OR plain text */}
                             <div className="flex-1 text-sm font-mono overflow-auto whitespace-pre-line bg-black p-3 rounded-lg border border-gray-700 transition-all">
                                 {loading ? (
                                     <div className="flex items-center space-x-2 text-blue-400 animate-pulse">
                                         <Loader2 size={16} className="animate-spin" />
                                         <span>Running code...</span>
                                     </div>
+                                ) : language === "html" || language === "css" ? (
+                                    <div
+                                        className="w-full h-full bg-white rounded overflow-hidden"
+                                        dangerouslySetInnerHTML={{ __html: output }}
+                                    />
                                 ) : (
                                     output || "Run code to see output here..."
                                 )}
