@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import pool from "../config/db.js"; // ✅ must include .js extension
+import pool from "../config/db.js"; //  must include .js extension
 import { fileURLToPath } from "url";
 
 
