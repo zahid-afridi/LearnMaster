@@ -16,4 +16,36 @@ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- posts 
+CREATE TABLE IF NOT EXISTS posts (
+    post_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    post_img TEXT[], -- multiple images
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- likes
+CREATE TABLE IF NOT EXISTS likes(
+like_id  UUID PRIMARY KEY DEFAULT uuid_generage_v4(),
+user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+post_id UUID REFERENCES posts(post_id) ON DELETE CASCADE,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
+
+-- comments
+CREATE TABLE IF NOT EXISTS comments(
+comment_id UUID PRIMARY KEY DEFAULT uuid_generage_v4(),
+user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+post_id UUID REFERENCES posts(post_id) ON DELETE CASCADE,
+context TEXT NOT NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
+
+
 
