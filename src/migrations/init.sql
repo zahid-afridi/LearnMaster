@@ -46,5 +46,51 @@ CREATE TABLE IF NOT EXISTS comments (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- single-post
 
+CREATE TABLE IF NOT EXISTS single_posts (
+  blog_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,  -- blog author
+  title VARCHAR(255) NOT NULL,
+  subtitle VARCHAR(255),
+  content TEXT NOT NULL,  --main article
+  code_block TEXT,-- for code snippets
+  cover_image TEXT[], -- multiply images 
+  tags TEXT[],  -- tags ['Ai', "javascript"]
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- USER FOLLOW RELATIONSHIP
+-- A user can follow another user
+
+CREATE TABLE IF NOT EXISTS user_followers(
+  follower_id UUID REFERENCES users(user_id) ON DELETE CASCADE, 
+  following_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (follower_id, following_id)
+);
+
+
+-- comments-reply
+CREATE TABLE IF NOT EXISTS comment_replies(
+  reply_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+  post_id UUID NULL REFERENCES posts(post_id) ON DELETE CASCADE,
+  comment_id UUID NOT NULL REFERENCES comments(comment_id) ON DELETE CASCADE,
+  comment_text TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- comments-likes
+CREATE TABLE IF NOT EXISTS comment_likes(
+  comments_likes_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+  comment_id UUID NOT NULL REFERENCES comments(comment_id) ON DELETE CASCADE,
+  post_id UUID NULL REFERENCES posts(post_id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
