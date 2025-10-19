@@ -127,7 +127,7 @@ export default function Page() {
             <div className="flex w-full max-w-[1300px]">
                 <main className="w-full lg:w-[600px] border-x border-gray-200 dark:border-[#2F3336]">
 
-                    {/* ✅ HEADER - removed on mobile */}
+                    {/*  HEADER - removed on mobile */}
                     <header className={`sticky top-0 z-10 bg-${bgColorLight}/80 dark:bg-${bgColorDark}/80 backdrop-blur-sm border-b border-gray-200 dark:border-[#2F3336] px-4 hidden md:block`}>
                         <div className="flex items-center justify-between h-14">
                             <div className="flex items-center flex-grow">
@@ -144,7 +144,7 @@ export default function Page() {
                         </div>
                     </header>
 
-                    {/* ✅ POSTS */}
+                    {/*  POSTS */}
                     <div className="divide-y divide-gray-200 dark:divide-[#2F3336]">
                         {posts.map((post) => (
                             <Post key={post.id} post={post} handleBlog={handleBlog} />

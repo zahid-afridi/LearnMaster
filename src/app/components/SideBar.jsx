@@ -1,22 +1,29 @@
 'use client';
+
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 
 // === Desktop Profile Menu ===
 const ProfileMenuDesktop = ({ userimg }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const router = useRouter(); // ✅ for navigation
 
   const handleLogout = () => {
-    alert("Logging out...");
+    alert('Logging out...');
   };
 
   return (
     <div className="relative pt-4 space-y-3 shrink-0">
-      <button className="w-full bg-black text-white font-semibold py-3 rounded-full hover:bg-gray-800 transition">
+      {/* Create Post Button (Desktop) */}
+      <button
+        onClick={() => router.push('/create-post')}
+        className="w-full bg-black text-white font-semibold py-3 rounded-full hover:bg-gray-800 transition"
+      >
         Create Post
       </button>
 
+      {/* Profile Section */}
       <div
         className="flex items-center justify-between px-2 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition cursor-pointer"
         onClick={() => setShowMenu(!showMenu)}
@@ -55,14 +62,14 @@ const ProfileMenuDesktop = ({ userimg }) => {
   );
 };
 
+// === MAIN SIDEBAR COMPONENT ===
 export default function SideBar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
+  const router = useRouter(); // ✅ for mobile Create Post button
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -111,7 +118,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
     </Link>
   );
 
-  // ✅ LOGOUT BUTTON (for mobile sidebar)
+  // === Mobile Logout Button ===
   const mobileLogoutLink = (
     <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-800 shrink-0">
       <button
@@ -129,7 +136,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
 
   return (
     <>
-      {/* DESKTOP SIDEBAR */}
+      {/* === DESKTOP SIDEBAR === */}
       {!isMobile && (
         <aside className="w-64 shrink-0 hidden lg:flex flex-col sticky top-0 h-screen px-4 border-r border-gray-200 bg-white dark:bg-gray-950">
           {logo}
@@ -138,16 +145,10 @@ export default function SideBar({ isOpen, setIsOpen }) {
         </aside>
       )}
 
-      {/* ✅ MOBILE SIDEBAR OVERLAY */}
+      {/* === MOBILE SIDEBAR === */}
       {isMobile && isOpen && (
-        <div
-          className="fixed inset-0 z-50 flex"
-          onClick={() => setIsOpen(false)}
-        >
-          {/* overlay */}
+        <div className="fixed inset-0 z-50 flex" onClick={() => setIsOpen(false)}>
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-
-          {/* sidebar panel */}
           <div
             className="relative z-50 w-72 h-full bg-white dark:bg-gray-950 flex flex-col border-r border-gray-200 dark:border-gray-800"
             onClick={(e) => e.stopPropagation()}
@@ -168,7 +169,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
         </div>
       )}
 
-      {/* ✅ MOBILE BOTTOM NAVBAR */}
+      {/* === MOBILE BOTTOM NAVBAR === */}
       {isMobile && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-40 overflow-hidden">
           <div className="flex justify-around items-center px-2 py-3">
@@ -190,9 +191,10 @@ export default function SideBar({ isOpen, setIsOpen }) {
               <span className="text-[10px] font-medium">Explore</span>
             </Link>
 
+            {/* ✅ Mobile Create Post Button */}
             <div className="relative translate-y-1">
               <button
-                onClick={() => alert('Create Post')}
+                onClick={() => router.push('/create-post')}
                 className="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-lg hover:bg-gray-800 transition"
               >
                 <span className="material-symbols-outlined text-[28px]">add</span>
@@ -200,11 +202,11 @@ export default function SideBar({ isOpen, setIsOpen }) {
             </div>
 
             <Link
-              href="/notifications"
-              className={`flex flex-col items-center justify-center transition ${pathname === '/notifications' ? 'text-black' : 'text-gray-600 dark:text-gray-400'
+              href="/bookmarks"
+              className={`flex flex-col items-center justify-center transition ${pathname === '/bookmarks' ? 'text-black' : 'text-gray-600 dark:text-gray-400'
                 }`}
             >
-              <span className="material-symbols-outlined text-[26px]">notifications</span>
+              <span className="material-symbols-outlined text-[26px]">bookmarks</span>
               <span className="text-[10px] font-medium">Alerts</span>
             </Link>
 
