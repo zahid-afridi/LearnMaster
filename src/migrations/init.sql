@@ -27,13 +27,12 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 -- likes
-CREATE TABLE IF NOT EXISTS likes(
-like_id  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
-post_id UUID REFERENCES posts(post_id) ON DELETE CASCADE,
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
+CREATE TABLE IF NOT EXISTS likes (
+  like_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+  post_id UUID REFERENCES single_posts(blog_id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (user_id, post_id)
 );
 
 -- comments
@@ -45,6 +44,9 @@ CREATE TABLE IF NOT EXISTS comments (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- New Tables    
+
 
 -- single-post
 

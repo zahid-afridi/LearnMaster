@@ -1,4 +1,3 @@
-
 'use client';
 import React, { useState, useRef } from 'react';
 
@@ -100,7 +99,7 @@ export default function CreatePostPage() {
               </div>
 
               {/* Rich Text Editor */}
-              <div className="border border-slate-200 dark:border-slate-700 rounded-lg mt-8">
+              <div className="border border-slate-200 dark:border-slate-700 rounded-lg mt-8 overflow-hidden">
                 {/* Toolbar */}
                 <div className="rich-text-editor-controls flex items-center p-2 border-b border-slate-200 dark:border-slate-700 space-x-1 flex-wrap">
                   <button
@@ -128,7 +127,7 @@ export default function CreatePostPage() {
                   ref={editorRef}
                   contentEditable
                   suppressContentEditableWarning
-                  className="w-full bg-transparent border-0 focus:ring-0 p-4 h-96 min-h-[400px] text-base placeholder:text-slate-400 dark:placeholder:text-slate-500 resize-y outline-none"
+                  className="w-full bg-transparent border-0 focus:ring-0 p-4 h-96 min-h-[400px] max-h-[400px] overflow-y-auto text-base placeholder:text-slate-400 dark:placeholder:text-slate-500 resize-none outline-none rounded-b-lg"
                   placeholder="Start writing your masterpiece..."
                 />
               </div>
