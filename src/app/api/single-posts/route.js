@@ -7,12 +7,12 @@ export async function POST(req) {
     try {
 
 
-        const { user_id, title, subtitle, content, code_block, cover_image, tags } = await req.json();
+        const { post_id, title, subtitle, content, code_block, cover_image, tags } = await req.json();
         if (!user_id || !title || !content) {
             return NextResponse.json({ error: "user_id, title, and content are required" }, { status: 400 })
         }
         const result = await pool.query(
-            `INSERT INTO  single_posts (user_id, title,subtitle,content, code_block,cover_image,tags) VALUES ($1,$2,$3,$4,$5,$6,$7)  RETURNING *`, [user_id, title, subtitle || null, content, code_block || null, cover_image || [], tags || []]
+            `INSERT INTO  single_posts (post_id, title,subtitle,content, code_block,cover_image,tags) VALUES ($1,$2,$3,$4,$5,$6,$7)  RETURNING *`, [post_id, title, subtitle || null, content, code_block || null, cover_image || [], tags || []]
 
         );
         return NextResponse.json({

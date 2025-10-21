@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS comments (
 -- single-post
 
 CREATE TABLE IF NOT EXISTS single_posts (
-  blog_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,  -- blog author
+  singlepost_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  post_id UUID REFERENCES posts(post_id) ON DELETE CASCADE,
   title VARCHAR(255) NOT NULL,
   subtitle VARCHAR(255),
   content TEXT NOT NULL,  --main article
