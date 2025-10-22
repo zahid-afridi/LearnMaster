@@ -20,8 +20,11 @@ updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 CREATE TABLE IF NOT EXISTS posts (
     post_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
-    content TEXT NOT NULL,
-    post_img TEXT[], -- multiple images
+    title TEXT NOT NULL,               -- add title for homepage display
+    subtitle TEXT,                     -- short description for homepage
+    content TEXT NOT NULL,             -- full post content for single post page
+    post_img TEXT[],                   -- multiple images
+    tags TEXT[],                      -- tags ['Ai', "javascript"]
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -48,20 +51,20 @@ CREATE TABLE IF NOT EXISTS comments (
 -- New Tables    
 
 
--- single-post
+-- -- single-post cancel 
 
-CREATE TABLE IF NOT EXISTS single_posts (
-  singlepost_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  post_id UUID REFERENCES posts(post_id) ON DELETE CASCADE,
-  title VARCHAR(255) NOT NULL,
-  subtitle VARCHAR(255),
-  content TEXT NOT NULL,  --main article
-  code_block TEXT,-- for code snippets
-  cover_image TEXT[], -- multiply images 
-  tags TEXT[],  -- tags ['Ai', "javascript"]
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- CREATE TABLE IF NOT EXISTS single_posts (
+--   singlepost_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+--   post_id UUID REFERENCES posts(post_id) ON DELETE CASCADE,
+--   title VARCHAR(255) NOT NULL,
+--   subtitle VARCHAR(255),
+--   content TEXT NOT NULL,  --main article
+--   code_block TEXT,-- for code snippets
+--   cover_image TEXT[], -- multiply images 
+--   tags TEXT[],  -- tags ['Ai', "javascript"]
+--   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
 
 
 -- USER FOLLOW RELATIONSHIP
