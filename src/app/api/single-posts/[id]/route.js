@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
 import pool from "../../../../config/db.js";
 
-// ✅ GET single post by blog_id
+// GET single post (by post_id)
 export async function GET(req, { params }) {
+  const { id } = params; // This will be post_id
+
   try {
-    const { id } = params;
     const result = await pool.query(
-      `SELECT sp.*, u.username, u.profole_images
-       FROM single_posts sp
-       JOIN users u ON sp.user_id = u.user_id
-       WHERE sp.blog_id = $1`,
+      `SELECT * FROM single_posts WHERE post_id = $1`,
       [id]
     );
 
@@ -19,7 +17,7 @@ export async function GET(req, { params }) {
 
     return NextResponse.json({ success: true, post: result.rows[0] });
   } catch (error) {
-    console.error("Error fetching post by ID:", error);
+    console.error("Error fetching post:", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch post", details: error.message },
       { status: 500 }
@@ -27,17 +25,18 @@ export async function GET(req, { params }) {
   }
 }
 
-//PUT — update a single post
+
+// PUT — update a single post (by singlepost_id)
 export async function PUT(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = params; // singlepost_id
     const { title, subtitle, content, code_block, cover_image, tags } = await req.json();
 
     const result = await pool.query(
       `UPDATE single_posts
        SET title = $1, subtitle = $2, content = $3, code_block = $4,
            cover_image = $5, tags = $6, updated_at = CURRENT_TIMESTAMP
-       WHERE blog_id = $7
+       WHERE singlepost_id = $7
        RETURNING *`,
       [title, subtitle, content, code_block, cover_image, tags, id]
     );
@@ -60,11 +59,15 @@ export async function PUT(req, { params }) {
   }
 }
 
-// ✅ DELETE single post
+
+//  DELETE — delete a single post (by singlepost_id)
 export async function DELETE(req, { params }) {
   try {
-    const { id } = params;
-    const result = await pool.query(`DELETE FROM single_posts WHERE blog_id = $1 RETURNING *`, [id]);
+    const { id } = params; // singlepost_id
+    const result = await pool.query(
+      `DELETE FROM single_posts WHERE singlepost_id = $1 RETURNING *`,
+      [id]
+    );
 
     if (result.rows.length === 0) {
       return NextResponse.json({ success: false, message: "Post not found" }, { status: 404 });
