@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import pool from "../../../config/db";
+import { validate as isUuid } from "uuid";
 
 // Add a comment
 export async function POST(req) {
@@ -35,6 +36,8 @@ export async function POST(req) {
 
 
 // Get all comments for a post
+
+
 export async function GET(req) {
     try {
         const { searchParams } = new URL(req.url);
@@ -46,7 +49,25 @@ export async function GET(req) {
                 { status: 400 }
             );
         }
+        ///is uuid needed
+      if (!isUuid(post_id)) {
+        return NextResponse.json(
+          { success: false, message: "invalid post id request" },
+          { status: 400 }
+        );
+      }
 
+      const existcomment = await pool.query(
+        `SELECT * FROM comments WHERE post_id = $1`,
+        [post_id]
+      );;
+
+      if (existcomment.rowCount === 0) {
+        return NextResponse.json(
+          { success: false, message: "no comments for this post" },
+          { status: 404 }
+        );
+      }
         // Fetch comments along with user info
         const result = await pool.query(
             `SELECT 
