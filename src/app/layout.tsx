@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {Providers} from "../redux/provider"
+import { Providers } from "../redux/provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,27 +20,28 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <link href="https://fonts.gstatic.com/" rel="preconnect" />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap"
-        rel="stylesheet"
-      />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
-        rel="stylesheet"
-      />
+      <head>
+        {/* ✅ Move link tags into <head> */}
+        <link href="https://fonts.gstatic.com/" rel="preconnect" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+          rel="stylesheet"
+        />
+      </head>
+
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-{children}
-        </Providers>
-        
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

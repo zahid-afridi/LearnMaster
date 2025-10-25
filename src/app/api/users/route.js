@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import pool from "../../../config/db.js";
-
+import bcrypt from "bcrypt";
+import { upload } from "../../../middleware/multer.js";
+import nextConnect from "next-connect";
+import { writeFile } from "fs/promises";
+import path from "path";
 /* --------------------  GET: Fetch all users  -------------------- */
 export async function GET() {
   try {
@@ -13,32 +17,51 @@ export async function GET() {
 }
 
 /* --------------------  POST: Create a new user  -------------------- */
-export async function POST(req) {
+export const POST = async (req) => {
   try {
-    const { username, email, password, bio, background_image, profole_images } = await req.json();
+    const formData = await req.formData();
+    const name = formData.get("name");
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const bio = formData.get("bio");
+    const file = formData.get("profile_image");
 
-    // Basic validation
-    if (!username || !email || !password || !bio) {
-      return NextResponse.json(
-        { error: "Please provide username, email, password, and bio" },
-        { status: 400 }
-      );
+    if (!name || !email || !password || !bio) {
+      return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    // Insert user
+    // 🔐 Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 🖼️ Handle image upload (save manually)
+    let imagePath = null;
+    if (file && typeof file === "object") {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const fileName = `profile-${Date.now()}-${file.name}`;
+      const uploadPath = path.join(process.cwd(), "public/uploads", fileName);
+      await writeFile(uploadPath, buffer);
+      imagePath = `/uploads/${fileName}`; // Public URL path
+    }
+       const Isemail = await pool.query(`SELECT email FROM users WHERE email=$1`, [email]);
+        if (Isemail.rows.length > 0) {
+            return NextResponse.json({
+                message: "email is already exists. Please Login!"
+            }, { status: 404 })
+        }
+
+    // 💾 Save user in DB
     const insertQuery = `
-      INSERT INTO users (username, email, password, bio, background_image, profole_images)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO users (username, email, password, bio, profile_images)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *;
     `;
 
     const result = await pool.query(insertQuery, [
-      username,
+      name,
       email,
-      password,
+      hashedPassword,
       bio,
-      background_image || null,
-      profole_images || null,
+      imagePath,
     ]);
 
     return NextResponse.json({
@@ -49,12 +72,11 @@ export async function POST(req) {
     console.error("❌ Error creating user:", error);
     return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
   }
-}
-
+};
 /* --------------------  PUT: Update a user  -------------------- */
 export async function PUT(req) {
   try {
-    const { user_id, username, email, bio, background_image, profole_images } = await req.json();
+    const { user_id, name, email, bio, background_image, profile_images } = await req.json();
 
     if (!user_id) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
@@ -67,18 +89,18 @@ export async function PUT(req) {
         email = COALESCE($2, email),
         bio = COALESCE($3, bio),
         background_image = COALESCE($4, background_image),
-        profole_images = COALESCE($5, profole_images),
+        profile_images = COALESCE($5, profile_image),
         updated_at = CURRENT_TIMESTAMP
       WHERE user_id = $6
       RETURNING *;
     `;
 
     const result = await pool.query(updateQuery, [
-      username,
+      name,
       email,
       bio,
       background_image,
-      profole_images,
+      profile_images,
       user_id,
     ]);
 

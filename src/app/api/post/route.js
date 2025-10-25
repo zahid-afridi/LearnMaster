@@ -4,7 +4,7 @@ import pool from "../../../config/db.js"; // adjust path if needed
 export async function POST(req) {
     try {
         //  Parse request body correctly
-        const { post_id, user_id, title, subtitle, content, post_img, tags } = await req.json();
+        const { user_id, title, subtitle, content, post_img, tags } = await req.json();
 
         // Validation array
         let errors = [];
@@ -42,3 +42,29 @@ export async function POST(req) {
         }, { status: 500 });
     }
 }
+
+
+
+// all posts 
+// import { NextResponse } from "next/server";
+// import pool from "../../../config/db.js";
+
+// ✅ GET All Posts
+export async function GET() {
+  try {
+    const result = await pool.query("SELECT * FROM posts");
+
+    if (result.rows.length === 0) {
+      return NextResponse.json({ success: false, message: "No posts found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return NextResponse.json(
+      { success: false, message: "Internal Server Error", error: error.message },
+      { status: 500 }
+    );
+  }
+}
+

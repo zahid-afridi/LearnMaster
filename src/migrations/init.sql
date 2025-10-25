@@ -10,7 +10,7 @@ password VARCHAR(255) NOT NULL,
 is_active BOOLEAN DEFAULT FALSE,
 is_verified BOOLEAN DEFAULT FALSE,
 background_image TEXT,
-profole_images TEXT, 
+profile_images TEXT, 
 bio VARCHAR(255) NOT NULL,
 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
