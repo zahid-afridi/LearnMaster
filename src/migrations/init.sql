@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- users
 CREATE TABLE IF NOT EXISTS users(
 user_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-username VARCHAR(50) UNIQUE NOT NULL,
+username VARCHAR(50) NOT NULL,
 email VARCHAR(100) UNIQUE NOT NULL,
 password VARCHAR(255) NOT NULL,
 is_active BOOLEAN DEFAULT FALSE,
@@ -49,22 +49,6 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 -- New Tables    
-
-
--- -- single-post cancel 
-
--- CREATE TABLE IF NOT EXISTS single_posts (
---   singlepost_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
---   post_id UUID REFERENCES posts(post_id) ON DELETE CASCADE,
---   title VARCHAR(255) NOT NULL,
---   subtitle VARCHAR(255),
---   content TEXT NOT NULL,  --main article
---   code_block TEXT,-- for code snippets
---   cover_image TEXT[], -- multiply images 
---   tags TEXT[],  -- tags ['Ai', "javascript"]
---   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
--- );
 
 
 -- USER FOLLOW RELATIONSHIP

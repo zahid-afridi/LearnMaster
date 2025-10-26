@@ -34,8 +34,6 @@ export async function GET(res, { params }) {
 
 // UPDATE POST
 
-
-
 export async function PUT(req, { params }) {
     const { id } = params;
 
@@ -75,8 +73,6 @@ RETURNING *;
 
     }
 }
-
-
 
 
 // DELETE POST

@@ -234,11 +234,11 @@ const XIcon = ({ name, count, color, filled = false }) => (
 
 // === POST COMPONENT ===
 const Post = ({ post, handleBlog }) => {
-  const { name, profile_images } = useSelector((state) => state.user);
-  console.log("useselctor!",name,profile_images)
+  const { name } = useSelector((state) => state.user);
+
 
   const displayName = name || "Unknown User";
-  const displayAvatar = profile_images || "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+
 
   return (
     <article className="p-3 sm:p-4 border-b border-gray-200 dark:border-[#2F3336] hover:bg-gray-50/50 dark:hover:bg-[#080808] transition-colors duration-200">
@@ -246,7 +246,7 @@ const Post = ({ post, handleBlog }) => {
         <img
           alt={`${displayName}'s avatar`}
           className="h-10 w-10 rounded-full object-cover shrink-0"
-          src={displayAvatar}
+          src='https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80'
         />
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-1 mb-1">
