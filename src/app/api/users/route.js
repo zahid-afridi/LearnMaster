@@ -1,22 +1,11 @@
 import { NextResponse } from "next/server";
 import pool from "../../../config/db.js";
 import bcrypt from "bcrypt";
-import { upload } from "../../../middleware/multer.js";
-import nextConnect from "next-connect";
+import jwt from "jsonwebtoken";
 import { writeFile } from "fs/promises";
+import fs from "fs";
 import path from "path";
-/* --------------------  GET: Fetch all users  -------------------- */
-export async function GET() {
-  try {
-    const result = await pool.query("SELECT * FROM users ORDER BY created_at DESC");
-    return NextResponse.json(result.rows);
-  } catch (error) {
-    console.error("❌ Error fetching users:", error);
-    return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
-  }
-}
 
-/* --------------------  POST: Create a new user  -------------------- */
 export const POST = async (req) => {
   try {
     const formData = await req.formData();
@@ -30,51 +19,73 @@ export const POST = async (req) => {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    // 🔐 Hash password
+    // Check if email already exists
+    const existing = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (existing.rows.length > 0) {
+      return NextResponse.json({ message: "Email already exists. Please login." }, { status: 409 });
+    }
+
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 🖼️ Handle image upload (save manually)
+    // Save image if provided
     let imagePath = null;
     if (file && typeof file === "object") {
       const buffer = Buffer.from(await file.arrayBuffer());
       const fileName = `profile-${Date.now()}-${file.name}`;
-      const uploadPath = path.join(process.cwd(), "public/uploads", fileName);
+      const uploadDir = path.join(process.cwd(), "public/uploads");
+      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+      const uploadPath = path.join(uploadDir, fileName);
       await writeFile(uploadPath, buffer);
-      imagePath = `/uploads/${fileName}`; // Public URL path
+      imagePath = `/uploads/${fileName}`;
     }
-       const Isemail = await pool.query(`SELECT email FROM users WHERE email=$1`, [email]);
-        if (Isemail.rows.length > 0) {
-            return NextResponse.json({
-                message: "email is already exists. Please Login!"
-            }, { status: 404 })
-        }
 
-    // 💾 Save user in DB
-    const insertQuery = `
-      INSERT INTO users (username, email, password, bio, profile_images)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *;
-    `;
+    // Save user
+    const result = await pool.query(
+      `INSERT INTO users (username, email, password, bio, profile_images)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [name, email, hashedPassword, bio, imagePath]
+    );
 
-    const result = await pool.query(insertQuery, [
-      name,
-      email,
-      hashedPassword,
-      bio,
-      imagePath,
-    ]);
+    const user = result.rows[0];
+
+    // Create token
+    const token = jwt.sign(
+      { user_id: user.user_id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
     return NextResponse.json({
-      message: "✅ User created successfully",
-      user: result.rows[0],
+      message: "User registered successfully",
+      user,
+      token,
     });
   } catch (error) {
-    console.error("❌ Error creating user:", error);
+    console.error("Error creating user:", error);
     return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
   }
 };
-/* --------------------  PUT: Update a user  -------------------- */
+
+
+// GET: Fetch all users  
+export async function GET() {
+  try {
+    const result = await pool.query("SELECT * FROM users ORDER BY created_at DESC");
+    return NextResponse.json(result.rows);
+  } catch (error) {
+    console.error(" Error fetching users:", error);
+    return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
+  }
+}
+
+
+
+// PUT: Update a user  
 export async function PUT(req) {
+  const authError = await verifyToken(req);
+  if (authError) return authError; // stop if token invalid
+
   try {
     const { user_id, name, email, bio, background_image, profile_images } = await req.json();
 
@@ -82,27 +93,18 @@ export async function PUT(req) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
     }
 
-    const updateQuery = `
-      UPDATE users 
-      SET 
-        username = COALESCE($1, username),
-        email = COALESCE($2, email),
-        bio = COALESCE($3, bio),
-        background_image = COALESCE($4, background_image),
-        profile_images = COALESCE($5, profile_image),
-        updated_at = CURRENT_TIMESTAMP
-      WHERE user_id = $6
-      RETURNING *;
-    `;
-
-    const result = await pool.query(updateQuery, [
-      name,
-      email,
-      bio,
-      background_image,
-      profile_images,
-      user_id,
-    ]);
+    const result = await pool.query(
+      `UPDATE users 
+       SET username = COALESCE($1, username),
+           email = COALESCE($2, email),
+           bio = COALESCE($3, bio),
+           background_image = COALESCE($4, background_image),
+           profile_images = COALESCE($5, profile_images),
+           updated_at = CURRENT_TIMESTAMP
+       WHERE user_id = $6
+       RETURNING *`,
+      [name, email, bio, background_image, profile_images, user_id]
+    );
 
     if (result.rowCount === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -113,32 +115,34 @@ export async function PUT(req) {
       user: result.rows[0],
     });
   } catch (error) {
-    console.error("❌ Error updating user:", error);
+    console.error("Error updating user:", error);
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
   }
 }
 
-/* --------------------  DELETE: Delete a user  -------------------- */
+//  DELETE: Delete a user  
 export async function DELETE(req) {
+  const authError = await verifyToken(req);
+  if (authError) return authError;
+
   try {
     const { user_id } = await req.json();
-
     if (!user_id) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
     }
 
     const result = await pool.query("DELETE FROM users WHERE user_id = $1 RETURNING *", [user_id]);
-
     if (result.rowCount === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json({
-      message: "✅ User deleted successfully",
+      message: "User deleted successfully",
       deletedUser: result.rows[0],
     });
   } catch (error) {
-    console.error("❌ Error deleting user:", error);
+    console.error("Error deleting user:", error);
     return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
   }
 }
+

@@ -49,6 +49,7 @@ export default function Page() {
     });
 
     const data = await response.json();
+    console.log('token',data)
 
     if (!response.ok) {
       const message = data.message || data.error || "Registration failed";

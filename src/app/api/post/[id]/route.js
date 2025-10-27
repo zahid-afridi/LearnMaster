@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import pool from "../../../../config/db";
 // import pool from "../../../../config/db.js";
-import pool from "../../../../config/db.js";
+// import pool from "../../../../config/db.js";
 
 
 
