@@ -40,27 +40,28 @@ export async function POST(req) {
 
 export async function GET(req) {
     try {
-        const { searchParams } = new URL(req.url);
-        const post_id = searchParams.get("post_id");
+        // const { searchParams } = new URL(req.url);
+        // const post_id = searchParams.get("post_id");
 
-        if (!post_id) {
-            return NextResponse.json(
-                { success: false, error: "post_id is required!" },
-                { status: 400 }
-            );
-        }
-        ///is uuid needed
-      if (!isUuid(post_id)) {
-        return NextResponse.json(
-          { success: false, message: "invalid post id request" },
-          { status: 400 }
-        );
-      }
+      //   if (!post_id) {
+      //       return NextResponse.json(
+      //           { success: false, error: "post_id is required!" },
+      //           { status: 400 }
+      //       );
+      //   }
+      //   ///is uuid needed
+      // if (!isUuid(post_id)) {
+      //   return NextResponse.json(
+      //     { success: false, message: "invalid post id request" },
+      //     { status: 400 }
+      //   );
+      // }
 
-      const existcomment = await pool.query(
-        `SELECT * FROM comments WHERE post_id = $1`,
-        [post_id]
-      );;
+      // const existcomment = await pool.query(
+      //   `SELECT * FROM comments WHERE post_id = $1`,
+      //   [post_id]
+      // );;
+      const existcomment = await pool.query(`SELECT * FROM comments`)
 
       if (existcomment.rowCount === 0) {
         return NextResponse.json(
@@ -68,27 +69,27 @@ export async function GET(req) {
           { status: 404 }
         );
       }
-        // Fetch comments along with user info
-        const result = await pool.query(
-            `SELECT 
-          comments.comment_id,
-          comments.user_id,
-          comments.comment_text,
-          comments.created_at,
-          comments.updated_at,
-          users.username,
-          users.email
-       FROM comments
-       JOIN users ON comments.user_id = users.user_id
-       WHERE comments.post_id = $1
-       ORDER BY comments.created_at ASC`,
-            [post_id]
-        );
+      //   // Fetch comments along with user info
+      //   const result = await pool.query(
+      //       `SELECT 
+      //     comments.comment_id,
+      //     comments.user_id,
+      //     comments.comment_text,
+      //     comments.created_at,
+      //     comments.updated_at,
+      //     users.username,
+      //     users.email
+      //  FROM comments
+      //  JOIN users ON comments.user_id = users.user_id
+      //  WHERE comments.post_id = $1
+      //  ORDER BY comments.created_at ASC`,
+      //       [post_id]
+      //   );
         return NextResponse.json({
             success: true,
             message: "Comments fetched successfully!",
-            count: result.rowCount,
-            data: result.rows,
+            count: existcomment.rowCount,
+            data: existcomment.rows,
         });
     } catch (error) {
         console.error("Error fetching comments:", error);
@@ -147,10 +148,7 @@ export async function PUT(req) {
 }
 
 
-
 // Delete commmments
-
-
 
 export async function DELETE(req) {
   try {

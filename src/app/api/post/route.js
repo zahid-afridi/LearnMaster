@@ -12,8 +12,8 @@ export async function POST(req) {
         if (!user_id) errors.push("User_id is required!");
         if (!title) errors.push("Title is required!");
         if (!content) errors.push("Content is required!");
-        if (post_img && !Array.isArray(post_img)) errors.push("post_img must be an array!");
-        if (tags && !Array.isArray(tags)) errors.push("tags must be an array!");
+        if (!post_img && !Array.isArray(post_img)) errors.push("post_img must be an array!");
+        if (!tags && !Array.isArray(tags)) errors.push("tags must be an array!");
 
         // Stop if validation failed
         if (errors.length > 0) {
@@ -45,14 +45,6 @@ export async function POST(req) {
 
 
 
-// all posts 
-// import { NextResponse } from "next/server";
-// import pool from "../../../config/db.js";
-
-//  GET All Posts
-import { NextResponse } from "next/server";
-import pool from "../../../config/db.js";
-
 // GET all posts with user info
 export async function GET() {
   try {
@@ -66,7 +58,8 @@ export async function GET() {
         p.tags,
         p.created_at,
         u.user_id,
-        u.name AS user_name
+        u.profile_images,
+        u.username AS user_name
       FROM posts p
       LEFT JOIN users u ON p.user_id = u.user_id
     `);
