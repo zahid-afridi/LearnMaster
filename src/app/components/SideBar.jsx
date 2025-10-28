@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 // === Desktop Profile Menu ===
 const ProfileMenuDesktop = ({ userimg }) => {
   const [showMenu, setShowMenu] = useState(false);
-  const router = useRouter(); // ✅ for navigation
+  const router = useRouter(); 
 
   const handleLogout = () => {
     alert('Logging out...');
@@ -34,12 +34,16 @@ const ProfileMenuDesktop = ({ userimg }) => {
             style={{ backgroundImage: `url(${userimg})` }}
           ></div>
           <div className="min-w-0">
-            <p className="font-semibold text-black dark:text-white truncate">
-              Alex Turner
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+           <p
+  onClick={() => router.push("/login")}
+  className="font-semibold text-black dark:text-white truncate cursor-pointer hover:underline"
+>
+  Login
+</p>
+
+            {/* <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
               @alex_turner
-            </p>
+            </p> */}
           </div>
         </div>
         <span className="material-symbols-outlined text-gray-500 dark:text-gray-400">
@@ -47,7 +51,7 @@ const ProfileMenuDesktop = ({ userimg }) => {
         </span>
       </div>
 
-      {showMenu && (
+      {/* {showMenu && (
         <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-2 z-50">
           <button
             onClick={handleLogout}
@@ -57,7 +61,7 @@ const ProfileMenuDesktop = ({ userimg }) => {
             <span>Logout @alex_turner</span>
           </button>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
@@ -66,7 +70,7 @@ const ProfileMenuDesktop = ({ userimg }) => {
 export default function SideBar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
-  const router = useRouter(); // ✅ for mobile Create Post button
+  const router = useRouter(); // for mobile Create Post button
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);

@@ -5,55 +5,36 @@ import jwt from "jsonwebtoken";
 import { writeFile } from "fs/promises";
 import fs from "fs";
 import path from "path";
+import { verifyToken } from "../../../middleware/auth/verifytoken.js";
+
 
 export const POST = async (req) => {
   try {
-    const formData = await req.formData();
-    const name = formData.get("name");
-    const email = formData.get("email");
-    const password = formData.get("password");
-    const bio = formData.get("bio");
-    const file = formData.get("profile_image");
+    const { name, email, password, bio, profile_images } = await req.json();
 
     if (!name || !email || !password || !bio) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    // Check if email already exists
     const existing = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (existing.rows.length > 0) {
       return NextResponse.json({ message: "Email already exists. Please login." }, { status: 409 });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save image if provided
-    let imagePath = null;
-    if (file && typeof file === "object") {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const fileName = `profile-${Date.now()}-${file.name}`;
-      const uploadDir = path.join(process.cwd(), "public/uploads");
-      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-      const uploadPath = path.join(uploadDir, fileName);
-      await writeFile(uploadPath, buffer);
-      imagePath = `/uploads/${fileName}`;
-    }
-
-    // Save user
     const result = await pool.query(
       `INSERT INTO users (username, email, password, bio, profile_images)
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [name, email, hashedPassword, bio, imagePath]
+      [name, email, hashedPassword, bio, profile_images]
     );
 
     const user = result.rows[0];
 
-    // Create token
     const token = jwt.sign(
       { user_id: user.user_id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "2m" }
     );
 
     return NextResponse.json({
@@ -84,7 +65,7 @@ export async function GET() {
 // PUT: Update a user  
 export async function PUT(req) {
   const authError = await verifyToken(req);
-  if (authError) return authError; // stop if token invalid
+  if (authError) return authError;
 
   try {
     const { user_id, name, email, bio, background_image, profile_images } = await req.json();
@@ -111,7 +92,7 @@ export async function PUT(req) {
     }
 
     return NextResponse.json({
-      message: "✅ User updated successfully",
+      message: "User updated successfully",
       user: result.rows[0],
     });
   } catch (error) {
@@ -119,7 +100,6 @@ export async function PUT(req) {
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
   }
 }
-
 //  DELETE: Delete a user  
 export async function DELETE(req) {
   const authError = await verifyToken(req);
@@ -141,8 +121,9 @@ export async function DELETE(req) {
       deletedUser: result.rows[0],
     });
   } catch (error) {
-    console.error("Error deleting user:", error);
-    return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
-  }
+  console.error("❌ Error deleting user:", error.message, error.stack);
+  return NextResponse.json({ error: error.message || "Failed to delete user" }, { status: 500 });
+}
+
 }
 
