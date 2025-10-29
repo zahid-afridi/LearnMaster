@@ -31,25 +31,82 @@ export default function Page() {
     }
   };
 
- const handleSubmit = async (e) => {
+//  const handleSubmit = async (e) => {
+//   e.preventDefault();
+//   dispatch(setLoading());
+
+//   try {
+//     const form = new FormData();
+//     form.append("name", formData.name);
+//     form.append("email", formData.email);
+//     form.append("password", formData.password);
+//     form.append("bio", formData.bio);
+//     if (profileImageFile) form.append("profile_image", profileImageFile);
+
+//     const response = await fetch("/api/users", {
+//       method: "POST",
+//       body: form,
+//     });
+
+//     const data = await response.json();
+//     console.log('token',data.token)
+
+//     if (!response.ok) {
+//       const message = data.message || data.error || "Registration failed";
+//       dispatch(setError(message));
+//       toast.error(message);
+//       return;
+//     }
+
+//     // ✅ Store full user data with ID
+//     dispatch(
+//       setUser({
+//         user_id: data.user?.user_id,
+//         name: data.user?.username || formData.name,
+//         email: data.user?.email || formData.email,
+//         password: formData.password,
+//         bio: data.user?.bio || formData.bio,
+//         profile_images: data.user?.profile_images || profileImage,
+//       })
+//     );
+
+//     toast.success("User registered successfully!");
+//   } catch (err) {
+//     dispatch(setError(err.message));
+//     toast.error(err.message);
+//   }
+// };
+const handleSubmit = async (e) => {
   e.preventDefault();
   dispatch(setLoading());
 
   try {
-    const form = new FormData();
-    form.append("name", formData.name);
-    form.append("email", formData.email);
-    form.append("password", formData.password);
-    form.append("bio", formData.bio);
-    if (profileImageFile) form.append("profile_image", profileImageFile);
+    let base64Image = null;
 
+    //  Convert image file to Base64 if selected
+    if (profileImageFile) {
+      const reader = new FileReader();
+      reader.readAsDataURL(profileImageFile);
+      base64Image = await new Promise((resolve) => {
+        reader.onloadend = () => resolve(reader.result);
+      });
+    }
+
+    //  Send JSON data to backend (not FormData)
     const response = await fetch("/api/users", {
       method: "POST",
-      body: form,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        bio: formData.bio,
+        profile_images: base64Image, // base64 string
+      }),
     });
 
     const data = await response.json();
-    console.log('token',data.token)
+    console.log("Token:", data.token);
 
     if (!response.ok) {
       const message = data.message || data.error || "Registration failed";
@@ -58,13 +115,12 @@ export default function Page() {
       return;
     }
 
-    // ✅ Store full user data with ID
+    //  Store user in Redux
     dispatch(
       setUser({
         user_id: data.user?.user_id,
         name: data.user?.username || formData.name,
         email: data.user?.email || formData.email,
-        password: formData.password,
         bio: data.user?.bio || formData.bio,
         profile_images: data.user?.profile_images || profileImage,
       })
