@@ -37,81 +37,59 @@ export async function POST(req) {
   }
 }
 
+
+
 /* =====================
-   GET — Fetch Comments (with User Info)
+   GET — Count Comments Per Post
 ===================== */
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const post_id = searchParams.get("post_id");
 
-    // 🟡 Optional: Only fetch comments for a specific post
     if (post_id) {
-      if (!isUuid(post_id)) {
-        return NextResponse.json(
-          { success: false, message: "Invalid post ID format!" },
-          { status: 400 }
-        );
-      }
-
+      // 🟢 Count comments for a specific post
       const result = await pool.query(
-        `SELECT 
-            c.comment_id,
-            c.comment_text,
-            c.created_at,
-            u.user_id,
-            u.username,
-            u.profile_images
-         FROM comments c
-         JOIN users u ON c.user_id = u.user_id
-         WHERE c.post_id = $1
-         ORDER BY c.created_at DESC`,
+        `SELECT COUNT(*) AS comment_count
+         FROM comments
+         WHERE post_id = $1`,
         [post_id]
       );
 
-      if (result.rowCount === 0) {
-        return NextResponse.json({
-          success: false,
-          message: "No comments found for this post!",
-        });
-      }
+      return NextResponse.json({
+        success: true,
+        message: "Comment count fetched successfully!",
+        post_id,
+        count: parseInt(result.rows[0].comment_count, 10),
+      });
+    } else {
+      // 🟡 Count comments for ALL posts
+      const result = await pool.query(`
+        SELECT 
+          p.post_id,
+          p.title,
+          COUNT(c.comment_id) AS comment_count
+        FROM posts p
+        LEFT JOIN comments c ON p.post_id = c.post_id
+        GROUP BY p.post_id, p.title
+        ORDER BY comment_count DESC
+      `);
 
       return NextResponse.json({
         success: true,
-        message: "Comments fetched successfully!",
-        count: result.rowCount,
+        message: "Comment counts for all posts fetched successfully!",
         data: result.rows,
       });
     }
-
-    //  If no post_id, return all comments (for testing or admin)
-    const allComments = await pool.query(
-      `SELECT 
-          c.comment_id,
-          c.comment_text,
-          c.created_at,
-          u.user_id,
-          u.username,
-          u.profile_images
-       FROM comments c
-       JOIN users u ON c.user_id = u.user_id
-       ORDER BY c.created_at DESC`
-    );
-
-    return NextResponse.json({
-      success: true,
-      message: "All comments fetched successfully!",
-      count: allComments.rowCount,
-      data: allComments.rows,
-    });
   } catch (error) {
-    console.error(" Error fetching comments:", error);
+    console.error("❌ Error fetching comment counts:", error);
     return NextResponse.json(
-      { success: false, error: "Error fetching comments", details: error.message },
+      { success: false, error: "Error fetching comment counts", details: error.message },
       { status: 500 }
     );
   }
 }
+
 
 /* =====================
    PUT — Update a Comment
@@ -196,3 +174,47 @@ export async function DELETE(req) {
     );
   }
 }
+
+
+
+// count comment for post 
+// export const GetcountComment = async (req, res) => {
+//   try {
+//     const Commentcount = await pool.query(`SELECT COUNT(*) AS total_comment FROM post_comments`);
+
+//     return res.status(200).json({
+//       message: "Total comment count fetched successfully!",
+//       success: true,
+//       total_comment: parseInt(Commentcount.rows[0].total_comment), 
+//     });
+//   } catch (error) {
+//     console.error("GetAllcommentCount error:", error);
+//     return res.status(500).json({
+//       message: "Internal Server Error",
+//       success: false,
+//     });
+//   }
+// };
+
+// get all comments
+// export const GetAllcoments = async (req, res) => {
+//     try {
+//         const Getallcom = await pool.query(`SELECT * FROM post_comments`);
+
+//         if (Getallcom.rowCount === 0) {
+//             return res.status(404).json({
+//                 message: "comments not found!",
+//                 success: false
+//             })
+//         };
+
+//         return res.status(200).json({
+//             message: "comments found!",
+//             success: true,
+//             comment: Getallcom.rows,
+//         })
+//     } catch (error) {
+//         console.error("Get comments errer:", error);
+//         res.status(500).json({ message: "Internal Server Error", success: false });
+//     }
+// };

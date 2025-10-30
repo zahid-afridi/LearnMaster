@@ -9,20 +9,20 @@ export default function CommentModel() {
   const [newComment, setNewComment] = useState("");
   const modalRef = useRef(null);
 
-  // ✅ Fetch all comments from backend
+  // Fetch all comments from backend
   const fetchAllComments = async () => {
     try {
       const res = await fetch("/api/comments", { method: "GET" });
       const data = await res.json();
 
       if (data.success) {
-        console.log("✅ All Comments:", data.data);
+        console.log("All Comments:", data.data);
         setComments(data.data);
       } else {
-        console.log("⚠️ No comments found or error:", data.message);
+        console.log(" No comments found or error:", data.message);
       }
     } catch (error) {
-      console.error("❌ API Error:", error);
+      console.error(" API Error:", error);
     }
   };
 
