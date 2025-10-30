@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import pool from "../../../config/db";
-import { validate as isUuid } from "uuid";
+// import { validate as isUuid } from "uuid";
 
 /* =====================
    POST — Add a Comment
