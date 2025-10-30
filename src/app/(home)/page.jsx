@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import CommentModel from "../components/commentModal";
 
 // === ICON COMPONENT ===
 const XIcon = ({ name, count, color, filled = false }) => (
@@ -73,7 +74,8 @@ const Post = ({ post, handleBlog }) => (
         </div>
 
         <div className="mt-2 flex justify-between items-center text-gray-500 dark:text-gray-400 max-w-md">
-          <XIcon name="chat_bubble" count={34} color="primary" />
+          <CommentModel />
+
           <XIcon name="repeat" count={10} color="green-500" />
           <XIcon name="favorite" count={120} color="red-500" filled={true} />
           <XIcon name="share" color="primary" />
