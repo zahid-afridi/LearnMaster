@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import pool from "../../../config/db";
-// import { validate as isUuid } from "uuid";
 
 /* =====================
    POST — Add a Comment
@@ -29,7 +28,7 @@ export async function POST(req) {
       data: result.rows[0],
     });
   } catch (error) {
-    console.error("❌ Error adding comment:", error);
+    console.error("Error adding comment:", error);
     return NextResponse.json(
       { success: false, error: "Error adding comment", details: error.message },
       { status: 500 }
@@ -37,22 +36,19 @@ export async function POST(req) {
   }
 }
 
-
-
 /* =====================
-   GET — Count Comments Per Post
+   GET — Fetch Comments
 ===================== */
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const post_id = searchParams.get("post_id");
+    const countOnly = searchParams.get("count");
 
-    if (post_id) {
-      // 🟢 Count comments for a specific post
+    // ✅ If only comment count is requested
+    if (countOnly && post_id) {
       const result = await pool.query(
-        `SELECT COUNT(*) AS comment_count
-         FROM comments
-         WHERE post_id = $1`,
+        `SELECT COUNT(*) AS comment_count FROM comments WHERE post_id = $1`,
         [post_id]
       );
 
@@ -62,34 +58,54 @@ export async function GET(req) {
         post_id,
         count: parseInt(result.rows[0].comment_count, 10),
       });
-    } else {
-      // 🟡 Count comments for ALL posts
-      const result = await pool.query(`
+    }
+
+    //  Fetch all comments for a specific post
+    if (post_id) {
+      const result = await pool.query(
+        `
         SELECT 
-          p.post_id,
-          p.title,
-          COUNT(c.comment_id) AS comment_count
-        FROM posts p
-        LEFT JOIN comments c ON p.post_id = c.post_id
-        GROUP BY p.post_id, p.title
-        ORDER BY comment_count DESC
-      `);
+          c.comment_id,
+          c.comment_text,
+          c.created_at,
+          u.user_id,
+          u.username,
+          u.profile_images
+        FROM comments c
+        JOIN users u ON u.user_id = c.user_id
+        WHERE c.post_id = $1
+        ORDER BY c.created_at DESC
+        `,
+        [post_id]
+      );
 
       return NextResponse.json({
         success: true,
-        message: "Comment counts for all posts fetched successfully!",
+        message: "Comments for this post fetched successfully!",
+        post_id,
+        total_comments: result.rowCount,
         data: result.rows,
       });
     }
+
+    //  Otherwise, fetch all comments (optional)
+    const result = await pool.query(
+      `SELECT * FROM comments ORDER BY created_at DESC`
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: "All comments fetched successfully!",
+      data: result.rows,
+    });
   } catch (error) {
-    console.error("❌ Error fetching comment counts:", error);
+    console.error("Error fetching comments:", error);
     return NextResponse.json(
-      { success: false, error: "Error fetching comment counts", details: error.message },
+      { success: false, error: "Error fetching comments", details: error.message },
       { status: 500 }
     );
   }
 }
-
 
 /* =====================
    PUT — Update a Comment
@@ -126,7 +142,7 @@ export async function PUT(req) {
       data: result.rows[0],
     });
   } catch (error) {
-    console.error(" Error updating comment:", error);
+    console.error("Error updating comment:", error);
     return NextResponse.json(
       { success: false, error: "Error updating comment", details: error.message },
       { status: 500 }
@@ -167,7 +183,7 @@ export async function DELETE(req) {
       deletedComment: result.rows[0],
     });
   } catch (error) {
-    console.error(" Error deleting comment:", error);
+    console.error("Error deleting comment:", error);
     return NextResponse.json(
       { success: false, error: "Error deleting comment", details: error.message },
       { status: 500 }

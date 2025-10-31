@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import CommentModel from "../components/commentModal";
+import LikeButton from "../components/LikeButton";
 
 // === ICON COMPONENT ===
 const XIcon = ({ name, count, color, filled = false }) => (
@@ -15,9 +16,8 @@ const XIcon = ({ name, count, color, filled = false }) => (
     </div>
     {count !== undefined && (
       <span
-        className={`text-xs ${
-          filled ? `text-${color} font-semibold` : `group-hover:text-${color}`
-        } transition-colors`}
+        className={`text-xs ${filled ? `text-${color} font-semibold` : `group-hover:text-${color}`
+          } transition-colors`}
       >
         {count}
       </span>
@@ -63,21 +63,25 @@ const Post = ({ post, handleBlog }) => (
           </p>
 
           {/* === Render post images (array) === */}
-         {Array.isArray(post.post_img) && post.post_img.length > 0 && (
-  <img
-    alt="Post preview"
-    className="w-full h-auto rounded-xl object-cover border border-gray-200 dark:border-[#2F3336] max-h-[400px]"
-    src={post.post_img[0]} // only first image
-  />
-)}
+          {Array.isArray(post.post_img) && post.post_img.length > 0 && (
+            <img
+              alt="Post preview"
+              className="w-full h-auto rounded-xl object-cover border border-gray-200 dark:border-[#2F3336] max-h-[400px]"
+              src={post.post_img[0]} // only first image
+            />
+          )}
 
         </div>
 
         <div className="mt-2 flex justify-between items-center text-gray-500 dark:text-gray-400 max-w-md">
-          <CommentModel />
+          {/* Comments */}
+          <CommentModel post_id={post.post_id} />
+
 
           <XIcon name="repeat" count={10} color="green-500" />
-          <XIcon name="favorite" count={120} color="red-500" filled={true} />
+          {/* likes post */}
+          <LikeButton post_id={post.post_id} user_id={post.user_id || "current_user_id_here"} />
+
           <XIcon name="share" color="primary" />
         </div>
       </div>
