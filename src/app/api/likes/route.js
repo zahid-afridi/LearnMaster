@@ -64,15 +64,15 @@ export async function GET(req) {
       );
     }
 
-    //  Get likes + user info (JOIN)
+    //  Correct column names
     const likesData = await pool.query(
       `
       SELECT 
         likes.like_id,
         likes.user_id,
         likes.post_id,
-        users.user_name,
-        users.profile_images
+        users.username,         
+        users.profile_images   
       FROM likes
       JOIN users ON likes.user_id = users.user_id
       WHERE likes.post_id = $1
@@ -81,7 +81,6 @@ export async function GET(req) {
       [post_id]
     );
 
-    //  Get total like count (can also be likesData.rowCount)
     const countResult = await pool.query(
       `SELECT COUNT(*) AS total_likes FROM likes WHERE post_id = $1`,
       [post_id]
@@ -94,7 +93,7 @@ export async function GET(req) {
         success: true,
         message: "Likes fetched successfully",
         count: totalLikes,
-        data: likesData.rows, // includes user info
+        data: likesData.rows,
       },
       { status: 200 }
     );
@@ -106,3 +105,4 @@ export async function GET(req) {
     );
   }
 }
+

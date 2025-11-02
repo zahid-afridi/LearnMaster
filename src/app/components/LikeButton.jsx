@@ -13,6 +13,7 @@ export default function LikeButton({ post_id, user_id }) {
       try {
         const res = await fetch(`/api/likes?post_id=${post_id}`);
         const data = await res.json();
+        console.log("data:",data)
 
         if (data.success) {
           setLikeCount(data.count);
