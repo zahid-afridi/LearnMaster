@@ -5,6 +5,8 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import CommentModel from "../components/commentModal";
 import LikeButton from "../components/LikeButton";
+import SkeletonLoader from "../components/SkeletonLoader";
+
 
 // === ICON COMPONENT ===
 const XIcon = ({ name, count, color, filled = false }) => (
@@ -155,10 +157,9 @@ export default function Page() {
           {/* POSTS */}
           <div className="divide-y divide-gray-200 dark:divide-[#2F3336]">
             {loading ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                Loading posts...
-              </div>
-            ) : posts.length > 0 ? (
+  <SkeletonLoader />
+) : posts.length > 0 ? (
+
               posts.map((post) => (
                 <Post key={post.post_id} post={post} handleBlog={handleBlog} />
               ))

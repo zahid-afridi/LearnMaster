@@ -3,6 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { FaHeart, FaLightbulb, FaShareAlt } from "react-icons/fa";
+import Loader from "../../../components/Loader";
+
+
 
 const TopReactionsBar = ({ likes, commentsCount }) => (
   <div className="sticky top-0 z-40 bg-white/70 dark:bg-gray-900/80 backdrop-blur-md flex items-center justify-between px-4 py-3 border-y border-slate-200 dark:border-gray-700">
@@ -64,11 +67,14 @@ export default function SinglePostPage() {
   }, [id]);
 
   if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400">
-        Loading post....
-      </div>
-    );
+    // return (
+    //   <div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400">
+    //     Loading post....
+    //   </div>
+    // );
+  // come from loading file
+    if (loading) return <Loader />;
+
 
   if (!post)
     return (
