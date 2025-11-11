@@ -9,7 +9,7 @@ import pool from "../../../../config/db";
 
 // GET Single Post 
 export async function GET(res, { params }) {
-    const { id } = params;
+    const { id } =await params;
     try {
 
         const result = await pool.query(
