@@ -149,43 +149,264 @@
 
 
 
+// 'use client';
+
+// import React, { useState, useRef } from 'react';
+// import { useSelector } from "react-redux";
+
+// export default function CreatePostPage() {
+//   const [title, setTitle] = useState('');
+//   const [subtitle, setSubtitle] = useState('');
+//   const [tags, setTags] = useState('');
+//   const [coverImage, setCoverImage] = useState(null);
+//   const editorRef = useRef(null);
+
+//   // ⭐ Get user_id from Redux
+//   const user_id = useSelector((state) => state.user.user_id);
+
+//   const handleCommand = (command) => {
+//     document.execCommand(command, false, null);
+//     editorRef.current.focus();
+//   };
+
+//   const convertToBase64 = (file) => {
+//     return new Promise((resolve, reject) => {
+//       const reader = new FileReader();
+//       reader.readAsDataURL(file);
+//       reader.onload = () => resolve(reader.result);
+//       reader.onerror = (err) => reject(err);
+//     });
+//   };
+
+//   const handlePublish = async () => {
+//     if (!user_id) {
+//       alert("User is not logged in!");
+//       return;
+//     }
+
+//     const content = editorRef.current.innerHTML;
+//     const tagArray = tags.split(",").map(tag => tag.trim());
+
+//     let base64Image = null;
+//     if (coverImage) {
+//       base64Image = await convertToBase64(coverImage);
+//     }
+
+//     const payload = {
+//       user_id,
+//       title,
+//       subtitle,
+//       content,
+//       post_img: base64Image ? [base64Image] : [],
+//       tags: tagArray,
+//     };
+
+//     try {
+//       const res = await fetch("/api/post", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(payload),
+//       });
+
+//       const data = await res.json();
+
+//       if (data.success) {
+//         alert("Post created successfully!");
+//       } else {
+//         alert("Error: " + JSON.stringify(data.errors || data.message));
+//       }
+//     } catch (error) {
+//       console.error("Publish Error:", error);
+//       alert("Something went wrong!");
+//     }
+//   };
+
+//   return (
+//     <div className="font-display bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 min-h-screen">
+      
+//       {/* Header */}
+//       <header className="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800">
+//         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+//           <div className="flex items-center justify-between h-16">
+//             <h1 className="text-xl font-bold">Create New Post</h1>
+
+//             <div className="flex items-center gap-4">
+//               <button className="px-4 py-2 text-sm font-semibold rounded-lg bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+//                 Save Draft
+//               </button>
+
+//               <button
+//                 onClick={handlePublish}
+//                 className="px-4 py-2 text-sm font-bold rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors flex items-center gap-2"
+//               >
+//                 Publish
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       </header>
+
+//       {/* Main */}
+//       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+//         <div className="grid grid-cols-12 gap-8">
+
+//           {/* LEFT SIDE */}
+//           <div className="col-span-12 lg:col-span-8">
+//             <div className="bg-card-light dark:bg-card-dark p-6 sm:p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
+
+//               {/* TITLE */}
+//               <div className="relative">
+//                 <input
+//                   type="text"
+//                   value={title}
+//                   onChange={(e) => setTitle(e.target.value)}
+//                   maxLength="100"
+//                   placeholder="Post Title..."
+//                   className="form-input w-full bg-transparent border-0 border-b border-slate-200 dark:border-slate-700 focus:ring-0 focus:border-primary p-0 pb-2 text-2xl md:text-3xl font-bold"
+//                 />
+//                 <span className="absolute bottom-[-20px] right-0 text-xs text-slate-500">
+//                   {title.length}/100
+//                 </span>
+//               </div>
+
+//               {/* SUBTITLE */}
+//               <input
+//                 type="text"
+//                 value={subtitle}
+//                 onChange={(e) => setSubtitle(e.target.value)}
+//                 placeholder="Subtitle..."
+//                 className="w-full bg-transparent border-b border-slate-300 dark:border-slate-700 pb-2"
+//               />
+
+//               {/* TAGS */}
+//               <input
+//                 type="text"
+//                 value={tags}
+//                 onChange={(e) => setTags(e.target.value)}
+//                 placeholder="tags: react, nextjs, javascript"
+//                 className="w-full bg-transparent border-b border-slate-300 dark:border-slate-700 pb-2"
+//               />
+
+//               {/* COVER IMAGE */}
+//               <div className="mt-8">
+//                 <label className="block text-sm font-medium mb-2">
+//                   Cover Image
+//                 </label>
+//                 <label
+//                   htmlFor="file-upload"
+//                   className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 dark:border-slate-700 border-dashed rounded-lg cursor-pointer"
+//                 >
+//                   <div className="space-y-1 text-center">
+//                     <p className="text-sm text-slate-500">Upload Image</p>
+
+//                     <input
+//                       id="file-upload"
+//                       type="file"
+//                       className="sr-only"
+//                       onChange={(e) => setCoverImage(e.target.files[0])}
+//                     />
+//                   </div>
+//                 </label>
+//               </div>
+
+//               {/* RICH EDITOR */}
+//               <div className="border border-slate-200 dark:border-slate-700 rounded-lg mt-8 overflow-hidden">
+
+//                 {/* Toolbar */}
+//                 <div className="flex items-center p-2 border-b border-slate-200 dark:border-slate-700 gap-2">
+//                   <button onClick={() => handleCommand('bold')} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded">
+//                     <b>B</b>
+//                   </button>
+//                   <button onClick={() => handleCommand('italic')} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded">
+//                     <i>I</i>
+//                   </button>
+//                   <button onClick={() => handleCommand('underline')} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded">
+//                     <u>U</u>
+//                   </button>
+//                 </div>
+
+//                 {/* Editable Area */}
+//                 <div
+//                   ref={editorRef}
+//                   contentEditable
+//                   suppressContentEditableWarning
+//                   className="p-4 h-96 overflow-y-auto outline-none"
+//                   placeholder="Start writing..."
+//                 />
+//               </div>
+
+//             </div>
+//           </div>
+
+//         </div>
+//       </main>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+// New 
+
+
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from "react";
 import { useSelector } from "react-redux";
+import CreatePostLoader from "../../components/CreatePostLoader";
+import { toast } from "sonner";
+
+// Loader Component
+// import CreatePostLoader from "@/components/CreatePostLoader";
+
 
 export default function CreatePostPage() {
-  const [title, setTitle] = useState('');
-  const [subtitle, setSubtitle] = useState('');
-  const [tags, setTags] = useState('');
+  // Form States
+  const [title, setTitle] = useState("");
+  const [subtitle, setSubtitle] = useState("");
+  const [tags, setTags] = useState("");
   const [coverImage, setCoverImage] = useState(null);
+
+  // Loader State
+  const [loading, setLoading] = useState(false);
+
+  // Rich Editor Reference
   const editorRef = useRef(null);
 
-  // ⭐ Get user_id from Redux
+  // User ID From Redux
   const user_id = useSelector((state) => state.user.user_id);
 
+  // Toolbar Commands
   const handleCommand = (command) => {
     document.execCommand(command, false, null);
     editorRef.current.focus();
   };
 
+  // Convert Image  Base64
   const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
+
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
       reader.onerror = (err) => reject(err);
     });
   };
 
+  //  Publish Post
   const handlePublish = async () => {
     if (!user_id) {
       alert("User is not logged in!");
       return;
     }
 
+    setLoading(true); // Show Loader
+
     const content = editorRef.current.innerHTML;
-    const tagArray = tags.split(",").map(tag => tag.trim());
+    const tagArray = tags.split(",").map((tag) => tag.trim());
 
     let base64Image = null;
     if (coverImage) {
@@ -211,7 +432,9 @@ export default function CreatePostPage() {
       const data = await res.json();
 
       if (data.success) {
-        alert("Post created successfully!");
+        // alert("Post created successfully!");
+        toast.success("Post created successfully!");
+        
       } else {
         alert("Error: " + JSON.stringify(data.errors || data.message));
       }
@@ -219,11 +442,16 @@ export default function CreatePostPage() {
       console.error("Publish Error:", error);
       alert("Something went wrong!");
     }
+
+    setLoading(false); // Hide Loader
   };
 
   return (
     <div className="font-display bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 min-h-screen">
-      
+
+      {/* Global Loader */}
+      {loading && <CreatePostLoader />}
+
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -246,15 +474,15 @@ export default function CreatePostPage() {
         </div>
       </header>
 
-      {/* Main */}
+      {/* Main Content */}
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-12 gap-8">
 
-          {/* LEFT SIDE */}
+          {/* Left Section */}
           <div className="col-span-12 lg:col-span-8">
             <div className="bg-card-light dark:bg-card-dark p-6 sm:p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
 
-              {/* TITLE */}
+              {/* Title */}
               <div className="relative">
                 <input
                   type="text"
@@ -269,7 +497,7 @@ export default function CreatePostPage() {
                 </span>
               </div>
 
-              {/* SUBTITLE */}
+              {/* Subtitle */}
               <input
                 type="text"
                 value={subtitle}
@@ -278,7 +506,7 @@ export default function CreatePostPage() {
                 className="w-full bg-transparent border-b border-slate-300 dark:border-slate-700 pb-2"
               />
 
-              {/* TAGS */}
+              {/* Tags */}
               <input
                 type="text"
                 value={tags}
@@ -287,7 +515,7 @@ export default function CreatePostPage() {
                 className="w-full bg-transparent border-b border-slate-300 dark:border-slate-700 pb-2"
               />
 
-              {/* COVER IMAGE */}
+              {/* Cover Image Upload */}
               <div className="mt-8">
                 <label className="block text-sm font-medium mb-2">
                   Cover Image
@@ -309,18 +537,18 @@ export default function CreatePostPage() {
                 </label>
               </div>
 
-              {/* RICH EDITOR */}
+              {/* Rich Text Editor */}
               <div className="border border-slate-200 dark:border-slate-700 rounded-lg mt-8 overflow-hidden">
 
                 {/* Toolbar */}
                 <div className="flex items-center p-2 border-b border-slate-200 dark:border-slate-700 gap-2">
-                  <button onClick={() => handleCommand('bold')} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded">
+                  <button onClick={() => handleCommand("bold")} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded">
                     <b>B</b>
                   </button>
-                  <button onClick={() => handleCommand('italic')} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded">
+                  <button onClick={() => handleCommand("italic")} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded">
                     <i>I</i>
                   </button>
-                  <button onClick={() => handleCommand('underline')} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded">
+                  <button onClick={() => handleCommand("underline")} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded">
                     <u>U</u>
                   </button>
                 </div>
@@ -331,7 +559,6 @@ export default function CreatePostPage() {
                   contentEditable
                   suppressContentEditableWarning
                   className="p-4 h-96 overflow-y-auto outline-none"
-                  placeholder="Start writing..."
                 />
               </div>
 

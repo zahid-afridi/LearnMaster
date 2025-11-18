@@ -2,10 +2,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  user_id: null, // add this line
+  user_id: null, // 
   name: "",
   email: "",
   password: "",
+  profile_images: "", 
   bio: "",
   status: "idle",
   error: null,
@@ -16,11 +17,13 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
-      const { user_id, name, email, password, bio } = action.payload;
+    const { user_id, name, email, password, bio, profile_images } = action.payload;
+
       state.user_id = user_id || null; //  store user_id
       state.name = name;
       state.email = email;
       state.password = password;
+       state.profile_images = profile_images || "";
       state.bio = bio;
       state.status = "succeeded";
       state.error = null;
@@ -31,6 +34,7 @@ const userSlice = createSlice({
       state.email = "";
       state.password = "";
       state.bio = "";
+      state.profile_images = ""; 
       state.status = "idle";
       state.error = null;
     },

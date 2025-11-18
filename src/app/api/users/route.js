@@ -10,18 +10,19 @@ export const POST = async (req) => {
   try {
     const { name, email, password, bio, profile_images } = await req.json();
 
-    // ✅ Validate fields
-    if (!name || !email || !password || !bio) {
+    //  Validate fields
+    if (!name || !email || !password ) {
+      // || !bio   remove from here 
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
-    // ✅ Check existing user
+    //  Check existing user
     const existing = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (existing.rows.length > 0) {
       return NextResponse.json({ message: "Email already exists. Please login." }, { status: 409 });
     }
 
-    // ✅ Hash password
+    //  Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // ✅ Upload profile image to Cloudinary (if provided)
