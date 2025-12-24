@@ -1,84 +1,146 @@
-// This The commets-Replies Api    <=-=-=-===-=-==|||
 import { NextResponse } from "next/server";
 import pool from "../../../../config/db.js";
+import redis from "../../../../config/redis.js";
 
-// Create a new reply to a comment
-export async function POST(req) {
-    try {
-        const { user_id, post_id, comment_id, comment_text } = await req.json();
+const CACHE_TTL = 60 * 5; // 5 minutes
 
-        if (!user_id || !comment_id || !comment_text) {
-            return NextResponse.json(
-                { error: "user_id, comment_id, and comment_text are required!" },
-                { status: 400 }
-            );
-        }
+/* ======================
+   Redis Key Helpers
+====================== */
+const REPLIES_KEY = (commentId) => `replies:comment:${commentId}`;
 
-        const result = await pool.query(
-            `INSERT INTO comment_replies (user_id, post_id, comment_id, comment_text)
-       VALUES ($1, $2, $3, $4)
-       RETURNING *`,
-            [user_id, post_id, comment_id, comment_text]
-        );
-
-        return NextResponse.json(
-            {
-                success: true,
-                message: "Reply added successfully!",
-                reply: result.rows[0],
-            },
-            { status: 201 }
-        );
-    } catch (error) {
-        console.error("Error adding reply:", error);
-        return NextResponse.json(
-            { success: false, error: "Failed to add reply", details: error.message },
-            { status: 500 }
-        );
-    }
+/* ======================
+   Redis Safe Helpers
+====================== */
+async function getCache(key) {
+  try {
+    return await redis.get(key);
+  } catch (err) {
+    console.warn("⚠ Redis GET failed:", err.message);
+    return null;
+  }
 }
 
-// Get all replies for a specific comment
-export async function GET(req) {
-    try {
-        const { searchParams } = new URL(req.url);
-        const comment_id = searchParams.get("comment_id");
+async function setCache(key, value, ttl = CACHE_TTL) {
+  try {
+    await redis.set(key, value, "EX", ttl);
+  } catch (err) {
+    console.warn("⚠ Redis SET failed:", err.message);
+  }
+}
 
-        if (!comment_id) {
-            return NextResponse.json(
-                { error: "comment_id is required!" },
-                { status: 400 }
-            );
-        }
+async function invalidateCache(commentId) {
+  if (!commentId) return;
+  try {
+    await redis.del(REPLIES_KEY(commentId));
+  } catch (err) {
+    console.warn("⚠ Redis DEL failed:", err.message);
+  }
+}
 
-        const result = await pool.query(
-            `SELECT 
-      r.reply_id,
-      r.comment_text,
-      r.created_at,
-      u.user_id,
-      u.username,
-      u.profole_images 
-   FROM comment_replies r
-   JOIN users u ON r.user_id = u.user_id
-   WHERE r.comment_id = $1
-   ORDER BY r.created_at ASC`,
-            [comment_id]
-        );
+/* ======================
+   POST — Add Reply
+====================== */
+export async function POST(req) {
+  try {
+    const { user_id, post_id = null, comment_id, comment_text } = await req.json();
 
-        return NextResponse.json(
-            {
-                success: true,
-                count: result.rowCount,
-                replies: result.rows,
-            },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error("Error fetching replies:", error);
-        return NextResponse.json(
-            { success: false, error: "Failed to fetch replies", details: error.message },
-            { status: 500 }
-        );
+    if (!user_id || !comment_id || !comment_text?.trim()) {
+      return NextResponse.json(
+        { success: false, message: "user_id, comment_id and comment_text are required" },
+        { status: 400 }
+      );
     }
+
+    const { rows } = await pool.query(
+      `INSERT INTO comment_replies (user_id, post_id, comment_id, comment_text)
+       VALUES ($1, $2, $3, $4)
+       RETURNING *`,
+      [user_id, post_id, comment_id, comment_text.trim()]
+    );
+
+    await invalidateCache(comment_id);
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Reply added successfully",
+        data: rows[0],
+      },
+      { status: 201 }
+    );
+  } catch (err) {
+    console.error("POST Reply Error:", err.message);
+    return NextResponse.json(
+      { success: false, message: "Failed to add reply" },
+      { status: 500 }
+    );
+  }
+}
+
+/* ======================
+   GET — Fetch Replies
+====================== */
+export async function GET(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const commentId = searchParams.get("comment_id");
+
+    if (!commentId) {
+      return NextResponse.json(
+        { success: false, message: "comment_id is required" },
+        { status: 400 }
+      );
+    }
+
+    /* -------- Redis First -------- */
+    const cachedReplies = await getCache(REPLIES_KEY(commentId));
+    if (cachedReplies) {
+      let data = [];
+
+      try {
+        data = JSON.parse(cachedReplies);
+      } catch {
+        await invalidateCache(commentId); // corrupted cache
+      }
+
+      return NextResponse.json({
+        success: true,
+        count: data.length,
+        replies: data,
+        cached: true,
+      });
+    }
+
+    /* -------- DB Fallback -------- */
+    const { rows } = await pool.query(
+      `SELECT 
+         r.reply_id,
+         r.comment_text,
+         r.created_at,
+         u.user_id,
+         u.username,
+         u.profile_images
+       FROM comment_replies r
+       JOIN users u ON u.user_id = r.user_id
+       WHERE r.comment_id = $1
+       ORDER BY r.created_at ASC`,
+      [commentId]
+    );
+
+    await setCache(REPLIES_KEY(commentId), JSON.stringify(rows));
+
+    return NextResponse.json({
+      success: true,
+      count: rows.length,
+      replies: rows,
+      cached: false,
+    });
+  } catch (err) {
+    console.error("GET Replies Error:", err.message);
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch replies" },
+      { status: 500 }
+    );
+  }
 }

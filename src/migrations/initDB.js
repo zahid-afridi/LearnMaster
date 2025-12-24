@@ -1,32 +1,46 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
-import pool from "../config/db.js"; //  must include .js extension
+import pool from "../config/db.js"; // include .js
 import { fileURLToPath } from "url";
 
-
-// Needed to get current directory in ESM
+// ========================
+// ESM __dirname Setup
+// ========================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ========================
+// Initialize Database
+// ========================
 const initDB = async () => {
-    // ✅ Ensure correct path relative to this file
-    const filePath = path.join(__dirname, "init.sql");
+  const filePath = path.join(__dirname, "init.sql");
 
-    try {
-        if (!fs.existsSync(filePath)) {
-            throw new Error(`SQL file not found at: ${filePath}`);
-        }
+  try {
+    // Check if SQL file exists
+    await fs.access(filePath);
+    console.log(` Reading SQL from: ${filePath}`);
 
-        console.log(`⏳ Reading SQL from: ${filePath}`);
-        const sql = fs.readFileSync(filePath, "utf8");
+    // Read SQL file asynchronously
+    const sql = await fs.readFile(filePath, "utf8");
 
-        await pool.query(sql);
-        console.log("✅ Database initialized successfully!");
-    } catch (err) {
-        console.error("❌ Error initializing DB:", err.message);
-    } finally {
-        await pool.end(); // close connection
+    if (!sql.trim()) {
+      throw new Error("SQL file is empty!");
     }
+
+    // Execute SQL queries
+    await pool.query(sql);
+    console.log(" Database initialized successfully!");
+  } catch (err) {
+    console.error(" Error initializing DB:", err.message);
+  } finally {
+    try {
+      await pool.end(); // safely close DB connection
+      console.log("Database connection closed.");
+    } catch (closeErr) {
+      console.error("Error closing DB connection:", closeErr.message);
+    }
+  }
 };
 
+// Execute init
 initDB();

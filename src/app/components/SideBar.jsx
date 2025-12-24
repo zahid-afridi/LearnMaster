@@ -6,11 +6,11 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearUser } from "@/redux/feature/userSlice";
 
-// ======================================
-//          DESKTOP PROFILE MENU
-// ======================================
-const ProfileMenuDesktop = () => {
-  const [showMenu, setShowMenu] = useState(false);
+// =======================================
+//            PROFILE MENU (Both Desktop + Mobile)
+// =======================================
+const ProfileMenu = ({ isMobile }) => {
+  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -28,17 +28,19 @@ const ProfileMenuDesktop = () => {
   return (
     <div className="relative pt-4 space-y-3 shrink-0">
       {/* Create Post */}
-      <button
-        onClick={() => router.push("/create-post")}
-        className="w-full bg-black text-white font-semibold py-3 rounded-full hover:bg-gray-800 transition"
-      >
-        Create Post
-      </button>
+      {!isMobile && (
+        <button
+          onClick={() => router.push("/create-post")}
+          className="w-full bg-black text-white font-semibold py-3 rounded-full hover:bg-gray-800 transition"
+        >
+          Create Post
+        </button>
+      )}
 
-      {/* Profile */}
+      {/* Profile Button */}
       <div
         className="flex items-center justify-between px-2 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition cursor-pointer"
-        onClick={() => setShowMenu(!showMenu)}
+        onClick={() => setOpen(!open)}
       >
         <div className="flex items-center gap-3">
           <div
@@ -46,24 +48,24 @@ const ProfileMenuDesktop = () => {
             style={{ backgroundImage: `url(${profileImage})` }}
           ></div>
 
-          {/* Login OR Username */}
           <p
             onClick={() => {
-              if (!user?.user_id) router.push("/login");
+              if (!user || !user.user_id) router.push("/login");
             }}
             className="font-semibold text-black dark:text-white truncate cursor-pointer hover:underline"
           >
-            {user?.user_id ? user.name : "Login"}
+            {user && user.user_id ? user.username : "Login"}
           </p>
+
         </div>
 
         <span className="material-symbols-outlined text-gray-500 dark:text-gray-400">
-          {showMenu ? "keyboard_arrow_down" : "more_horiz"}
+          {open ? "keyboard_arrow_down" : "more_horiz"}
         </span>
       </div>
 
-      {/* Logout Dropdown */}
-      {showMenu && user?.user_id && (
+      {/* Dropdown */}
+      {open && user?.user_id && (
         <div className="absolute left-0 right-0 bg-white dark:bg-gray-800 border rounded-xl shadow-lg p-2 z-50">
           <button
             onClick={handleLogout}
@@ -78,12 +80,14 @@ const ProfileMenuDesktop = () => {
   );
 };
 
-// ======================================
-//               SIDEBAR
-// ======================================
+// =======================================
+//                  SIDEBAR
+// =======================================
 export default function SideBar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
   const router = useRouter();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -94,46 +98,49 @@ export default function SideBar({ isOpen, setIsOpen }) {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const getLinkClasses = (path) =>
-    `flex items-center space-x-3 px-4 py-3 rounded-full transition text-base ${
-      pathname === path
-        ? "bg-gray-200 text-black font-semibold"
-        : "hover:bg-gray-100 text-gray-800 dark:text-gray-300"
+  const getLink = (path) =>
+    `flex items-center space-x-3 px-4 py-3 rounded-full transition text-base ${pathname === path
+      ? "bg-gray-200 text-black font-semibold"
+      : "hover:bg-gray-100 text-gray-800 dark:text-gray-300"
     }`;
 
   const navLinks = (
     <nav className="flex flex-col space-y-1 py-4">
-      <Link href="/" className={getLinkClasses("/")} onClick={() => setIsOpen(false)}>
+      <Link href="/" className={getLink("/")} onClick={() => setIsOpen(false)}>
         <span className="material-symbols-outlined filled">home</span>
         <span>Home</span>
       </Link>
+
       <Link
         href="/explore"
-        className={getLinkClasses("/explore")}
+        className={getLink("/explore")}
         onClick={() => setIsOpen(false)}
       >
         <span className="material-symbols-outlined">explore</span>
         <span>Explore</span>
       </Link>
+
       <Link
         href="/profile"
-        className={getLinkClasses("/profile")}
+        className={getLink("/profile")}
         onClick={() => setIsOpen(false)}
       >
         <span className="material-symbols-outlined">person</span>
         <span>Profile</span>
       </Link>
+
       <Link
         href="/setting"
-        className={getLinkClasses("/setting")}
+        className={getLink("/setting")}
         onClick={() => setIsOpen(false)}
       >
         <span className="material-symbols-outlined">settings</span>
         <span>Settings</span>
       </Link>
+
       <Link
         href="/bookmarks"
-        className={getLinkClasses("/bookmarks")}
+        className={getLink("/bookmarks")}
         onClick={() => setIsOpen(false)}
       >
         <span className="material-symbols-outlined">bookmarks</span>
@@ -144,8 +151,8 @@ export default function SideBar({ isOpen, setIsOpen }) {
 
   const logo = (
     <Link href="/" className="flex items-center space-x-2 px-3 py-4 shrink-0">
-      <svg className="h-8 w-8 text-black" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 0L24 24H0L12 0Z" />
+      <svg className="h-8 w-8 text-black dark:text-white" viewBox="0 0 24 24">
+        <path d="M12 0L24 24H0L12 0Z" fill="currentColor" />
       </svg>
       <h1 className="text-2xl font-bold text-black dark:text-white">LOGO</h1>
     </Link>
@@ -158,7 +165,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
         <aside className="w-64 shrink-0 hidden lg:flex flex-col sticky top-0 h-screen px-4 border-r border-gray-200 bg-white dark:bg-gray-950">
           {logo}
           <div className="flex-1 overflow-y-auto">{navLinks}</div>
-          <ProfileMenuDesktop />
+          <ProfileMenu isMobile={false} />
         </aside>
       )}
 
@@ -181,19 +188,11 @@ export default function SideBar({ isOpen, setIsOpen }) {
               </button>
             </div>
 
+            {/* Links */}
             <div className="flex-1 overflow-y-auto">{navLinks}</div>
 
-            {/* Mobile Logout */}
-            <button
-              onClick={() => {
-                alert("Mobile logging out...");
-                setIsOpen(false);
-              }}
-              className="w-full flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50"
-            >
-              <span className="material-symbols-outlined">logout</span>
-              <span>Logout</span>
-            </button>
+            {/* Mobile Profile + Logout */}
+            <ProfileMenu isMobile={true} />
           </div>
         </div>
       )}
@@ -203,9 +202,8 @@ export default function SideBar({ isOpen, setIsOpen }) {
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-950 border-t px-2 py-3 flex justify-around z-40">
           <Link
             href="/"
-            className={`flex flex-col items-center ${
-              pathname === "/" ? "text-black" : "text-gray-600"
-            }`}
+            className={`flex flex-col items-center ${pathname === "/" ? "text-black dark:text-white" : "text-gray-600"
+              }`}
           >
             <span className="material-symbols-outlined text-[26px]">home</span>
             <span className="text-[10px] font-medium">Home</span>
@@ -213,15 +211,18 @@ export default function SideBar({ isOpen, setIsOpen }) {
 
           <Link
             href="/explore"
-            className={`flex flex-col items-center ${
-              pathname === "/explore" ? "text-black" : "text-gray-600"
-            }`}
+            className={`flex flex-col items-center ${pathname === "/explore"
+                ? "text-black dark:text-white"
+                : "text-gray-600"
+              }`}
           >
-            <span className="material-symbols-outlined text-[26px]">explore</span>
+            <span className="material-symbols-outlined text-[26px]">
+              explore
+            </span>
             <span className="text-[10px] font-medium">Explore</span>
           </Link>
 
-          {/* Create post */}
+          {/* Create Post Button */}
           <button
             onClick={() => router.push("/create-post")}
             className="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center shadow-lg"
@@ -231,17 +232,23 @@ export default function SideBar({ isOpen, setIsOpen }) {
 
           <Link
             href="/bookmarks"
-            className={`flex flex-col items-center ${
-              pathname === "/bookmarks" ? "text-black" : "text-gray-600"
-            }`}
+            className={`flex flex-col items-center ${pathname === "/bookmarks"
+                ? "text-black dark:text-white"
+                : "text-gray-600"
+              }`}
           >
-            <span className="material-symbols-outlined text-[26px]">bookmarks</span>
+            <span className="material-symbols-outlined text-[26px]">
+              bookmarks
+            </span>
             <span className="text-[10px] font-medium">Alerts</span>
           </Link>
 
           <Link
             href="/profile"
-            className="flex flex-col items-center text-gray-600"
+            className={`flex flex-col items-center ${pathname === "/profile"
+                ? "text-black dark:text-white"
+                : "text-gray-600"
+              }`}
           >
             <span className="material-symbols-outlined text-[26px]">person</span>
             <span className="text-[10px] font-medium">Profile</span>

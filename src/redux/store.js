@@ -1,14 +1,3 @@
-// "use client";
-// import { configureStore } from "@reduxjs/toolkit";
-// import userReducer from "./feature/userSlice";
-
-// export const store = configureStore({
-//   reducer: {
-//     user: userReducer,
-//   },
-// });
-
-
 "use client";
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";

@@ -1,191 +1,259 @@
 import { NextResponse } from "next/server";
-import pool from "../../../config/db";
+import pool from "../../../config/db.js";
+import redis from "../../../config/redis.js";
 
-/* =====================
-   POST — Add a Comment
-===================== */
+const CACHE_TTL = 60 * 5; // 5 minutes
+
+/* ======================
+   Redis Key Helpers
+====================== */
+const COMMENTS_KEY = (postId) => `comments:post:${postId}`;
+const COUNT_KEY = (postId) => `comments:count:${postId}`;
+
+/* ======================
+   Redis Helpers (Safe)
+====================== */
+async function getCache(key) {
+  try {
+    return await redis.get(key);
+  } catch (err) {
+    console.warn("⚠ Redis GET failed:", err.message);
+    return null;
+  }
+}
+
+async function setCache(key, value, ttl = CACHE_TTL) {
+  try {
+    await redis.set(key, value, "EX", ttl);
+  } catch (err) {
+    console.warn("⚠ Redis SET failed:", err.message);
+  }
+}
+
+async function invalidateCache(postId) {
+  if (!postId) return;
+  try {
+    await Promise.all([
+      redis.del(COMMENTS_KEY(postId)),
+      redis.del(COUNT_KEY(postId)),
+    ]);
+  } catch (err) {
+    console.warn("⚠ Redis DEL failed:", err.message);
+  }
+}
+
+/* ======================
+   POST — Add Comment
+====================== */
 export async function POST(req) {
   try {
     const { user_id, post_id, comment_text } = await req.json();
 
-    if (!user_id || !post_id || !comment_text) {
+    if (!user_id || !post_id || !comment_text?.trim()) {
       return NextResponse.json(
-        { success: false, error: "user_id, post_id, and comment_text are required!" },
+        { success: false, message: "All fields are required" },
         { status: 400 }
       );
     }
 
-    const result = await pool.query(
+    const { rows } = await pool.query(
       `INSERT INTO comments (user_id, post_id, comment_text)
        VALUES ($1, $2, $3)
        RETURNING *`,
-      [user_id, post_id, comment_text]
+      [user_id, post_id, comment_text.trim()]
     );
+
+    await invalidateCache(post_id);
 
     return NextResponse.json({
       success: true,
-      message: "Comment added successfully!",
-      data: result.rows[0],
+      message: "Comment added successfully",
+      data: rows[0],
     });
-  } catch (error) {
-    console.error("Error adding comment:", error);
+  } catch (err) {
+    console.error("POST Comment Error:", err.message);
     return NextResponse.json(
-      { success: false, error: "Error adding comment", details: error.message },
+      { success: false, message: "Internal server error" },
       { status: 500 }
     );
   }
 }
 
-/* =====================
-   GET — Fetch Comments
-===================== */
+/* ======================
+   GET — Comments / Count
+====================== */
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const post_id = searchParams.get("post_id");
-    const countOnly = searchParams.get("count");
+    const postId = searchParams.get("post_id");
+    const countOnly = searchParams.get("count") === "true";
 
-    // ✅ If only comment count is requested
-    if (countOnly && post_id) {
-      const result = await pool.query(
-        `SELECT COUNT(*) AS comment_count FROM comments WHERE post_id = $1`,
-        [post_id]
-      );
-
-      return NextResponse.json({
-        success: true,
-        message: "Comment count fetched successfully!",
-        post_id,
-        count: parseInt(result.rows[0].comment_count, 10),
-      });
-    }
-
-    //  Fetch all comments for a specific post
-    if (post_id) {
-      const result = await pool.query(
-        `
-        SELECT 
-          c.comment_id,
-          c.comment_text,
-          c.created_at,
-          u.user_id,
-          u.username,
-          u.profile_images
-        FROM comments c
-        JOIN users u ON u.user_id = c.user_id
-        WHERE c.post_id = $1
-        ORDER BY c.created_at DESC
-        `,
-        [post_id]
-      );
-
-      return NextResponse.json({
-        success: true,
-        message: "Comments for this post fetched successfully!",
-        post_id,
-        total_comments: result.rowCount,
-        data: result.rows,
-      });
-    }
-
-    //  Otherwise, fetch all comments (optional)
-    const result = await pool.query(
-      `SELECT * FROM comments ORDER BY created_at DESC`
-    );
-
-    return NextResponse.json({
-      success: true,
-      message: "All comments fetched successfully!",
-      data: result.rows,
-    });
-  } catch (error) {
-    console.error("Error fetching comments:", error);
-    return NextResponse.json(
-      { success: false, error: "Error fetching comments", details: error.message },
-      { status: 500 }
-    );
-  }
-}
-
-/* =====================
-   PUT — Update a Comment
-===================== */
-export async function PUT(req) {
-  try {
-    const { comment_id, comment_text } = await req.json();
-
-    if (!comment_id || !comment_text) {
+    if (!postId) {
       return NextResponse.json(
-        { success: false, error: "comment_id and comment_text are required!" },
+        { success: false, message: "post_id is required" },
         { status: 400 }
       );
     }
 
-    const result = await pool.query(
+    /* -------- COUNT ONLY -------- */
+    if (countOnly) {
+      const cachedCount = await getCache(COUNT_KEY(postId));
+      if (cachedCount !== null) {
+        return NextResponse.json({
+          success: true,
+          post_id: postId,
+          count: Number(cachedCount),
+          cached: true,
+        });
+      }
+
+      const { rows } = await pool.query(
+        `SELECT COUNT(*) FROM comments WHERE post_id = $1`,
+        [postId]
+      );
+
+      const count = Number(rows[0].count);
+      await setCache(COUNT_KEY(postId), count);
+
+      return NextResponse.json({ success: true, post_id: postId, count });
+    }
+
+    /* -------- FULL COMMENTS -------- */
+    const cachedComments = await getCache(COMMENTS_KEY(postId));
+    if (cachedComments) {
+      let data = [];
+
+      try {
+        data = JSON.parse(cachedComments);
+      } catch {
+        await invalidateCache(postId); // remove corrupted cache
+      }
+
+      return NextResponse.json({
+        success: true,
+        post_id: postId,
+        total_comments: data.length,
+        data,
+        cached: true,
+      });
+    }
+
+    const { rows } = await pool.query(
+      `SELECT
+         c.comment_id,
+         c.comment_text,
+         c.created_at,
+         u.user_id,
+         u.username,
+         u.profile_images
+       FROM comments c
+       JOIN users u ON u.user_id = c.user_id
+       WHERE c.post_id = $1
+       ORDER BY c.created_at DESC`,
+      [postId]
+    );
+
+    await setCache(COMMENTS_KEY(postId), JSON.stringify(rows));
+
+    return NextResponse.json({
+      success: true,
+      post_id: postId,
+      total_comments: rows.length,
+      data: rows,
+    });
+  } catch (err) {
+    console.error("GET Comments Error:", err.message);
+    return NextResponse.json(
+      { success: false, message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+/* ======================
+   PUT — Update Comment
+====================== */
+export async function PUT(req) {
+  try {
+    const { comment_id, comment_text, post_id } = await req.json();
+
+    if (!comment_id || !comment_text?.trim()) {
+      return NextResponse.json(
+        { success: false, message: "comment_id and text required" },
+        { status: 400 }
+      );
+    }
+
+    const { rows, rowCount } = await pool.query(
       `UPDATE comments
        SET comment_text = $1, updated_at = NOW()
        WHERE comment_id = $2
        RETURNING *`,
-      [comment_text, comment_id]
+      [comment_text.trim(), comment_id]
     );
 
-    if (result.rowCount === 0) {
+    if (!rowCount) {
       return NextResponse.json(
-        { success: false, error: "Comment not found!" },
+        { success: false, message: "Comment not found" },
         { status: 404 }
       );
     }
 
+    await invalidateCache(post_id);
+
     return NextResponse.json({
       success: true,
-      message: "Comment updated successfully!",
-      data: result.rows[0],
+      message: "Comment updated",
+      data: rows[0],
     });
-  } catch (error) {
-    console.error("Error updating comment:", error);
+  } catch (err) {
+    console.error("PUT Comment Error:", err.message);
     return NextResponse.json(
-      { success: false, error: "Error updating comment", details: error.message },
+      { success: false, message: "Internal server error" },
       { status: 500 }
     );
   }
 }
 
-/* =====================
-   DELETE — Remove a Comment
-===================== */
+/* ======================
+   DELETE — Remove Comment
+====================== */
 export async function DELETE(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const comment_id = searchParams.get("comment_id");
+    const commentId = searchParams.get("comment_id");
+    const postId = searchParams.get("post_id");
 
-    if (!comment_id) {
+    if (!commentId) {
       return NextResponse.json(
-        { success: false, error: "comment_id is required!" },
+        { success: false, message: "comment_id required" },
         { status: 400 }
       );
     }
 
-    const result = await pool.query(
+    const { rows, rowCount } = await pool.query(
       `DELETE FROM comments WHERE comment_id = $1 RETURNING *`,
-      [comment_id]
+      [commentId]
     );
 
-    if (result.rowCount === 0) {
+    if (!rowCount) {
       return NextResponse.json(
-        { success: false, error: "Comment not found!" },
+        { success: false, message: "Comment not found" },
         { status: 404 }
       );
     }
 
+    await invalidateCache(postId);
+
     return NextResponse.json({
       success: true,
-      message: "Comment deleted successfully!",
-      deletedComment: result.rows[0],
+      message: "Comment deleted",
+      data: rows[0],
     });
-  } catch (error) {
-    console.error("Error deleting comment:", error);
+  } catch (err) {
+    console.error("DELETE Comment Error:", err.message);
     return NextResponse.json(
-      { success: false, error: "Error deleting comment", details: error.message },
+      { success: false, message: "Internal server error" },
       { status: 500 }
     );
   }
@@ -193,44 +261,4 @@ export async function DELETE(req) {
 
 
 
-// count comment for post 
-// export const GetcountComment = async (req, res) => {
-//   try {
-//     const Commentcount = await pool.query(`SELECT COUNT(*) AS total_comment FROM post_comments`);
 
-//     return res.status(200).json({
-//       message: "Total comment count fetched successfully!",
-//       success: true,
-//       total_comment: parseInt(Commentcount.rows[0].total_comment), 
-//     });
-//   } catch (error) {
-//     console.error("GetAllcommentCount error:", error);
-//     return res.status(500).json({
-//       message: "Internal Server Error",
-//       success: false,
-//     });
-//   }
-// };
-
-// get all comments
-// export const GetAllcoments = async (req, res) => {
-//     try {
-//         const Getallcom = await pool.query(`SELECT * FROM post_comments`);
-
-//         if (Getallcom.rowCount === 0) {
-//             return res.status(404).json({
-//                 message: "comments not found!",
-//                 success: false
-//             })
-//         };
-
-//         return res.status(200).json({
-//             message: "comments found!",
-//             success: true,
-//             comment: Getallcom.rows,
-//         })
-//     } catch (error) {
-//         console.error("Get comments errer:", error);
-//         res.status(500).json({ message: "Internal Server Error", success: false });
-//     }
-// };

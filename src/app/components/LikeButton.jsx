@@ -1,63 +1,55 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
-export default function LikeButton({ post_id, user_id }) {
+export default function LikeButton({ post_id, initialCount }) {
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-  console.log("likesCount!",likeCount)
+  const [likeCount, setLikeCount] = useState(initialCount || 0);
   const [loading, setLoading] = useState(false);
 
-  // Fetch current like count & status
+  const user = useSelector((state) => state.user);
+
+  // Load initial like status
   useEffect(() => {
-    const fetchLikes = async () => {
+    if (!user.user_id) return;
+
+    const fetchLikeStatus = async () => {
       try {
-        const res = await fetch(`/api/likes?post_id=${post_id}`);
+        const res = await fetch(`/api/likes?post_id=${post_id}&me=true`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
         const data = await res.json();
-        console.log("data:",data)
-
-        if (data.success) {
-          setLikeCount(data.count);
-
-          // Check if the current user already liked
-          const userLiked = data.data.some((like) => like.user_id === user_id);
-          setLiked(userLiked);
-        }
+        if (data.success && typeof data.liked === "boolean") setLiked(data.liked);
       } catch (err) {
-        console.error("Error fetching likes:", err);
+        console.error("Failed to fetch like status:", err);
       }
     };
+    fetchLikeStatus();
+  }, [post_id, user.user_id]);
 
-    if (post_id && user_id) fetchLikes();
-  }, [post_id, user_id]);
-
-  //  Toggle like (add/remove)
   const handleToggleLike = async () => {
-    if (loading) return;
+    if (loading || !user.user_id) return;
     setLoading(true);
 
-    // Optimistic update
+    const previousLiked = liked;
     setLiked(!liked);
     setLikeCount((prev) => prev + (liked ? -1 : 1));
 
     try {
       const res = await fetch("/api/likes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id, post_id }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ post_id }),
       });
-
       const data = await res.json();
-      if (!data.success) {
-        // Revert if failed
-        setLiked(liked);
-        setLikeCount((prev) => prev + (liked ? 1 : -1));
-        console.error("Failed to toggle like:", data.message);
-      }
+      if (!data.success) throw new Error(data.message || "Failed to like/unlike post");
     } catch (err) {
-      console.error("Error toggling like:", err);
-      // Revert if error
-      setLiked(liked);
-      setLikeCount((prev) => prev + (liked ? 1 : -1));
+      setLiked(previousLiked);
+      setLikeCount((prev) => prev + (previousLiked ? 1 : -1));
+      console.error("Like toggle error:", err);
     } finally {
       setLoading(false);
     }
@@ -67,24 +59,12 @@ export default function LikeButton({ post_id, user_id }) {
     <button
       onClick={handleToggleLike}
       disabled={loading}
-      className="flex items-center space-x-1 group text-gray-500 hover:text-red-500 transition-colors"
+      className="flex items-center space-x-1 text-gray-500 hover:text-red-500 transition-colors"
     >
-      <div className="p-2 rounded-full group-hover:bg-red-500/10">
-        <span
-          className={`material-symbols-outlined text-base ${
-            liked ? "text-red-500" : ""
-          }`}
-        >
-          {liked ? "favorite" : "favorite_border"}
-        </span>
-      </div>
-      <span
-        className={`text-xs ${
-          liked ? "text-red-500 font-semibold" : "group-hover:text-red-500"
-        } transition-colors`}
-      >
-        {likeCount}
+      <span className={`material-symbols-outlined ${liked ? "text-red-500" : ""}`}>
+        {liked ? "favorite" : "favorite_border"}
       </span>
+      <span className="text-xs">{likeCount}</span>
     </button>
   );
 }

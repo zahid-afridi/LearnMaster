@@ -1,108 +1,82 @@
 import { NextResponse } from "next/server";
 import pool from "../../../config/db.js";
+import redis from "../../../config/redis.js";
+import { verifyToken } from "../../../middleware/auth/verifytoken.js";
 
-// ========================= TOGGLE LIKE =========================
-export async function POST(req) {
-  try {
-    const { user_id, post_id } = await req.json();
+const CACHE_TTL = 120; // seconds
+const LIKES_KEY = (postId) => `likes:${postId}`;
 
-    if (!user_id || !post_id)
-      return NextResponse.json(
-        { success: false, error: "user_id and post_id required" },
-        { status: 400 }
-      );
+// ---------------- Redis Helpers ----------------
+const getCache = async (key) => {
+  try { return await redis.get(key); } 
+  catch (err) { console.warn("⚠ Redis GET failed:", err.message); return null; }
+};
+const setCache = async (key, value, ttl = CACHE_TTL) => {
+  try { await redis.set(key, JSON.stringify(value), "EX", ttl); } 
+  catch (err) { console.warn("⚠ Redis SET failed:", err.message); }
+};
+const invalidateCache = async (postId) => {
+  if (!postId) return;
+  try { await redis.del(LIKES_KEY(postId)); } 
+  catch (err) { console.warn("⚠ Redis DEL failed:", err.message); }
+};
 
-    // Check if user already liked this post
-    const existing = await pool.query(
-      `SELECT * FROM likes WHERE user_id = $1 AND post_id = $2`,
-      [user_id, post_id]
-    );
-
-    if (existing.rowCount > 0) {
-      // Unlike → remove the record
-      const removed = await pool.query(
-        `DELETE FROM likes WHERE user_id = $1 AND post_id = $2 RETURNING *`,
-        [user_id, post_id]
-      );
-
-      return NextResponse.json({
-        success: true,
-        message: "Like removed",
-        liked: false,
-        data: removed.rows[0],
-      });
-    } else {
-      // Like → insert new record
-      const added = await pool.query(
-        `INSERT INTO likes (user_id, post_id) VALUES ($1, $2) RETURNING *`,
-        [user_id, post_id]
-      );
-
-      return NextResponse.json({
-        success: true,
-        message: "Like added",
-        liked: true,
-        data: added.rows[0],
-      });
-    }
-  } catch (err) {
-    console.error("Toggle like error:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
-  }
-}
-
-// ========================= GET LIKES (JOIN + COUNT) =========================
+// ---------------- GET Likes ----------------
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const post_id = searchParams.get("post_id");
+    const postId = searchParams.get("post_id");
+    if (!postId) return NextResponse.json({ success: false, message: "post_id is required" }, { status: 400 });
 
-    if (!post_id) {
-      return NextResponse.json(
-        { success: false, error: "post_id is required!" },
-        { status: 400 }
-      );
+    const cached = await getCache(LIKES_KEY(postId));
+    if (cached) {
+      try { 
+        return NextResponse.json({ success: true, data: JSON.parse(cached), cached: true }); 
+      } catch { await invalidateCache(postId); }
     }
 
-    //  Correct column names
-    const likesData = await pool.query(
-      `
-      SELECT 
-        likes.like_id,
-        likes.user_id,
-        likes.post_id,
-        users.username,         
-        users.profile_images   
-      FROM likes
-      JOIN users ON likes.user_id = users.user_id
-      WHERE likes.post_id = $1
-      ORDER BY likes.like_id DESC
-      `,
-      [post_id]
+    const { rows } = await pool.query(
+      `SELECT COUNT(*)::int AS likes_count FROM likes WHERE post_id=$1`,
+      [postId]
     );
+    const result = rows[0];
+    await setCache(LIKES_KEY(postId), result);
 
-    const countResult = await pool.query(
-      `SELECT COUNT(*) AS total_likes FROM likes WHERE post_id = $1`,
-      [post_id]
-    );
-
-    const totalLikes = Number(countResult.rows[0].total_likes);
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Likes fetched successfully",
-        count: totalLikes,
-        data: likesData.rows,
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Error fetching likes:", error);
-    return NextResponse.json(
-      { success: false, error: "Error fetching likes for this post!" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: true, data: result, cached: false });
+  } catch (err) {
+    console.error("GET Likes Error:", err.message);
+    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
   }
 }
 
+// ---------------- POST — Toggle Like ----------------
+export async function POST(req) {
+  try {
+    // JWT Authentication
+    const { decoded, error } = await verifyToken(req);
+    if (error) return error;
+
+    const { post_id } = await req.json();
+    if (!post_id) return NextResponse.json({ success: false, message: "post_id is required" }, { status: 400 });
+
+    const { rows } = await pool.query(
+      `SELECT like_id FROM likes WHERE post_id=$1 AND user_id=$2`,
+      [post_id, decoded.user_id]
+    );
+
+    let message = "";
+    if (rows.length) {
+      await pool.query(`DELETE FROM likes WHERE like_id=$1`, [rows[0].like_id]);
+      message = "Like removed";
+    } else {
+      await pool.query(`INSERT INTO likes(post_id, user_id) VALUES($1, $2)`, [post_id, decoded.user_id]);
+      message = "Like added";
+    }
+
+    await invalidateCache(post_id);
+    return NextResponse.json({ success: true, message });
+  } catch (err) {
+    console.error("POST Likes Error:", err.message);
+    return NextResponse.json({ success: false, message: "Internal server error" }, { status: 500 });
+  }
+}
